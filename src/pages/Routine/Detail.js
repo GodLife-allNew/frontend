@@ -344,13 +344,6 @@ export default function RoutineDetailPage() {
         <Card className="overflow-hidden shadow-lg">
           {/* 헤더 부분 */}
           <div className="relative">
-            <div className="absolute top-4 left-4 z-10 ">
-              <BiChevronLeftCircle
-                className="cursor-pointer text-white transition-colors"
-                onClick={() => navigate(-1)}
-                size={30}
-              />
-            </div>
             <RoutineHeader
               routineData={routineData}
               getStatusBadgeStyle={getStatusBadgeStyle}
@@ -395,6 +388,18 @@ export default function RoutineDetailPage() {
                 isSubmittingReview={isSubmittingReview}
                 formatReviewDate={formatReviewDate}
               />
+            )}
+            {!isEditMode && (
+              <div className="flex gap-3 ">
+                <Button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  목록으로 돌아가기
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>
