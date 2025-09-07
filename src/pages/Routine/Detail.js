@@ -161,11 +161,6 @@ export default function RoutineDetailPage() {
       planIdx: planIdx, // URL 파라미터에서 가져온 planIdx 추가
     };
 
-    // jobIdx가 999가 아니고 jobEtcCateDTO가 설정된 경우 null로 변경 (루틴 생성과 동일한 로직)
-    if (requestData.jobIdx !== 999 && requestData.jobEtcCateDTO) {
-      requestData.jobEtcCateDTO = null;
-    }
-
     let token = localStorage.getItem("accessToken");
 
     try {
