@@ -79,7 +79,10 @@ const RoutineCard = ({ routine, onClick, isPublic = false, isActive }) => {
     // 공개 루틴 목록 데이터 구조
     const { planInfos: pInfo, jobDefault, jobEtc, targetInfos } = routine;
     planInfos = pInfo;
-    jobInfo = jobDefault || jobEtc;
+    jobInfo =
+      jobDefault?.name === "직접입력" && jobEtc
+        ? { ...jobEtc }
+        : jobDefault || jobEtc;
     targetInfo = targetInfos;
     activities = routine.activities || [];
     isActiveStatus =
