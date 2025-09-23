@@ -42,7 +42,7 @@ const LoginForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const errorShown = useRef(false);
-  const { login } = useAuth(); // useAuth 훅 사용
+  const { login, isAuthenticated } = useAuth(); // useAuth 훅 사용
 
   const form = useForm({
     resolver: zodResolver(loginFormSchema),
@@ -72,6 +72,12 @@ const LoginForm = () => {
       refreshToken,
     };
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/", { replace: true }); // 이미 로그인된 경우 메인페이지로  이동
+    }
+  }, [isAuthenticated, navigate]);
 
   // 에러가 발생하면 실행됨
   // useEffect 부분 수정
