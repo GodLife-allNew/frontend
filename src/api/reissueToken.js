@@ -43,9 +43,9 @@ export const reissueToken = async () => {
   } catch (error) {
     console.error("❌ 토큰 재발급 오류:", error);
     localStorage.removeItem("accessToken"); // 혹시 모를 이전 토큰 제거
-    localStorage.removeItem("userInfo"); // 혹시 모를 이전 토큰 제거
-    localStorage.removeItem("currentUser"); // 혹시 모를 이전 토큰 제거
-    window.location.href = "/user/login"; // 로그인 페이지 이동
+    localStorage.removeItem("userInfo");    // 혹시 모를 유저 정보 제거
+    localStorage.removeItem("currentUser"); // 혹시 모를 현재 유저 제거
+    window.location.href = "/user/login";   // 로그인 페이지 이동
     throw error;
   } finally {
     isRefreshing = false;
