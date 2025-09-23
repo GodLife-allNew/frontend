@@ -16,8 +16,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: "npm"
+          node-version: 22   # 로컬 Node 버전과 동일하게
+          cache: 'npm'
+
+      - name: Set npm version
+        run: npm install -g npm@11.4.1  # 로컬 npm 버전과 동일하게
 
       - name: Install dependencies
         run: npm ci
