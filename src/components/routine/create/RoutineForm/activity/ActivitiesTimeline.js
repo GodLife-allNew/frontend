@@ -1,3 +1,4 @@
+// 테스트
 import React, { useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
 import { Clock, AlertCircle, FileText, Star, CheckCircle2 } from "lucide-react";
@@ -41,7 +42,8 @@ function ActivitiesTimeline({
       let startMinutes = null;
       let formattedStart = null;
 
-      if (activity.setTime) { // null 체크
+      if (activity.setTime) {
+        // null 체크
         const [hours, minutes] = activity.setTime.split(":").map(Number);
         startMinutes = hours * 60 + minutes;
         formattedStart = formatTime(startMinutes);
