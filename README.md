@@ -1,20 +1,43 @@
 # 폴더 구조 설명
 ```
 frontend
-├─ public
-└─ src
-    ├─ App.js
-    ├─ components             # 모든 컴포넌트의 위치
-    │  ├─ auth                # 로그인, 회원가입 관련 폼(폼태그만)
-    │  ├─ layout              # 헤더, 푸터, nav등 레이아웃 전반
-    │  ├─ Navigation          # nav의 상세 컴포넌트트, 데스크탑 버전과 모바일 버전
-    │  └─ ui                  # shadcn ui 폴더
-    ├─ context
-    ├─ hooks
-    ├─ pages                  # 페이지 관련(로그인페이지, 회원가입 페이지, 홈 등)
-    │  ├─ Auth                # 인증관련 페이지(폼과 번반적인거를 합친 구성)
-    │  └─ Home                # 홈
-    └─ routes
+├─ public/
+└─ src/
+    ├─ app/
+    │   ├── router/                         # 라우팅 정의 디렉토리
+    │   │     ├── AppRouter.js              # 모든 페이지 라우팅 정의 담당
+    │   │     ├── routes.js                 # 페이지 라우트를 Map 으로 관리
+    │   │     └── featureRouters/           # 각 페이지의 라우트 경로 설정       
+    │   │          ├── adminRoutes.js
+    │   │          ├── noticeRoutes.js
+    │   │          ├── qnaRoutes.js
+    │   │          ├── routineRoutes.js
+    │   │          └── ...
+    │   ├── store/                          # 전역 상태 관리 (Redux/Zustand/Context 등)
+    │   ├── App.js                          # 앱 뼈대만 담당, 전역 Provider/Router/Toaster
+    │   └── index.js                        # React 앱의 시작점
+    │
+    ├─ features/                            # 도메인(기능)별 모듈
+    │   ├── auth/
+    │   │    ├── components/
+    │   │    ├── pages/
+    │   │    ├── hooks/
+    │   │    ├── services/
+    │   │    └── index.js
+    │   ├── challenge/
+    │   │    ├── components/
+    │   │    ├── pages/
+    │   │    ├── hooks/
+    │   │    ├── services/
+    │   │    └── index.js
+    │   ├── routine/
+    │   │    └── ... 위 구조와 동일
+    ├─ shared/                              # 공통 모듈
+    ├─ assets/                              # 이미지, 폰트, 스타일
+    └─ tests/                               # 테스트 코드
+        ├── setupTests.js
+        └── reportWebVitals.js
+
 
 ```
 # shadcn-ui 환경 세팅
