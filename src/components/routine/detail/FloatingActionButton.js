@@ -1,7 +1,7 @@
 // src/components/routine/detail/FloatingActionButton.jsx
 import React from "react";
 import { Play, CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 
 const FloatingActionButton = ({ routineData, handleRoutineAction }) => {
   if (routineData.isCompleted) return null;

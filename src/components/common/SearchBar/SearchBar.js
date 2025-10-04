@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import axiosInstance from "@/shared/api/axiosInstance";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 
 const SearchBar = ({ onSearch, onClear, initialSearchTerm = "" }) => {
   const [searchInputTerm, setSearchInputTerm] = useState(initialSearchTerm);

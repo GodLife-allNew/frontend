@@ -1,6 +1,6 @@
 // src/components/routine/RoutineForm/dialogs/CreateRoutineDialog.js
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/shared/components/ui/dialog";
 
 export default function CreateRoutineDialog({ open, onOpenChange, onConfirm }) {
   return (

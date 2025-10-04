@@ -10,7 +10,7 @@
 //   CardFooter,
 //   CardHeader,
 //   CardTitle,
-// } from "@/components/ui/card";
+// } from "@/shared/components/ui/card";
 // import {
 //   Table,
 //   TableBody,
@@ -18,7 +18,7 @@
 //   TableHead,
 //   TableHeader,
 //   TableRow,
-// } from "@/components/ui/table";
+// } from "@/shared/components/ui/table";
 // import {
 //   Pagination,
 //   PaginationContent,
@@ -27,9 +27,9 @@
 //   PaginationLink,
 //   PaginationNext,
 //   PaginationPrevious,
-// } from "@/components/ui/pagination";
-// import { Button } from "@/components/ui/button";
-// import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+// } from "@/shared/components/ui/pagination";
+// import { Button } from "@/shared/components/ui/button";
+// import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 // import {
 //   AlertCircle,
 //   PenSquare,
@@ -40,15 +40,15 @@
 //   ChevronUp,
 //   ChevronDown,
 // } from "lucide-react";
-// import { Badge } from "@/components/ui/badge";
-// import { Input } from "@/components/ui/input";
+// import { Badge } from "@/shared/components/ui/badge";
+// import { Input } from "@/shared/components/ui/input";
 // import {
 //   Select,
 //   SelectContent,
 //   SelectItem,
 //   SelectTrigger,
 //   SelectValue,
-// } from "@/components/ui/select";
+// } from "@/shared/components/ui/select";
 // import {
 //   DropdownMenu,
 //   DropdownMenuContent,
@@ -56,7 +56,7 @@
 //   DropdownMenuLabel,
 //   DropdownMenuSeparator,
 //   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
+// } from "@/shared/components/ui/dropdown-menu";
 
 // const QnAList = () => {
 //   // URL 검색 파라미터 관리
@@ -988,7 +988,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/shared/components/ui/card";
 import {
   Table,
   TableBody,
@@ -996,7 +996,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/shared/components/ui/table";
 import {
   Pagination,
   PaginationContent,
@@ -1005,9 +1005,9 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+} from "@/shared/components/ui/pagination";
+import { Button } from "@/shared/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import {
   AlertCircle,
   PenSquare,
@@ -1018,15 +1018,15 @@ import {
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { Badge } from "@/shared/components/ui/badge";
+import { Input } from "@/shared/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -1034,7 +1034,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/shared/components/ui/dropdown-menu";
 
 const QnAList = () => {
   // URL 검색 파라미터 관리

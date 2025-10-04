@@ -1,4 +1,4 @@
-// import { Card, CardContent } from "@/components/ui/card";
+// import { Card, CardContent } from "@/shared/components/ui/card";
 // import { BiChevronLeftCircle } from "react-icons/bi";
 // import ChallengeModifyForm from "@/components/challengeModify";
 // import { useNavigate } from "react-router-dom";
@@ -32,7 +32,7 @@
 // };
 
 // export default ChallengModifyPage;
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import { BiChevronLeftCircle } from "react-icons/bi";
 import ChallengeModifyForm from "@/components/challengeModify";
 import { useNavigate, useParams } from "react-router-dom";

@@ -1,20 +1,20 @@
 // import React, { useState, useRef, useEffect } from "react";
 // import { useNavigate, useParams } from "react-router-dom";
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { useToast } from "@/components/ui/use-toast";
+// import { Button } from "@/shared/components/ui/button";
+// import { Input } from "@/shared/components/ui/input";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+// import { useToast } from "@/shared/components/ui/use-toast";
 // import { Loader2, ArrowLeft, Calendar } from "lucide-react";
-// import { Switch } from "@/components/ui/switch";
+// import { Switch } from "@/shared/components/ui/switch";
 // import {
 //   Popover,
 //   PopoverContent,
 //   PopoverTrigger,
-// } from "@/components/ui/popover";
-// import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+// } from "@/shared/components/ui/popover";
+// import { Calendar as CalendarComponent } from "@/shared/components/ui/calendar";
 // import { format } from "date-fns/format";
 // import { ko } from "date-fns/locale";
-// import { cn } from "@/lib/utils";
+// import { cn } from "@/shared/lib/utils";
 // import axiosInstance from "@/api/axiosInstance";
 
 // // Toast UI Editor 불러오기
@@ -444,21 +444,21 @@
 // export default NoticeCreateEdit;
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { useToast } from "@/shared/components/ui/use-toast";
 import { Loader2, ArrowLeft, Calendar } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "@/shared/components/ui/switch";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+} from "@/shared/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/shared/components/ui/calendar";
 import { format } from "date-fns/format";
 import { ko } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import axiosInstance from "@/shared/api/axiosInstance";
 
 // React-Quill 임포트

@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
+import { Button } from "@/shared/components/ui/button";
+import { Form } from "@/shared/components/ui/form";
 import { GitFork } from "lucide-react"; // GitFork 아이콘 임포트 추가
 import { formSchema } from "./schema";
 import useFormSections from "./hooks/useFormSections";

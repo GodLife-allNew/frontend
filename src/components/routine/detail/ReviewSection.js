@@ -1,9 +1,9 @@
 import React, { memo, useState, useEffect } from "react";
 import { MessageSquare, Send } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Avatar } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { Button } from "@/shared/components/ui/button";
+import { Avatar } from "@/shared/components/ui/avatar";
 
 /**
  * 로컬 상태를 사용하는 최적화된 ReviewSection

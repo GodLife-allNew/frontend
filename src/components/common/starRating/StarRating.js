@@ -1,13 +1,13 @@
 import React from "react";
 import { Star } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/shared/components/ui/form";
 
 const StarRating = ({
   control, // React Hook Form의 control 객체

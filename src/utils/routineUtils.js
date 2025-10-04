@@ -1,5 +1,5 @@
 // src/utils/routineUtils.js
-import axiosInstance from "../shared/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 // 인증 데이터 가져오기
 export const fetchCertificationData = async (planIdx) => {

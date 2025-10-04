@@ -5,11 +5,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/shared/components/ui/form";
+import { Input } from "@/shared/components/ui/input";
 import { Calendar } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Label } from "@/shared/components/ui/label";
 
 const DateInput = ({
   control, // React Hook Form의 control 객체

@@ -1,7 +1,7 @@
 import React from "react";
 import ChallengeListForm from "@/components/challengeList";
 // shadcn/ui 컴포넌트
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import RoutineForm from "../../components/routine/create/RoutineForm";
 import ChallengeForm from "@/components/challenge";
 

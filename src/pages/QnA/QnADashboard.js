@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
-import axiosInstance from "../../shared/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 // 컴포넌트 임포트
 import StatsDashboard from "@/components/QnA/StatsDashboard";
@@ -10,10 +10,10 @@ import QnAAdminDetail from "@/components/QnA/QnAAdminDetail";
 import StatusBar from "@/components/QnA/StatusBar";
 
 // UI 컴포넌트 임포트
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Switch } from "@/shared/components/ui/switch";
 import { AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
 
 const QnaAdminDashboard = () => {

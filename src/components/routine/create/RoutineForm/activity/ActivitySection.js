@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useFieldArray, useFormState } from "react-hook-form";
 import { Plus, Clock, Trash2, AlarmClock, FileText, Star, Award, CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/shared/components/ui/form";
+import { Card } from "@/shared/components/ui/card";
+import { Badge } from "@/shared/components/ui/badge";
+import { Separator } from "@/shared/components/ui/separator";
 import StarRating from "@/components/common/starRating/StarRating";
 import ActivitiesTimeline from "./ActivitiesTimeline";
 

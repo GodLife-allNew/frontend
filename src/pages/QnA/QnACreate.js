@@ -10,17 +10,17 @@
 //   CardFooter,
 //   CardHeader,
 //   CardTitle,
-// } from "@/components/ui/card";
+// } from "@/shared/components/ui/card";
 // import {
 //   Select,
 //   SelectContent,
 //   SelectItem,
 //   SelectTrigger,
 //   SelectValue,
-// } from "@/components/ui/select";
-// import { Input } from "@/components/ui/input";
-// import { Button } from "@/components/ui/button";
-// import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+// } from "@/shared/components/ui/select";
+// import { Input } from "@/shared/components/ui/input";
+// import { Button } from "@/shared/components/ui/button";
+// import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 // import { AlertCircle, Send, RotateCcw } from "lucide-react";
 
 // // Toast UI Editor 임포트
@@ -344,17 +344,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/shared/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+} from "@/shared/components/ui/select";
+import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { AlertCircle, Send, RotateCcw } from "lucide-react";
 
 // React-Quill 임포트

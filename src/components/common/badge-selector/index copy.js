@@ -1,13 +1,13 @@
 import React, { useMemo, useState } from "react";
 import { useController } from "react-hook-form";
 import { ChevronDown, Code, Palette } from "lucide-react"; // 실제 사용할 아이콘들 import
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/shared/components/ui/dropdown-menu";
 import { iconMap } from "./icon-utils";
 
 export default function BadgeSelector({

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import axiosInstance from '../shared/api/axiosInstance';
+import axiosInstance from '@/shared/api/axiosInstance';
 
 export const useApi = (initialUrl = null, initialMethod = 'get', initialOptions = {}) => {
   const [data, setData] = useState(null);

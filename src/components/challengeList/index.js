@@ -5,17 +5,17 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from "@/shared/components/ui/card";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -23,7 +23,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
+} from "@/shared/components/ui/pagination";
 import {
   Clock,
   Users,
@@ -37,7 +37,7 @@ import {
 } from "lucide-react";
 import { MdOutlineMode, MdOutlineDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/shared/components/ui/use-toast";
 import axiosInstance from "@/shared/api/axiosInstance";
 
 // Props 추가: onChallengeSelect, onCreateNew

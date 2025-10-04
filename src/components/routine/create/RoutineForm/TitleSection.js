@@ -4,8 +4,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/shared/components/ui/form";
+import { Input } from "@/shared/components/ui/input";
 
 export default function TitleSection({ control, required, readOnly }) {
   return (

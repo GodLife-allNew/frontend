@@ -4,8 +4,8 @@ import {
   FormItem,
   FormControl,
   FormMessage,
-} from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
+} from "@/shared/components/ui/form";
+import { Switch } from "@/shared/components/ui/switch";
 
 const ShareSetSection = ({ control }) => {
   return (

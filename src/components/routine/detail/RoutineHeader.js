@@ -8,9 +8,9 @@ import { useNavigate } from "react-router-dom";
 const RoutineHeader = ({ routineData, getStatusBadgeStyle, getStatusText }) => {
   const navigate = useNavigate();
 
-  console.log("RoutineHeader - forkIdx:", routineData.forkIdx);
-  console.log("RoutineHeader - forkTitle:", routineData.forkTitle);
-  console.log("RoutineHeader - 전체 데이터:", routineData);
+  // console.log("RoutineHeader - forkIdx:", routineData.forkIdx);
+  // console.log("RoutineHeader - forkTitle:", routineData.forkTitle);
+  // console.log("RoutineHeader - 전체 데이터:", routineData);
   return (
     <div className="relative">
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 pb-16 text-white">

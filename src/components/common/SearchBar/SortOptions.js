@@ -6,7 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 
 const SortOptions = ({ currentSort, onSortChange }) => {
   // 정렬 표시 아이콘

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import axiosInstance from "../../../../shared/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 import { fetchCertificationData } from "../../../../utils/routineUtils";
 
 export default function useRoutineDetail(planIdx, navigate) {

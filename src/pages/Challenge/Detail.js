@@ -1,7 +1,6 @@
 import React from "react";
-import Navigation from "@/components/Navigation";
 // shadcn/ui 컴포넌트
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import ChallengeDetailForm from "@/components/challengeDetail";
 import { BiChevronLeftCircle } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -10,7 +10,7 @@ import {
   PaginationNext,
   PaginationPrevious,
   PaginationEllipsis,
-} from "@/components/ui/pagination";
+} from "@/shared/components/ui/pagination";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import DOMPurify from "dompurify";
 import axiosInstance from "@/shared/api/axiosInstance";

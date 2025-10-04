@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/shared/components/ui/input";
 import axiosInstance from "@/shared/api/axiosInstance";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { MdOutlineMode } from "react-icons/md";
 import { MdOutlineDelete } from "react-icons/md";
 import { IoSearchOutline } from "react-icons/io5";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/shared/components/ui/use-toast";
 
 export default function FAQPage() {
   const { toast } = useToast();

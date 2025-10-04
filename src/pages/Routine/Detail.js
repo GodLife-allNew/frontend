@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
 import { Lock, Edit, Trash2, AlertCircle } from "lucide-react";
 import { BiChevronLeftCircle } from "react-icons/bi";
 
 // API 및 유틸리티
-import axiosInstance from "../../shared/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 // 컴포넌트
 import RoutineForm from "../../components/routine/create/RoutineForm";
