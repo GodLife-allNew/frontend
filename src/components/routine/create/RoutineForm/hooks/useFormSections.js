@@ -1,18 +1,7 @@
 // src/components/routine/RoutineForm/hooks/useFormSections.js
 import { useState, useEffect, useCallback, useMemo } from "react"; // useMemo 추가
-<<<<<<< HEAD
-import axiosInstance from "../../../../../shared/api/axiosInstance";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-=======
-import axiosInstance from "../../../../../api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
->>>>>>> chaerim
 import TitleSection from "../TitleSection";
 import BadgeSelector from "@/components/common/badge-selector";
 import DateInput from "@/components/common/dateInput/DateInput";
