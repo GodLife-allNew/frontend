@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import RoutineList from "@/components/routine/list/RoutineList";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 import SearchWrapper from "@/components/common/SearchWrapper";
 
 const PublicRoutineList = () => {

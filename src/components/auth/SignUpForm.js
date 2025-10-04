@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 import {
   Form,
   FormField,

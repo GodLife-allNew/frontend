@@ -1,6 +1,6 @@
 // src/components/routine/RoutineForm/hooks/useFormSections.js
 import { useState, useEffect, useCallback, useMemo } from "react"; // useMemo 추가
-import axiosInstance from "../../../../../api/axiosInstance";
+import axiosInstance from "../../../../../shared/api/axiosInstance";
 import {
   Card,
   CardContent,

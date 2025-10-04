@@ -459,7 +459,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns/format";
 import { ko } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 // React-Quill 임포트
 import ReactQuill from "react-quill";

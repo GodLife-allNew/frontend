@@ -38,7 +38,7 @@ import {
 import { MdOutlineMode, MdOutlineDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 // Props 추가: onChallengeSelect, onCreateNew
 const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {

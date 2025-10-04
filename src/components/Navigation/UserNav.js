@@ -1,7 +1,7 @@
 import React from "react";
 import { User, LogOut, Settings, Bell } from "lucide-react";
-import axiosInstance from "../../api/axiosInstance"; // axiosInstance 추가
-import { useAuth } from "../../context/AuthContext";
+import axiosInstance from "../../shared/api/axiosInstance"; // axiosInstance 추가
+import { useAuth } from "../../shared/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 import {

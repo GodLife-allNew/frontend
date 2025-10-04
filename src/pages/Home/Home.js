@@ -797,7 +797,7 @@ import {
   LogIn,
   Tag,
 } from "lucide-react";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 function Home(props) {
   const navigate = useNavigate();
