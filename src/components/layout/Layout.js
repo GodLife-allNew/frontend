@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import MainContainer from './MainContainer';
-import axiosInstance from '../../api/axiosInstance';
+import axiosInstance from '../../shared/api/axiosInstance';
 
 // Layout.js
 function Layout({ children }) {

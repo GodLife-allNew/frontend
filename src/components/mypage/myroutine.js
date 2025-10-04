@@ -17,7 +17,7 @@ import {
   X, // X 아이콘 추가
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 const RoutineTabContent = () => {
   const [loading, setLoading] = useState(true);

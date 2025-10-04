@@ -9,9 +9,7 @@ import { GitFork } from "lucide-react"; // GitFork 아이콘 임포트 추가
 import { formSchema } from "./schema";
 import useFormSections from "./hooks/useFormSections";
 import CreateRoutineDialog from "./dialogs/CreateRoutineDialog";
-import axiosInstance from "../../../../api/axiosInstance";
-// utils 함수 import
-import { reissueToken } from "../../../../utils/routineUtils";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 export default function RoutineForm({
   isReadOnly = false,
@@ -219,18 +217,6 @@ export default function RoutineForm({
           });
           return response;
         } catch (error) {
-          // 토큰 만료 오류 (401) 처리
-          if (error.response && error.response.status === 401) {
-            console.log("토큰이 만료되었습니다. 재발급을 시도합니다.");
-            // 토큰 재발급 - utils의 함수 사용
-            const newToken = await reissueToken(navigate);
-            // 새 토큰으로 다시 요청
-            return await axiosInstance.post("/plan/auth/write", requestData, {
-              headers: {
-                Authorization: `Bearer ${newToken}`,
-              },
-            });
-          }
           // 다른 오류는 그대로 던지기
           throw error;
         }

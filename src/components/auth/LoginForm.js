@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import axiosInstance from "@/api/axiosInstance";
-import { useAuth } from "../../context/AuthContext";
+import axiosInstance from "@/shared/api/axiosInstance";
+import { useAuth } from "../../shared/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Lock, User } from "lucide-react";
 

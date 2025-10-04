@@ -504,7 +504,7 @@
 // export default CompSystem;
 import React, { useState, useEffect, useRef } from "react";
 import { Search, X, Clock, Trash2 } from "lucide-react";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 import ItemTable from "./ItemTable";
 import DeleteConfirmModal from "./delete";
 import EditItemModal from "./edit";

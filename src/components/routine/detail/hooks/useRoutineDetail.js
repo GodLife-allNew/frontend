@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import axiosInstance from "../../../../api/axiosInstance";
-import {
-  reissueToken,
-  fetchCertificationData,
-} from "../../../../utils/routineUtils";
+import axiosInstance from "../../../../shared/api/axiosInstance";
+import { fetchCertificationData } from "../../../../utils/routineUtils";
 
 export default function useRoutineDetail(planIdx, navigate) {
   const [routineData, setRoutineData] = useState(null);
@@ -165,19 +162,6 @@ export default function useRoutineDetail(planIdx, navigate) {
             }
           );
         } catch (error) {
-          if (error.response && error.response.status === 401) {
-            // 토큰 재발급
-            const newToken = await reissueToken();
-            return await axiosInstance.post(
-              "/verify/auth/routine",
-              certificationData,
-              {
-                headers: {
-                  Authorization: `Bearer ${newToken}`,
-                },
-              }
-            );
-          }
           throw error;
         }
       };
@@ -291,15 +275,6 @@ export default function useRoutineDetail(planIdx, navigate) {
             },
           });
         } catch (error) {
-          if (error.response && error.response.status === 401) {
-            // 토큰 재발급
-            const newToken = await reissueToken();
-            return await axiosInstance.patch(endpoint, requestData, {
-              headers: {
-                Authorization: `Bearer ${newToken}`,
-              },
-            });
-          }
           throw error;
         }
       };
@@ -441,22 +416,8 @@ export default function useRoutineDetail(planIdx, navigate) {
       }
     } catch (error) {
       console.error("추천 실패:", error);
-      if (error.response && error.response.status === 401) {
-        // 토큰 만료 시 재발급 처리
-        try {
-          const newToken = await reissueToken();
-          if (newToken) {
-            // 토큰 재발급 성공 시 다시 시도
-            await handleLike();
-          }
-        } catch (tokenError) {
-          console.error("토큰 재발급 실패:", tokenError);
-          alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
-          navigate("/user/login");
-        }
-      } else {
-        alert("추천 처리에 실패했습니다. 다시 시도해주세요.");
-      }
+      alert("추천 처리에 실패했습니다. 다시 시도해주세요.");
+      
     }
   };
 
@@ -492,22 +453,7 @@ export default function useRoutineDetail(planIdx, navigate) {
       }
     } catch (error) {
       console.error("추천 취소 실패:", error);
-      if (error.response && error.response.status === 401) {
-        // 토큰 만료 시 재발급 처리
-        try {
-          const newToken = await reissueToken();
-          if (newToken) {
-            // 토큰 재발급 성공 시 다시 시도
-            await handleUnlike();
-          }
-        } catch (tokenError) {
-          console.error("토큰 재발급 실패:", tokenError);
-          alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
-          navigate("/user/login");
-        }
-      } else {
-        alert("추천 취소 처리에 실패했습니다. 다시 시도해주세요.");
-      }
+      alert("추천 취소 처리에 실패했습니다. 다시 시도해주세요.");
     }
   };
 

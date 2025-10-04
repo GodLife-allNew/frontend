@@ -341,7 +341,7 @@ import {
   RefreshCcw,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 // React-Quill 임포트 (뷰어 모드로 사용)
 import ReactQuill from "react-quill";

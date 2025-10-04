@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 const ApiTestButton = () => {
   const [loading, setLoading] = useState(false);

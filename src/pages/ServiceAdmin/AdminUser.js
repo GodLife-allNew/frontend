@@ -10,7 +10,7 @@ import {
   Check,
   X,
 } from "lucide-react";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 const UserManager = ({ initialTab = "유저 관리" }) => {
   const [activeTab, setActiveTab] = useState(initialTab);

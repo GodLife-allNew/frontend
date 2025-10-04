@@ -1,6 +1,6 @@
 // PopupManager.jsx
 import React, { useState, useEffect } from "react";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 import TimedPopup from "./TimedPopup";
 import DOMPurify from "dompurify";
 

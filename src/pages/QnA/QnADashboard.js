@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
-import axiosInstance from "../../api/axiosInstance";
+import axiosInstance from "../../shared/api/axiosInstance";
 
 // 컴포넌트 임포트
 import StatsDashboard from "@/components/QnA/StatsDashboard";

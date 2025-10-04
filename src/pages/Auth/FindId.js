@@ -1,6 +1,6 @@
 // FindId.js
 import React, { useState } from "react";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { User, Mail, Eye, ArrowLeft, Key } from "lucide-react";
 

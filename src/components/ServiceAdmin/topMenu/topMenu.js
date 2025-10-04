@@ -8,7 +8,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { MdOutlineMode, MdOutlineDelete } from "react-icons/md";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 import DeleteConfirmModal from "../compSystem/delete";
 import EditItemModal from "../compSystem/edit";
 

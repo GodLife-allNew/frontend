@@ -15,7 +15,7 @@ import {
   Unlock,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 const LikedRoutineTabContent = () => {
   const [loading, setLoading] = useState(true);
