@@ -118,16 +118,67 @@ export default function RoutineForm({
   async function handleFormSubmit(values) {
     if (isReadOnly) return;
 
-    // 활동의 description이 null인 경우 빈 문자열로 변환
+    // 수정 모드일 때만 삭제된 활동 추적
+    let deleteActivityIdx = [];
+    if (isEditMode && routineData?.activities) {
+      const originalActivityIds = routineData.activities.map((a) => a.activityIdx);
+      const currentActivityIds = values.activities.filter((a) => a.activityIdx).map((a) => a.activityIdx);
+
+      deleteActivityIdx = originalActivityIds.filter((id) => !currentActivityIds.includes(id));
+
+      console.log("삭제할 활동 IDs:", deleteActivityIdx);
+    }
+
+    const processedActivities = values.activities.map((activity) => ({
+      activityIdx: activity.activityIdx || 0,
+      planIdx: isEditMode ? routineData?.planIdx : null,
+      activityName: activity.activityName,
+      setTime: activity.setTime,
+      description: activity.description || "",
+      activityImp: activity.activityImp,
+    }));
+
+    // 수정 모드용 데이터 구조
+    if (isEditMode) {
+      const requestData = {
+        planIdx: routineData?.planIdx,
+        planTitle: values.planTitle,
+        endTo: values.endTo,
+        repeatDays: values.repeatDays || [],
+        targetIdx: values.targetIdx,
+        jobIdx: values.jobIdx,
+        planImp: values.planImp,
+        isShared: values.isShared,
+        isActive: 0,
+        activities: processedActivities,
+        deleteActivityIdx: deleteActivityIdx,
+        jobCateDTO: null,
+        jobEtcCateDTO: values.jobIdx === 19 ? values.jobEtcCateDTO : null,
+      };
+
+      // 포크 정보 추가
+      if (isForkData && forkIdx) {
+        requestData.forkIdx = forkIdx;
+        requestData.forked = true;
+      }
+
+      if (onSubmit) {
+        onSubmit(requestData);
+      }
+      return;
+    }
+
+    // 일반 생성 모드 로직
     const processedValues = {
       ...values,
-      activities: values.activities.map((activity) => ({
-        ...activity,
-        description: activity.description || "", // null이면 빈 문자열로 변환
+      activities: processedActivities.map((a) => ({
+        activityName: a.activityName,
+        setTime: a.setTime,
+        description: a.description,
+        activityImp: a.activityImp,
       })),
     };
 
-    // 포크 정보 추가
     if (isForkData && forkIdx) {
       processedValues.forkIdx = forkIdx;
       processedValues.forked = true;
@@ -136,19 +187,9 @@ export default function RoutineForm({
       processedValues.forked = false;
     }
 
-    // 수정 모드일 경우 onSubmit 콜백 실행
-    if (isEditMode && onSubmit) {
-      console.log("수정 모드에서 폼 제출됨, 부모 onSubmit 호출");
-      onSubmit(processedValues);
-      return;
-    }
-
-    // 일반 생성 모드 로직
-    console.log("생성 모드에서 폼 제출됨");
     setFormData(processedValues);
     setShowCreateDialog(true);
   }
-
   // 루틴 생성 함수 (모달에서 선택 시 호출)
   const handleCreateRoutine = async (startNow) => {
     setShowCreateDialog(false);
@@ -171,15 +212,11 @@ export default function RoutineForm({
       // 루틴 생성 API 호출 함수
       const createRoutine = async (authToken) => {
         try {
-          const response = await axiosInstance.post(
-            "/plan/auth/write",
-            requestData,
-            {
-              headers: {
-                Authorization: `Bearer ${authToken}`,
-              },
-            }
-          );
+          const response = await axiosInstance.post("/plan/auth/write", requestData, {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
           return response;
         } catch (error) {
           // 토큰 만료 오류 (401) 처리
@@ -205,9 +242,7 @@ export default function RoutineForm({
 
       // 성공 메시지
       alert(
-        startNow
-          ? "루틴이 성공적으로 생성되었고 지금부터 시작됩니다!"
-          : "루틴이 성공적으로 생성되었습니다. 나중에 시작할 수 있습니다."
+        startNow ? "루틴이 성공적으로 생성되었고 지금부터 시작됩니다!" : "루틴이 성공적으로 생성되었습니다. 나중에 시작할 수 있습니다."
       );
 
       // 루틴 목록 페이지로 이동
@@ -217,11 +252,7 @@ export default function RoutineForm({
       if (error.response) {
         console.error("응답 데이터:", error.response.data);
         console.error("응답 상태:", error.response.status);
-        alert(
-          `루틴 생성 실패: ${
-            error.response.data.message || "알 수 없는 오류가 발생했습니다."
-          }`
-        );
+        alert(`루틴 생성 실패: ${error.response.data.message || "알 수 없는 오류가 발생했습니다."}`);
       } else if (error.request) {
         console.error("요청 실패:", error.request);
         alert("서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.");
@@ -251,16 +282,11 @@ export default function RoutineForm({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-6"
-        lang="ko"
-      >
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6" lang="ko">
         {isForkData && forkIdx && (
           <div className="bg-purple-50 border border-purple-200 p-3 rounded-md text-purple-700 text-sm">
             <GitFork className="inline-block w-4 h-4 mr-1 mb-1" />
-            다른 사용자의 루틴을 포크하여 작성 중입니다. 루틴을 저장하면 원본
-            루틴의 포크 카운트가 증가합니다.
+            다른 사용자의 루틴을 포크하여 작성 중입니다. 루틴을 저장하면 원본 루틴의 포크 카운트가 증가합니다.
           </div>
         )}
 
@@ -276,12 +302,7 @@ export default function RoutineForm({
         {/* 제출 버튼 (읽기 전용 모드가 아닐 때만) */}
         {!isReadOnly && (
           <div className="flex gap-3">
-            <Button
-              type="button"
-              onClick={() => navigate(-1)}
-              variant="outline"
-              className="flex-1"
-            >
+            <Button type="button" onClick={() => navigate(-1)} variant="outline" className="flex-1">
               취소
             </Button>
             <Button type="submit" className="w-1/2 bg-blue-500">
@@ -292,13 +313,7 @@ export default function RoutineForm({
       </form>
 
       {/* 루틴 시작 확인 다이얼로그 - 수정 모드가 아닌 경우에만 표시 */}
-      {!isEditMode && (
-        <CreateRoutineDialog
-          open={showCreateDialog}
-          onOpenChange={setShowCreateDialog}
-          onConfirm={handleCreateRoutine}
-        />
-      )}
+      {!isEditMode && <CreateRoutineDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} onConfirm={handleCreateRoutine} />}
     </Form>
   );
 }
