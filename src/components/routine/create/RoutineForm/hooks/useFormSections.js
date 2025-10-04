@@ -1,5 +1,6 @@
 // src/components/routine/RoutineForm/hooks/useFormSections.js
 import { useState, useEffect, useCallback, useMemo } from "react"; // useMemo 추가
+<<<<<<< HEAD
 import axiosInstance from "../../../../../shared/api/axiosInstance";
 import {
   Card,
@@ -8,6 +9,10 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+=======
+import axiosInstance from "../../../../../api/axiosInstance";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+>>>>>>> chaerim
 import TitleSection from "../TitleSection";
 import BadgeSelector from "@/components/common/badge-selector";
 import DateInput from "@/components/common/dateInput/DateInput";
@@ -16,13 +21,7 @@ import DaySelector from "@/components/common/daySelector/DaySelector";
 import ActivitiesSection from "../activity/ActivitySection";
 import ShareSetSection from "../ShareSetSection";
 
-export default function useFormSections({
-  form,
-  isReadOnly,
-  isActive,
-  certifiedActivities,
-  onCertifyActivity,
-}) {
+export default function useFormSections({ form, isReadOnly, isActive, certifiedActivities, onCertifyActivity, routineData }) {
   const [jobs, setJobs] = useState([]);
   const [targets, setTargets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,15 +30,9 @@ export default function useFormSections({
   // 로컬 스토리지에서 데이터 가져오기 함수
   const getDataFromLocalStorage = () => {
     try {
-      const jobsFromStorage = JSON.parse(
-        localStorage.getItem("jobCategories") || "[]"
-      );
-      const targetsFromStorage = JSON.parse(
-        localStorage.getItem("targetCategories") || "[]"
-      );
-      const iconsFromStorage = JSON.parse(
-        localStorage.getItem("jobIcons") || "[]"
-      );
+      const jobsFromStorage = JSON.parse(localStorage.getItem("jobCategories") || "[]");
+      const targetsFromStorage = JSON.parse(localStorage.getItem("targetCategories") || "[]");
+      const iconsFromStorage = JSON.parse(localStorage.getItem("jobIcons") || "[]");
 
       // 유효한 데이터가 있으면 상태 업데이트
       if (jobsFromStorage.length > 0) setJobs(jobsFromStorage);
@@ -47,11 +40,7 @@ export default function useFormSections({
       if (iconsFromStorage.length > 0) setJobIcons(iconsFromStorage);
 
       // 모든 데이터가 있는지 확인
-      return (
-        jobsFromStorage.length > 0 &&
-        targetsFromStorage.length > 0 &&
-        iconsFromStorage.length > 0
-      );
+      return jobsFromStorage.length > 0 && targetsFromStorage.length > 0 && iconsFromStorage.length > 0;
     } catch (error) {
       console.error("로컬 스토리지에서 데이터 가져오기 실패:", error);
       return false;
@@ -66,12 +55,11 @@ export default function useFormSections({
 
       if (!hasLocalData) {
         console.log("API에서 카테고리 데이터 가져오기");
-        const [jobsResponse, targetsResponse, jobIconsResponse] =
-          await Promise.all([
-            axiosInstance.get("/categories/job"),
-            axiosInstance.get("/categories/target"),
-            axiosInstance.get("/categories/icon"),
-          ]);
+        const [jobsResponse, targetsResponse, jobIconsResponse] = await Promise.all([
+          axiosInstance.get("/categories/job"),
+          axiosInstance.get("/categories/target"),
+          axiosInstance.get("/categories/icon"),
+        ]);
 
         setJobs(jobsResponse.data);
         setTargets(targetsResponse.data);
@@ -96,21 +84,14 @@ export default function useFormSections({
     fetchCategoryData();
   }, [fetchCategoryData]); // 🔹 의존성 배열에 포함
 
-
   // isReadOnly가 변경될 때 아이콘 데이터 다시 로드하는 useEffect 추가
   useEffect(() => {
     if (!isReadOnly) {
       try {
         // localStorage에서 아이콘 데이터 가져오기
-        const jobsFromStorage = JSON.parse(
-          localStorage.getItem("jobCategories") || "[]"
-        );
-        const targetsFromStorage = JSON.parse(
-          localStorage.getItem("targetCategories") || "[]"
-        );
-        const iconsFromStorage = JSON.parse(
-          localStorage.getItem("jobIcons") || "[]"
-        );
+        const jobsFromStorage = JSON.parse(localStorage.getItem("jobCategories") || "[]");
+        const targetsFromStorage = JSON.parse(localStorage.getItem("targetCategories") || "[]");
+        const iconsFromStorage = JSON.parse(localStorage.getItem("jobIcons") || "[]");
 
         // 데이터가 있으면 상태 업데이트
         if (jobsFromStorage.length > 0) setJobs(jobsFromStorage);
@@ -152,16 +133,10 @@ export default function useFormSections({
             루틴 제목
             {!isReadOnly && <span className="text-red-500 ml-1">*</span>}
           </CardTitle>
-          <CardDescription>
-            {isReadOnly ? "루틴 제목" : "루틴에 적절한 제목을 입력해주세요."}
-          </CardDescription>
+          <CardDescription>{isReadOnly ? "루틴 제목" : "루틴에 적절한 제목을 입력해주세요."}</CardDescription>
         </CardHeader>
         <CardContent>
-          <TitleSection
-            control={form.control}
-            required={!isReadOnly}
-            readOnly={isReadOnly}
-          />
+          <TitleSection control={form.control} required={!isReadOnly} readOnly={isReadOnly} />
         </CardContent>
       </Card>
     );
@@ -183,9 +158,7 @@ export default function useFormSections({
           <CardHeader>
             <CardTitle>추천 직업</CardTitle>
             <CardDescription>
-              {isReadOnly
-                ? "이 루틴의 추천 직업"
-                : "루틴에 맞는 직업을 선택하면 다른 사람들이 루틴을 찾아보기 좋아요!"}
+              {isReadOnly ? "이 루틴의 추천 직업" : "루틴에 맞는 직업을 선택하면 다른 사람들이 루틴을 찾아보기 좋아요!"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -208,15 +181,7 @@ export default function useFormSections({
         </Card>
       );
     };
-  }, [
-    form.control,
-    isReadOnly,
-    jobs,
-    jobIcons,
-    isLoading,
-    handleJobChange,
-    handleCustomJobSelected,
-  ]);
+  }, [form.control, isReadOnly, jobs, jobIcons, isLoading, handleJobChange, handleCustomJobSelected]);
 
   // 루틴 지속 기간과 중요도 섹션
   const DurationAndImportanceSection = useMemo(() => {
@@ -226,20 +191,10 @@ export default function useFormSections({
         <Card className="bg-white">
           <CardHeader>
             <CardTitle>루틴 지속 기간(일)</CardTitle>
-            <CardDescription>
-              {isReadOnly
-                ? "루틴의 지속 기간"
-                : "루틴을 지속할 기간을 설정해 주세요."}
-            </CardDescription>
+            <CardDescription>{isReadOnly ? "루틴의 지속 기간" : "루틴을 지속할 기간을 설정해 주세요."}</CardDescription>
           </CardHeader>
           <CardContent>
-            <DateInput
-              control={form.control}
-              name="endTo"
-              min={7}
-              required={!isReadOnly}
-              readOnly={isReadOnly}
-            />
+            <DateInput control={form.control} name="endTo" min={7} required={!isReadOnly} readOnly={isReadOnly} />
           </CardContent>
         </Card>
 
@@ -247,18 +202,10 @@ export default function useFormSections({
         <Card className="bg-white">
           <CardHeader>
             <CardTitle>루틴 중요도</CardTitle>
-            <CardDescription>
-              {isReadOnly ? "루틴의 중요도" : "루틴의 중요도를 선택하세요"}
-            </CardDescription>
+            <CardDescription>{isReadOnly ? "루틴의 중요도" : "루틴의 중요도를 선택하세요"}</CardDescription>
           </CardHeader>
           <CardContent>
-            <StarRating
-              control={form.control}
-              name="planImp"
-              maxRating={10}
-              required={!isReadOnly}
-              readOnly={isReadOnly}
-            />
+            <StarRating control={form.control} name="planImp" maxRating={10} required={!isReadOnly} readOnly={isReadOnly} />
           </CardContent>
         </Card>
       </div>
@@ -271,17 +218,10 @@ export default function useFormSections({
       <Card className="bg-white">
         <CardHeader>
           <CardTitle>반복 요일</CardTitle>
-          <CardDescription>
-            {isReadOnly ? "루틴의 반복 요일" : "루틴의 반복 주기를 선택하세요"}
-          </CardDescription>
+          <CardDescription>{isReadOnly ? "루틴의 반복 요일" : "루틴의 반복 주기를 선택하세요"}</CardDescription>
         </CardHeader>
         <CardContent>
-          <DaySelector
-            control={form.control}
-            name="repeatDays"
-            required={!isReadOnly}
-            readOnly={isReadOnly}
-          />
+          <DaySelector control={form.control} name="repeatDays" required={!isReadOnly} readOnly={isReadOnly} />
         </CardContent>
       </Card>
     );
@@ -296,11 +236,7 @@ export default function useFormSections({
             추천 관심사
             {!isReadOnly && <span className="text-red-500 ml-1">*</span>}
           </CardTitle>
-          <CardDescription>
-            {isReadOnly
-              ? "이 루틴의 추천 관심사"
-              : "루틴에 맞는 관심사를 선택해주세요"}
-          </CardDescription>
+          <CardDescription>{isReadOnly ? "이 루틴의 추천 관심사" : "루틴에 맞는 관심사를 선택해주세요"}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -329,9 +265,7 @@ export default function useFormSections({
       <Card className="bg-white">
         <CardHeader>
           <CardTitle>공유설정</CardTitle>
-          <CardDescription>
-            다른 사용자에게 루틴을 공유하고 싶다면 switch on 해주세요
-          </CardDescription>
+          <CardDescription>다른 사용자에게 루틴을 공유하고 싶다면 switch on 해주세요</CardDescription>
         </CardHeader>
         <CardContent>
           <ShareSetSection control={form.control} />
@@ -349,11 +283,7 @@ export default function useFormSections({
             활동 목록
             {!isReadOnly && <span className="text-red-500 ml-1">*</span>}
           </CardTitle>
-          <CardDescription>
-            {isReadOnly
-              ? "이 루틴에 포함된 활동들"
-              : "루틴에 포함할 활동들을 추가해주세요"}
-          </CardDescription>
+          <CardDescription>{isReadOnly ? "이 루틴에 포함된 활동들" : "루틴에 포함할 활동들을 추가해주세요"}</CardDescription>
         </CardHeader>
         <CardContent>
           <ActivitiesSection
@@ -362,17 +292,12 @@ export default function useFormSections({
             isActive={isActive}
             certifiedActivities={certifiedActivities}
             onCertifyActivity={onCertifyActivity}
+            routineData={routineData}
           />
         </CardContent>
       </Card>
     );
-  }, [
-    form.control,
-    isReadOnly,
-    isActive,
-    certifiedActivities,
-    onCertifyActivity,
-  ]);
+  }, [form.control, isReadOnly, isActive, certifiedActivities, onCertifyActivity]);
 
   return {
     TitleSectionCard,

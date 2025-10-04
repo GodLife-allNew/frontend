@@ -264,6 +264,7 @@ export default function RoutineForm({
     isActive,
     certifiedActivities,
     onCertifyActivity,
+    routineData,
   });
 
   return (
