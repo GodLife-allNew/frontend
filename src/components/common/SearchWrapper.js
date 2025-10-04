@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Search, Filter, ChevronDown, X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/shared/components/ui/badge";
+import { Separator } from "@/shared/components/ui/separator";
 import SearchBar from "@/components/common/SearchBar/SearchBar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+} from "@/shared/components/ui/dropdown-menu";
+import { Button } from "@/shared/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from "@/shared/components/ui/collapsible";
 
 const SearchWrapper = ({
   searchTerm,

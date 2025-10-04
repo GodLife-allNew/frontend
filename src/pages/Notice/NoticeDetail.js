@@ -6,8 +6,8 @@
 //   CardHeader,
 //   CardTitle,
 //   CardFooter,
-// } from "@/components/ui/card";
-// import { Button } from "@/components/ui/button";
+// } from "@/shared/components/ui/card";
+// import { Button } from "@/shared/components/ui/button";
 // import {
 //   Loader2,
 //   ArrowLeft,
@@ -17,7 +17,7 @@
 //   Trash2,
 //   RefreshCcw,
 // } from "lucide-react";
-// import { useToast } from "@/components/ui/use-toast";
+// import { useToast } from "@/shared/components/ui/use-toast";
 // import axiosInstance from "@/api/axiosInstance";
 
 // // Toast UI Viewer 불러오기
@@ -329,8 +329,8 @@ import {
   CardHeader,
   CardTitle,
   CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from "@/shared/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
 import {
   Loader2,
   ArrowLeft,
@@ -340,7 +340,7 @@ import {
   Trash2,
   RefreshCcw,
 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/shared/components/ui/use-toast";
 import axiosInstance from "@/shared/api/axiosInstance";
 
 // React-Quill 임포트 (뷰어 모드로 사용)

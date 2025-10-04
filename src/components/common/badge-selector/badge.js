@@ -1,6 +1,6 @@
 // Badge 컴포넌트 수정 (./badge.jsx 파일)
 import React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 export const Badge = ({
   option,

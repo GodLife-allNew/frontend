@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import axiosInstance from "@/shared/api/axiosInstance";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 
 const SearchBar = ({ onSearch, onClear, initialSearchTerm = "" }) => {
   const [searchInputTerm, setSearchInputTerm] = useState(initialSearchTerm);
@@ -63,9 +63,7 @@ const SearchBar = ({ onSearch, onClear, initialSearchTerm = "" }) => {
   const handleDeleteSearchLog = async (logIdx) => {
     try {
       await axiosInstance.patch(`/search/log/${logIdx}`);
-      setSearchLogs((prevLogs) =>
-        prevLogs.filter((log) => log.logIdx !== logIdx)
-      );
+      setSearchLogs((prevLogs) => prevLogs.filter((log) => log.logIdx !== logIdx));
     } catch (error) {
       console.error("검색 로그 삭제 실패:", error);
     }
@@ -75,15 +73,16 @@ const SearchBar = ({ onSearch, onClear, initialSearchTerm = "" }) => {
   const handleSearch = async (e) => {
     e.preventDefault();
 
-    if (!searchInputTerm.trim()) {
-      // 검색어가 비어있으면 검색 실행하지 않음
-      return;
-    }
+    // if (!searchInputTerm.trim()) {
+    //   // 검색어가 비어있으면 검색 실행하지 않음
+    //   return;
+    // }
 
     try {
       // 검색 로그 API 호출
-      await axiosInstance.get(`/search/log?keyword=${searchInputTerm}`);
-
+      if (searchInputTerm.trim()) {
+        await axiosInstance.get(`/search/log?keyword=${searchInputTerm}`);
+      }
       // 검색 실행
       onSearch(searchInputTerm);
       setIsSearchLogOpen(false); // 검색 로그 드롭다운 닫기
@@ -97,6 +96,7 @@ const SearchBar = ({ onSearch, onClear, initialSearchTerm = "" }) => {
   // 검색어 지우기 핸들러
   const handleClearSearch = () => {
     setSearchInputTerm("");
+    onSearch("");
     if (onClear) {
       onClear();
     }
@@ -118,10 +118,7 @@ const SearchBar = ({ onSearch, onClear, initialSearchTerm = "" }) => {
           onFocus={handleSearchInputFocus}
           className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
         />
-        <Search
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-          size={18}
-        />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
         {searchInputTerm && (
           <button
             type="button"
@@ -143,24 +140,15 @@ const SearchBar = ({ onSearch, onClear, initialSearchTerm = "" }) => {
 
       {/* 검색 로그 드롭다운 */}
       {isSearchLogOpen && (
-        <div
-          ref={searchLogRef}
-          className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg"
-        >
+        <div ref={searchLogRef} className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg">
           <div className="p-2 border-b border-gray-200">
             <h4 className="text-sm font-medium text-gray-600">최근 검색어</h4>
           </div>
           {searchLogs.length > 0 ? (
             <ul className="max-h-60 overflow-y-auto">
               {searchLogs.map((log) => (
-                <li
-                  key={log.logIdx}
-                  className="px-4 py-2 hover:bg-gray-100 flex justify-between items-center cursor-pointer"
-                >
-                  <span
-                    onClick={() => handleSearchLogSelect(log.searchKeyword)}
-                    className="text-sm text-gray-700 flex-grow"
-                  >
+                <li key={log.logIdx} className="px-4 py-2 hover:bg-gray-100 flex justify-between items-center cursor-pointer">
+                  <span onClick={() => handleSearchLogSelect(log.searchKeyword)} className="text-sm text-gray-700 flex-grow">
                     {log.searchKeyword}
                   </span>
                   <button
@@ -176,9 +164,7 @@ const SearchBar = ({ onSearch, onClear, initialSearchTerm = "" }) => {
               ))}
             </ul>
           ) : (
-            <div className="p-4 text-center text-gray-500 text-sm">
-              최근 검색어가 없습니다.
-            </div>
+            <div className="p-4 text-center text-gray-500 text-sm">최근 검색어가 없습니다.</div>
           )}
         </div>
       )}

@@ -1,8 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { AuthProvider } from "@/shared/context/AuthContext";
-import { ToastProvider } from "@/components/ui/use-toast";
-import { Toaster } from "@/components/ui/toaster";
+import { ToastProvider } from "@/shared/components/ui/use-toast";
+import { Toaster } from "@/shared/components/ui/toaster";
 import AppRouter from "./router/AppRouter";
 
 function App() {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { Input } from "@/components/ui/input";
+import { useToast } from "@/shared/components/ui/use-toast";
+import { Input } from "@/shared/components/ui/input";
 import {
   User,
   Mail,
@@ -28,7 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@/shared/components/ui/alert-dialog";
 import axiosInstance from "@/shared/api/axiosInstance";
 
 export default function MyProfileForm({ userData, setUserData }) {

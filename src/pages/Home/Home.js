@@ -816,8 +816,7 @@ function Home(props) {
 
     // 토큰 가져오기
     const accessToken = localStorage.getItem("accessToken");
-    const loggedIn =
-      accessToken && accessToken !== "null" && accessToken.trim() !== "";
+    const loggedIn = accessToken && accessToken !== "null" && accessToken.trim() !== "";
     setIsLoggedIn(loggedIn);
 
     // 공통 헤더 설정
@@ -895,10 +894,7 @@ function Home(props) {
         let challengeData = [];
         // latest API 응답 구조에 맞게 처리
         if (challengeResponse && typeof challengeResponse === "object") {
-          if (
-            challengeResponse.content &&
-            Array.isArray(challengeResponse.content)
-          ) {
+          if (challengeResponse.content && Array.isArray(challengeResponse.content)) {
             challengeData = challengeResponse.content;
           } else if (Array.isArray(challengeResponse)) {
             challengeData = challengeResponse;
@@ -926,10 +922,7 @@ function Home(props) {
           categoryData = categoryResponse;
         } else if (categoryResponse && Array.isArray(categoryResponse.data)) {
           categoryData = categoryResponse.data;
-        } else if (
-          categoryResponse &&
-          Array.isArray(categoryResponse.content)
-        ) {
+        } else if (categoryResponse && Array.isArray(categoryResponse.content)) {
           categoryData = categoryResponse.content;
         }
 
@@ -949,10 +942,7 @@ function Home(props) {
           console.log("내 루틴 API 응답:", responses[3].data);
           setMyPlans(responses[3].data.message || []);
         } else if (loggedIn && responses.length > 3) {
-          console.log(
-            "내 루틴 API 응답:",
-            responses[responses.length - 1].data
-          );
+          console.log("내 루틴 API 응답:", responses[responses.length - 1].data);
           setMyPlans(responses[responses.length - 1].data.message || []);
         }
       })
@@ -978,9 +968,7 @@ function Home(props) {
   };
 
   const myprevPlan = () => {
-    setCurrentMyPlanIndex(
-      (prev) => (prev - 1 + myplans.length) % myplans.length
-    );
+    setCurrentMyPlanIndex((prev) => (prev - 1 + myplans.length) % myplans.length);
   };
 
   const nextPlan = () => {
@@ -996,9 +984,7 @@ function Home(props) {
   };
 
   const prevChallenge = () => {
-    setCurrentChallengeIndex(
-      (prev) => (prev - 1 + challenges.length) % challenges.length
-    );
+    setCurrentChallengeIndex((prev) => (prev - 1 + challenges.length) % challenges.length);
   };
 
   // 카드 클릭 핸들러 함수
@@ -1097,35 +1083,41 @@ function Home(props) {
     if (!categoryValue && categoryValue !== 0) return "미분류";
 
     // 카테고리 배열에서 해당 값 찾기
-    const category = challengeCategories.find(
-      (cat) => cat.value === categoryValue.toString()
-    );
+    const category = challengeCategories.find((cat) => cat.value === categoryValue.toString());
     return category ? category.label : `카테고리 ${categoryValue}`;
   };
 
   // 제목 줄임 함수 추가
   const truncateTitle = (title, maxLength = 10) => {
     if (!title) return "";
-    return title.length > maxLength
-      ? title.substring(0, maxLength) + "..."
-      : title;
+    return title.length > maxLength ? title.substring(0, maxLength) + "..." : title;
   };
 
   // 공통 스와이프 카드 컴포넌트
-  const SwipeCard = ({
-    children,
-    currentIndex,
-    totalCount,
-    onPrev,
-    onNext,
-    className = "",
-  }) => {
+  const SwipeCard = ({ children, currentIndex, totalCount, onPrev, onNext, className = "" }) => {
     const [swipeState, setSwipeState] = useState({
       isDragging: false,
       startX: 0,
       currentX: 0,
       dragOffset: 0,
     });
+
+    // 클릭으로 넘기기
+    const handleClickNavigation = (e) => {
+      if (totalCount <= 1) return;
+      if (swipeState.isDragging) return; // 드래그 중이면 무시
+
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const cardWidth = rect.width;
+
+      // 왼쪽 1/3 클릭 시 이전, 오른쪽 1/3 클릭 시 다음
+      if (clickX < cardWidth / 3) {
+        onPrev();
+      } else if (clickX > (cardWidth * 2) / 3) {
+        onNext();
+      }
+    };
 
     const handleTouchStart = (e) => {
       if (totalCount <= 1) return;
@@ -1222,6 +1214,7 @@ function Home(props) {
           transform: `translateX(${swipeState.dragOffset}px)`,
           opacity: swipeState.isDragging ? 0.9 : 1,
         }}
+        onClick={handleClickNavigation}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -1260,10 +1253,7 @@ function Home(props) {
 
   // 내 루틴 카드 내용
   const MyPlanCardContent = ({ myplan, onClick }) => (
-    <div
-      className="cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-2 -m-2"
-      onClick={() => onClick && onClick(myplan)}
-    >
+    <div className="cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-2 -m-2" onClick={() => onClick && onClick(myplan)}>
       {/* 불꽃 표시 */}
       {myplan.myPlanInfos.fireState && (
         <div className="absolute top-4 right-4">
@@ -1278,18 +1268,10 @@ function Home(props) {
               myplan.myPlanInfos.isActive ? "bg-green-100" : "bg-gray-100"
             }`}
           >
-            <BookOpen
-              size={20}
-              className={
-                myplan.myPlanInfos.isActive ? "text-green-600" : "text-gray-500"
-              }
-            />
+            <BookOpen size={20} className={myplan.myPlanInfos.isActive ? "text-green-600" : "text-gray-500"} />
           </div>
           <div>
-            <h3
-              className="font-bold text-lg text-gray-800"
-              title={myplan.myPlanInfos.planTitle}
-            >
+            <h3 className="font-bold text-lg text-gray-800" title={myplan.myPlanInfos.planTitle}>
               {truncateTitle(myplan.myPlanInfos.planTitle)}
             </h3>
           </div>
@@ -1302,9 +1284,7 @@ function Home(props) {
           <span className="text-sm font-medium text-gray-600">상태</span>
           <span
             className={`px-2 py-1 rounded-full text-xs ${
-              myplan.myPlanInfos.isActive
-                ? "bg-green-100 text-green-700"
-                : "bg-gray-100 text-gray-700"
+              myplan.myPlanInfos.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
             }`}
           >
             {myplan.myPlanInfos.isActive ? "활성" : "비활성"}
@@ -1315,9 +1295,7 @@ function Home(props) {
         {myplan.myPlanInfos.repeatDays && (
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-600">반복</span>
-            <span className="text-sm text-gray-700">
-              {formatRepeatDays(myplan.myPlanInfos.repeatDays)}
-            </span>
+            <span className="text-sm text-gray-700">{formatRepeatDays(myplan.myPlanInfos.repeatDays)}</span>
           </div>
         )}
 
@@ -1326,18 +1304,14 @@ function Home(props) {
           <span className="text-sm font-medium text-gray-600">기간</span>
           <div className="flex items-center space-x-1">
             <Clock size={14} className="text-gray-500" />
-            <span className="text-sm text-gray-700">
-              {myplan.myPlanInfos.endTo}일
-            </span>
+            <span className="text-sm text-gray-700">{myplan.myPlanInfos.endTo}일</span>
           </div>
         </div>
 
         {/* 경험치 */}
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-gray-600">경험치</span>
-          <span className="text-sm font-semibold text-blue-600">
-            {myplan.myPlanInfos.certExp} XP
-          </span>
+          <span className="text-sm font-semibold text-blue-600">{myplan.myPlanInfos.certExp} XP</span>
         </div>
       </div>
 
@@ -1362,10 +1336,7 @@ function Home(props) {
     });
 
     return (
-      <div
-        className="cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-2 -m-2"
-        onClick={() => onClick && onClick(plan)}
-      >
+      <div className="cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-2 -m-2" onClick={() => onClick && onClick(plan)}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div
@@ -1375,10 +1346,7 @@ function Home(props) {
               <BookOpen size={20} style={{ color: plan.targetInfos.color }} />
             </div>
             <div>
-              <h3
-                className="font-bold text-lg text-gray-800"
-                title={plan.planInfos.planTitle}
-              >
+              <h3 className="font-bold text-lg text-gray-800" title={plan.planInfos.planTitle}>
                 {truncateTitle(plan.planInfos.planTitle)}
               </h3>
               <p className="text-sm text-gray-500">{plan.planInfos.userNick}</p>
@@ -1404,12 +1372,8 @@ function Home(props) {
           {/* 🔍 repeatDays 표시 추가 - 디버깅용 */}
           {plan.planInfos?.repeatDays && (
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">
-                반복요일
-              </span>
-              <span className="text-sm text-gray-700">
-                {formatRepeatDays(plan.planInfos.repeatDays)}
-              </span>
+              <span className="text-sm font-medium text-gray-600">반복요일</span>
+              <span className="text-sm text-gray-700">{formatRepeatDays(plan.planInfos.repeatDays)}</span>
             </div>
           )}
 
@@ -1444,20 +1408,14 @@ function Home(props) {
 
   // 챌린지 카드
   const ChallengeCardContent = ({ challenge, onClick }) => (
-    <div
-      className="cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-2 -m-2"
-      onClick={() => onClick && onClick(challenge)}
-    >
+    <div className="cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-2 -m-2" onClick={() => onClick && onClick(challenge)}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
             <Users size={20} className="text-white" />
           </div>
           <div>
-            <h3
-              className="font-bold text-lg text-gray-800"
-              title={challenge.challTitle}
-            >
+            <h3 className="font-bold text-lg text-gray-800" title={challenge.challTitle}>
               {truncateTitle(challenge.challTitle)}
             </h3>
           </div>
@@ -1469,9 +1427,7 @@ function Home(props) {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
             <Tag size={14} className="text-gray-500" />
-            <span className="text-sm text-gray-700">
-              {getCategoryName(challenge.challCategoryIdx)}
-            </span>
+            <span className="text-sm text-gray-700">{getCategoryName(challenge.challCategoryIdx)}</span>
           </div>
         </div>
 
@@ -1538,10 +1494,7 @@ function Home(props) {
   if (plans.length > 0) {
     console.log("현재 표시 플랜 인덱스:", currentPlanIndex);
     console.log("현재 표시 플랜:", plans[currentPlanIndex]);
-    console.log(
-      "현재 플랜 repeatDays:",
-      plans[currentPlanIndex]?.planInfos?.repeatDays
-    );
+    console.log("현재 플랜 repeatDays:", plans[currentPlanIndex]?.planInfos?.repeatDays);
   }
 
   return (
@@ -1553,25 +1506,15 @@ function Home(props) {
             <LoginPrompt />
           ) : myplans.length > 0 ? (
             <div className="w-full overflow-hidden">
-              <SwipeCard
-                currentIndex={currentMyPlanIndex}
-                totalCount={myplans.length}
-                onPrev={myprevPlan}
-                onNext={mynextPlan}
-              >
-                <MyPlanCardContent
-                  myplan={myplans[currentMyPlanIndex]}
-                  onClick={handleMyPlanClick}
-                />
+              <SwipeCard currentIndex={currentMyPlanIndex} totalCount={myplans.length} onPrev={myprevPlan} onNext={mynextPlan}>
+                <MyPlanCardContent myplan={myplans[currentMyPlanIndex]} onClick={handleMyPlanClick} />
               </SwipeCard>
             </div>
           ) : (
             <div className="text-center py-8 bg-white rounded-xl shadow-lg border border-gray-100">
               <div className="mb-4">
                 <BookOpen size={48} className="text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 mb-2">
-                  아직 진행중인 루틴이 없습니다
-                </p>
+                <p className="text-gray-500 mb-2">아직 진행중인 루틴이 없습니다</p>
               </div>
               <button
                 onClick={() => navigate("/routine/list")}
@@ -1591,22 +1534,12 @@ function Home(props) {
 
           {plans.length > 0 ? (
             <div className="w-full overflow-hidden">
-              <SwipeCard
-                currentIndex={currentPlanIndex}
-                totalCount={plans.length}
-                onPrev={prevPlan}
-                onNext={nextPlan}
-              >
-                <PlanCardContent
-                  plan={plans[currentPlanIndex]}
-                  onClick={handlePlanClick}
-                />
+              <SwipeCard currentIndex={currentPlanIndex} totalCount={plans.length} onPrev={prevPlan} onNext={nextPlan}>
+                <PlanCardContent plan={plans[currentPlanIndex]} onClick={handlePlanClick} />
               </SwipeCard>
             </div>
           ) : (
-            <div className="text-center text-gray-500 py-8">
-              루틴 데이터가 없습니다.
-            </div>
+            <div className="text-center text-gray-500 py-8">루틴 데이터가 없습니다.</div>
           )}
         </div>
 
@@ -1618,22 +1551,12 @@ function Home(props) {
 
           {challenges.length > 0 ? (
             <div className="w-full overflow-hidden">
-              <SwipeCard
-                currentIndex={currentChallengeIndex}
-                totalCount={challenges.length}
-                onPrev={prevChallenge}
-                onNext={nextChallenge}
-              >
-                <ChallengeCardContent
-                  challenge={challenges[currentChallengeIndex]}
-                  onClick={handleChallengeClick}
-                />
+              <SwipeCard currentIndex={currentChallengeIndex} totalCount={challenges.length} onPrev={prevChallenge} onNext={nextChallenge}>
+                <ChallengeCardContent challenge={challenges[currentChallengeIndex]} onClick={handleChallengeClick} />
               </SwipeCard>
             </div>
           ) : (
-            <div className="text-center text-gray-500 py-8">
-              챌린지 데이터가 없습니다.
-            </div>
+            <div className="text-center text-gray-500 py-8">챌린지 데이터가 없습니다.</div>
           )}
         </div>
       </div>

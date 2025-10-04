@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
 import { Clock, AlertCircle, FileText, Star, CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 
 function ActivitiesTimeline({
   control,

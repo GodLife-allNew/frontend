@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/shared/components/ui/input";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/shared/components/ui/use-toast";
 import axiosInstance from "@/shared/api/axiosInstance";
 import {
   Form,
@@ -12,10 +12,10 @@ import {
   FormItem,
   FormLabel,
   FormControl,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+} from "@/shared/components/ui/form";
+import { Button } from "@/shared/components/ui/button";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -24,7 +24,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 
 //유효성 검사 스키마
 const signupSchema = z

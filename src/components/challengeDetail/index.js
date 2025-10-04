@@ -2,14 +2,14 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axiosInstance from "@/shared/api/axiosInstance";
-import { Card, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardHeader } from "@/shared/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import { GoPeople, GoClock, GoTrophy, GoPulse } from "react-icons/go";
 import { MdOutlineDateRange, MdVerified, MdCheck } from "react-icons/md";
 import { BsCalendarCheck } from "react-icons/bs";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/shared/components/ui/use-toast";
 
 // 분을 시간과 분으로 변환하는 함수
 const formatMinutesToHoursAndMinutes = (totalMinutes) => {

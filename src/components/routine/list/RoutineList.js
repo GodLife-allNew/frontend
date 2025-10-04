@@ -14,14 +14,14 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 
 // 경로 수정: RoutineCard 경로 변경
 import RoutineCard from "@/components/routine/list/RoutineCard";

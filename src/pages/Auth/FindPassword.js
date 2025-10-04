@@ -4,7 +4,7 @@ import axiosInstance from "@/shared/api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { User, Mail, Key, ArrowLeft } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,9 +12,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+} from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { useToast } from "@/shared/components/ui/use-toast";
 
 function FindPassword() {
   const navigate = useNavigate();

@@ -1,12 +1,12 @@
 import { useRef, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+} from "@/shared/components/ui/dropdown-menu";
+import { cn } from "@/shared/lib/utils";
 import { iconMap, renderIcon } from "./icon-utils";
 
 export function CustomInput({ 

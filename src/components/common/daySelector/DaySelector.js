@@ -1,6 +1,6 @@
 import React from "react";
-import { cn } from "@/lib/utils";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { cn } from "@/shared/lib/utils";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 
 const DaySelector = ({
   control,                // React Hook Form의 control 객체

@@ -816,7 +816,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
-import axiosInstance from "../../shared/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 // React-Quill 임포트 (뷰어 모드로 사용)
 import ReactQuill from "react-quill";
