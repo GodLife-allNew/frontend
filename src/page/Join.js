@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axiosInstance from "../api/axiosInstance";
+import axiosInstance from "../shared/api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
 const Join = () => {

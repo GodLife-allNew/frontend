@@ -1,29 +1,5 @@
 // src/utils/routineUtils.js
-import axiosInstance from "../api/axiosInstance";
-
-// 토큰 재발급 함수
-export const reissueToken = async (navigate) => {
-  try {
-    // 토큰 재발급 요청
-    const response = await axiosInstance.post("/reissue", {});
-
-    if (response.data && response.data.success) {
-      // 새 토큰 저장
-      const newAccessToken = response.data.accessToken;
-      localStorage.setItem("accessToken", newAccessToken);
-
-      console.log("토큰이 성공적으로 재발급되었습니다.");
-      return newAccessToken;
-    } else {
-      throw new Error("토큰 재발급에 실패했습니다.");
-    }
-  } catch (error) {
-    console.error("토큰 재발급 오류:", error);
-    alert("세션이 만료되었습니다. 다시 로그인해주세요.");
-    navigate("/user/login");
-    throw error;
-  }
-};
+import axiosInstance from "../shared/api/axiosInstance";
 
 // 인증 데이터 가져오기
 export const fetchCertificationData = async (planIdx) => {

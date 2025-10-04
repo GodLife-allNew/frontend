@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Search, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 import { useToast } from "@/components/ui/use-toast";
 
 const AdminRoutineList = ({ onRoutineSelect, isStandalone = true }) => {

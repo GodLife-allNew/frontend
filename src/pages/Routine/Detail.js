@@ -6,8 +6,7 @@ import { Lock, Edit, Trash2, AlertCircle } from "lucide-react";
 import { BiChevronLeftCircle } from "react-icons/bi";
 
 // API 및 유틸리티
-import axiosInstance from "../../api/axiosInstance";
-import { reissueToken } from "../../utils/routineUtils";
+import axiosInstance from "../../shared/api/axiosInstance";
 
 // 컴포넌트
 import RoutineForm from "../../components/routine/create/RoutineForm";
@@ -103,19 +102,6 @@ export default function RoutineDetailPage() {
           );
           return response;
         } catch (error) {
-          // 토큰 만료 오류 (401) 처리
-          if (error.response && error.response.status === 401) {
-            console.log("토큰이 만료되었습니다. 재발급을 시도합니다.");
-            // 토큰 재발급 - utils의 함수 사용
-            const newToken = await reissueToken(navigate);
-            // 새 토큰으로 다시 요청
-            return await axiosInstance.patch(`/plan/auth/delete/${planIdx}`, {
-              headers: {
-                Authorization: `Bearer ${newToken}`,
-              },
-            });
-          }
-          // 다른 오류는 그대로 던지기
           throw error;
         }
       };
@@ -178,18 +164,6 @@ export default function RoutineDetailPage() {
           );
           return response;
         } catch (error) {
-          // 토큰 만료 오류 (401) 처리
-          if (error.response && error.response.status === 401) {
-            console.log("토큰이 만료되었습니다. 재발급을 시도합니다.");
-            // 토큰 재발급 - utils의 함수 사용
-            const newToken = await reissueToken(navigate);
-            // 새 토큰으로 다시 요청
-            return await axiosInstance.post("/plan/auth/modify", requestData, {
-              headers: {
-                Authorization: `Bearer ${newToken}`,
-              },
-            });
-          }
           // 다른 오류는 그대로 던지기
           throw error;
         }

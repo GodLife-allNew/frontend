@@ -2,8 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import RoutineList from "@/components/routine/list/RoutineList";
-import axiosInstance from "@/api/axiosInstance";
-import { reissueToken } from "@/utils/routineUtils";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 const MyRoutineList = () => {
   const [routines, setRoutines] = useState([]);
@@ -38,18 +37,6 @@ const MyRoutineList = () => {
           });
           return response;
         } catch (error) {
-          // 토큰 만료 처리
-          if (error.response && error.response.status === 401) {
-            const newToken = await reissueToken(navigate);
-            return await axiosInstance.get(url, {
-              headers: {
-                Authorization: `Bearer ${newToken}`,
-              },
-              validateStatus: function (status) {
-                return (status >= 200 && status < 300) || status === 204;
-              },
-            });
-          }
           throw error;
         }
       };

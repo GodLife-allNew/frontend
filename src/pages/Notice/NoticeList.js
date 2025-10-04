@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/pagination";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import DOMPurify from "dompurify";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 // 목 데이터 생성
 // const mockNotices = Array.from({ length: 35 }, (_, index) => ({

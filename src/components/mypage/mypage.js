@@ -4,7 +4,7 @@ import MyProfileForm from "./myprofile";
 import PasswordSection from "./Security Settings";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 import RoutineTabContent from "./myroutine";
 import LikedRoutineTabContent from "./myLike";
 import QnAList from "../QnA/QnaList";

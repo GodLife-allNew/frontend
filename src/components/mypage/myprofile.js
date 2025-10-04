@@ -29,7 +29,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 export default function MyProfileForm({ userData, setUserData }) {
   // userData에 초기값을 설정합니다
