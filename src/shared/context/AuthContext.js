@@ -36,16 +36,13 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // 로그인 함수
-  const login = (userData, tokens = { accessToken: "default-token" }) => {
-    console.log("로그인 함수 호출됨:", userData, tokens);
+  const login = (userData, tokens) => {
+    // console.log("로그인 함수 호출됨:", userData, tokens);
 
-    const { accessToken, refreshToken } = tokens;
+    const accessToken = tokens;
 
     // 토큰 저장
     localStorage.setItem("accessToken", accessToken);
-    if (refreshToken) {
-      localStorage.setItem("refreshToken", refreshToken);
-    }
 
     // 사용자 정보 저장
     localStorage.setItem("userInfo", JSON.stringify(userData));
@@ -64,7 +61,6 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     // 로컬 스토리지 정보 삭제
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
     localStorage.removeItem("userInfo");
 
     // 상태 업데이트

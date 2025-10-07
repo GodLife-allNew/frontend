@@ -14,14 +14,14 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    //console.log("++++++++++++++ api 요청 +++++++++++++++++++");
+    // console.log("++++++++++++++ api 요청 +++++++++++++++++++");
     // JWT 토큰 가져오기 (로컬 스토리지)
     const token = localStorage.getItem("accessToken");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    //console.log(config);
+    // console.log(config);
     return config;
   },
   (error) => Promise.reject(error)
@@ -34,6 +34,11 @@ axiosInstance.interceptors.response.use(
 
     // 🔹 재발급 요청 자체는 재시도하지 않도록 제외
     if (originalRequest.url === "/reissue") {
+      return Promise.reject(error);
+    }
+
+    // 🔹 로그인 요청은 재발급 제외
+    if (originalRequest.url.startsWith("/user/")) {
       return Promise.reject(error);
     }
 

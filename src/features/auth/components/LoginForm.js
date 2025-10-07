@@ -1,77 +1,34 @@
 import { useState, useEffect, useRef } from "react";
-import axiosInstance from "@/shared/api/axiosInstance";
 import { useAuth } from "@/shared/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Lock, User } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/shared/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { useToast } from "@/shared/components/ui/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
+import { useLogin } from "../hooks/useLogin";
+
 const loginFormSchema = z.object({
   userId: z.string().min(1, { message: "아이디를 입력해주세요." }),
-  userPw: z
-    .string()
-    .min(4, { message: "비밀번호는 최소 4자 이상이어야 합니다." }),
+  userPw: z.string().min(4, { message: "비밀번호는 최소 4자 이상이어야 합니다." }),
 });
 
-const LoginForm = () => {
+export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [data, setData] = useState(null);
-  const { toast } = useToast();
+  const toast = useToast().toast;
   const navigate = useNavigate();
   const errorShown = useRef(false);
-  const { login, isAuthenticated } = useAuth(); // useAuth 훅 사용
+  const { isAuthenticated } = useAuth();
 
-  const form = useForm({
-    resolver: zodResolver(loginFormSchema),
-    defaultValues: {
-      userId: "",
-      userPw: "",
-    },
-  });
+  const form = useForm({ resolver: zodResolver(loginFormSchema), defaultValues: { userId: "", userPw: "" } });
 
-  const getTokens = (responseHeaders) => {
-    if (!responseHeaders) return { accessToken: null, refreshToken: null };
-
-    const accessToken =
-      responseHeaders["authorization"] ||
-      responseHeaders["Authorization"] ||
-      null;
-    const refreshToken = responseHeaders["refresh-token"] || null;
-
-    const cleanAccessToken = accessToken
-      ? accessToken.startsWith("Bearer ")
-        ? accessToken.substring(7)
-        : accessToken
-      : null;
-
-    return {
-      accessToken: cleanAccessToken,
-      refreshToken,
-    };
-  };
+  const { handleLogin, loading } = useLogin();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -79,64 +36,23 @@ const LoginForm = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // 에러가 발생하면 실행됨
-  // useEffect 부분 수정
-  useEffect(() => {
-    if (data && !errorShown.current) {
-      console.log("API 응답 데이터:", data);
-
-      // 로그인 성공 처리 (한 번만 실행)
-      toast({
-        title: "로그인 성공",
-        description: "환영합니다!",
-      });
-
-      // 로그인 성공 후 리다이렉트
-      navigate("/");
-
-      // 토스트가 표시되었음을 표시
-      errorShown.current = true;
-    }
-  }, [data, navigate, toast]);
-
-  // onSubmit 함수 수정
   const onSubmit = async (formData) => {
-    // 새 로그인 시도 시 에러 상태 초기화
     errorShown.current = false;
-    console.log("로그인 시도:", formData);
-    setLoading(true);
-
     try {
-      const response = await axiosInstance.post("/user/login", formData, {
-        withCredentials: true,
-      });
+      const data = await handleLogin(formData);
 
-      // 응답 데이터 설정
-      setData(response.data);
-
-      // 토큰 정보 가져오기 및 저장 (여기서는 토스트 없음)
-      const tokens = getTokens(response.headers);
-      if (response.data && tokens.accessToken) {
-        login(response.data, tokens); // 사용자 데이터와 토큰 전달
+      if (data && !errorShown.current) {
+        toast({ title: "로그인 성공", description: "환영합니다!" });
+        navigate("/");
+        errorShown.current = true;
       }
-
-      // 에러 상태 초기화
-      setError(null);
-    } catch (err) {
-      console.error("로그인 오류:", err);
-      setError(err);
-      toast({
-        title: "로그인 실패",
-        description: "아이디나 비밀번호를 확인해주세요",
-      });
-    } finally {
-      setLoading(false);
+    } catch {
+      toast({ title: "로그인 실패", description: "아이디나 비밀번호를 확인해주세요" });
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
+  const togglePasswordVisibility = () => setShowPassword(prev => !prev);
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -153,7 +69,10 @@ const LoginForm = () => {
           <CardContent>
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                  onSubmit={(e) => {
+                    e.preventDefault();        // 브라우저 기본 새로고침 방지
+                    form.handleSubmit(onSubmit)(e);
+                  }}
                 className="space-y-4"
               >
                 <FormField
