@@ -28,7 +28,10 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // console.log("✅ Response received:", response);
+    return response; // 반드시 반환
+  },
   async (error) => {
     const originalRequest = error.config;
 

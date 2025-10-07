@@ -138,43 +138,37 @@ export const LoginForm = () => {
               </form>
             </Form>
             <div className="mt-4 text-center text-sm">
-              <a
-                href="#"
-                className="text-blue-600 hover:text-blue-800 font-medium"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate("/user/find_password");
-                }}
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-blue-600 hover:text-blue-800 hover:bg-transparent font-medium bg-transparent border-none focus:outline-none shadow-none"
+                onClick={() => navigate("/user/find_password")}
               >
                 비밀번호를 잊으셨나요?
-              </a>
+              </Button>
             </div>
-            <div className="mt-4 text-center text-sm">
-              <a
-                href="#"
-                className="text-blue-600 hover:text-blue-800 font-medium"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate("/user/find_id");
-                }}
+            <div className="mt-0 text-center text-sm">
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-blue-600 hover:text-blue-800 hover:bg-transparent font-medium bg-transparent border-none focus:outline-none shadow-none"
+                onClick={() => navigate("/user/find_id")}
               >
                 아이디를 잊으셨나요?
-              </a>
+              </Button>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col">
             <div className="text-center w-full">
               <span className="text-sm text-gray-500">계정이 없으신가요?</span>{" "}
-              <a
-                href="#"
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate("/user/signup");
-                }}
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-blue-600 hover:text-blue-800 hover:bg-transparent font-medium bg-transparent border-none focus:outline-none shadow-none"
+                onClick={() => navigate("/user/signup")}
               >
                 회원가입
-              </a>
+              </Button>
             </div>
           </CardFooter>
         </Card>

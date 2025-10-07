@@ -1,29 +1,19 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/shared/components/ui/input";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/shared/components/ui/use-toast";
-import axiosInstance from "@/shared/api/axiosInstance";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-} from "@/shared/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl } from "@/shared/components/ui/form";
 import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+
+import { useCategories } from "@/shared/hooks/categories/useCategories";
+import { useSignUpValid } from "../hooks/useSignUpValid";
+import { useSignUp } from "../hooks/useSignUp";
 
 //유효성 검사 스키마
 const signupSchema = z
@@ -59,12 +49,10 @@ const SignUpForm = () => {
   const emailCheckInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [isIdValid, setIsIdValid] = useState(null);
-  const [serverError, setServerError] = useState(""); // 서버 오류 메시지를 저장할 상태 변수
-  const [jobCategories, setJobCategories] = useState([]);
-  const [targetCategories, setTargetCategories] = useState([]);
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  // 직업 카테고리 조회
+  const { categories: jobCategories } = useCategories("job");
+  // 목표 카테고리 조회
+  const { categories: targetCategories } = useCategories("target");
   const { toast } = useToast();
 
   const form = useForm({
@@ -83,6 +71,10 @@ const SignUpForm = () => {
       verificationCode: "",
     },
   });
+
+  const { handleSubmit } = form;
+
+
 
   // 에러가 있는 필드 스타일 적용
   const getInputStyle = (fieldName) => {
@@ -131,47 +123,8 @@ const SignUpForm = () => {
           }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.formState.submitCount]); // 매번 렌더링마다 체크하지 않고 제출할 때만 체크
-
-  //직업 카테고리
-  useEffect(() => {
-    const fetchJobCategories = async () => {
-      try {
-        const response = await axiosInstance.get(`categories/job`);
-        console.log("직업 카테고리 데이터:", response.data);
-        setJobCategories(
-          response.data.map((item) => ({
-            jobIdx: item.idx,
-            jobName: item.name,
-          }))
-        );
-      } catch (error) {
-        console.error("직업 카테고리 데이터 가져오기 실패:", error);
-      }
-    };
-
-    fetchJobCategories();
-  }, []);
-
-  //관심사 카테고리
-  useEffect(() => {
-    const fetchTargetCategories = async () => {
-      try {
-        const response = await axiosInstance.get(`categories/target`);
-        console.log("관심사 카테고리 데이터:", response.data);
-        setTargetCategories(
-          response.data.map((item) => ({
-            targetIdx: item.idx,
-            targetName: item.name,
-          }))
-        );
-      } catch (error) {
-        console.error("관심사 카테고리 데이터 가져오기 실패:", error);
-      }
-    };
-
-    fetchTargetCategories();
-  }, []);
 
   const checkPassdMatch = () => {
     // form.getValues()로 현재 입력된 값을 가져옵니다.
@@ -190,272 +143,35 @@ const SignUpForm = () => {
     }
   };
 
-  //아이디 중복 확인 함수
-  const checkDuplicateId = async () => {
-    const userId = form.getValues("userId").trim();
-    if (!userId) {
-      alert("아이디를 입력해주세요.");
-      userIdInputRef.current?.focus();
-      return;
-    }
+  // 아이디, 이메일 검증 요청 및 확인 커스텀 훅
+  const {
+    checkDuplicateId,
+    requestEmailVerification,
+    verifyEmailCode,
+    isIdValid,
+    isEmailVerified,
+    loading: validationLoading,
+  } = useSignUpValid(form, { userIdInputRef, userEmailInputRef, emailCheckInputRef, });
 
-    setLoading(true);
-    try {
-      const response = await axiosInstance.get(`user/checkId/${userId}`);
+    // 회원가입 요청 커스텀 훅
+  const { onSubmit: handleSignUpSubmit, loading: signUpLoading, serverError } = useSignUp({
+    form, // ← 여기서 form 전달 필수
+    refs: {
+      userIdInputRef,
+      userPwInputRef,
+      userPwConfirmInputRef,
+      userNameInputRef,
+      userNickInputRef,
+      userEmailInputRef,
+      jobIdxInputRef,
+      targetIdxInputRef,
+      userPhoneInputRef,
+      userGenderInputRef,
+    },
+    isEmailVerified: isEmailVerified,
+    isIdValid: isIdValid,
+  });
 
-      console.log("중복 확인 응답 데이터:", response.data);
-
-      if (response.data === true) {
-        setIsIdValid(false);
-        alert("이미 사용 중인 아이디입니다.");
-        userIdInputRef.current?.focus();
-      } else {
-        setIsIdValid(true);
-        alert("사용 가능한 아이디입니다!");
-      }
-    } catch (error) {
-      console.error("아이디 중복 확인 오류:", error);
-      alert("중복 확인 중 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  //이메일 중복 확인 함수
-  const checkDuplicateEmail = async () => {
-    const userEmail = form.getValues("userEmail").trim();
-    if (!userEmail) {
-      alert("이메일을 입력해주세요.");
-      userEmailInputRef.current?.focus();
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // 요청 본문에 이메일 포함
-      const response = await axiosInstance.post(
-        `/verify/emails/send/verification-requests`,
-        {
-          userEmail: userEmail,
-        }
-      );
-
-      console.log("이메일 인증 코드 전송 응답:", response.data);
-
-      // API가 성공 정보를 반환한다고 가정
-      alert("인증 코드가 이메일로 전송되었습니다.");
-
-      // 인증 코드를 위한 새 필드와 확인 함수가 필요할 수 있습니다
-    } catch (error) {
-      console.error("이메일 인증 코드 전송 오류:", error);
-
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        // 서버에서 보낸 특정 오류 메시지 처리
-        alert(error.response.data.message);
-      } else {
-        alert("인증 코드 전송 중 오류가 발생했습니다.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 이메일 인증번호 확인 함수
-  const checkVerificationsEmail = async () => {
-    const userEmail = form.getValues("userEmail").trim();
-    const verificationCode = form.getValues("verificationCode").trim(); // 인증 코드 입력 필드 값
-
-    if (!userEmail) {
-      alert("이메일을 입력해주세요.");
-      emailCheckInputRef.current?.focus();
-      return;
-    }
-
-    if (!verificationCode) {
-      alert("인증 코드를 입력해주세요.");
-      emailCheckInputRef.current?.focus(); // 인증 코드 입력 필드에 대한 ref 필요
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // Correct way: code as query parameter, userEmail in body
-      const response = await axiosInstance.post(
-        `/verify/emails/verifications?code=${verificationCode}`,
-        {
-          userEmail: userEmail,
-        }
-      );
-
-      console.log("이메일 인증 코드 확인 응답:", response.data);
-
-      // 인증 성공 처리
-      alert("이메일 인증이 완료되었습니다.");
-      setIsEmailVerified(true); // 이메일 인증 상태를 저장하는 상태 변수 필요
-    } catch (error) {
-      console.error("이메일 인증 코드 확인 오류:", error);
-
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        // 서버에서 보낸 특정 오류 메시지 처리
-        alert(error.response.data.message);
-      } else {
-        alert("인증 코드 확인 중 오류가 발생했습니다.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 회원가입 API 요청 함수
-  const onSubmit = async (data) => {
-    const { userPwConfirm, verificationCode, ...apiData } = data;
-    const submitData = {
-      ...apiData,
-      userGender: parseInt(data.userGender, 10),
-      jobIdx: parseInt(data.jobIdx || "0", 10), // 문자열을 숫자로 변환
-      targetIdx: parseInt(data.targetIdx || "0", 10), // 문자열을 숫자로 변환
-    };
-    const formData = form.getValues();
-    console.log("회원가입 버튼 클릭됨, 전달된 데이터:", submitData);
-
-    if (!isEmailVerified) {
-      toast({
-        variant: "destructive",
-        title: "이메일 인증 필요",
-        description: "이메일 인증을 완료해주세요.",
-      });
-      return;
-    }
-
-    if (!isIdValid) {
-      toast({
-        variant: "destructive",
-        title: "아이디 확인 필요",
-        description: "아이디 중복 확인을 완료해주세요.",
-      });
-      userIdInputRef.current?.focus();
-      return;
-    }
-
-    if (data.userPw !== data.userPwConfirm) {
-      toast({
-        variant: "destructive",
-        title: "비밀번호 불일치",
-        description: "비밀번호가 일치하지 않습니다.",
-      });
-      userPwConfirmInputRef.current?.focus();
-      return;
-    }
-
-    setLoading(true);
-    setServerError(""); // 기존 서버 오류 초기화
-
-    try {
-      const response = await axiosInstance.post(`/user/join`, submitData);
-      console.log("응답 객체:", response);
-      console.log("회원가입 응답:", response.data);
-
-      if (response.data.success === false) {
-        // 서버에서 반환한 오류 메시지를 그대로 표시
-        if (response.data.message) {
-          setServerError(response.data.message);
-          toast({
-            variant: "destructive",
-            title: "회원가입 실패",
-            description: response.data.message,
-          });
-        }
-      } else {
-        toast({
-          title: "회원가입 성공",
-          description: "로그인 페이지로 이동합니다.",
-        });
-        navigate("/user/login");
-      }
-    } catch (error) {
-      console.error("회원가입 실패:", error);
-
-      // 서버 응답에서 오류 메시지 확인
-      if (error.response && error.response.data) {
-        let errorMessage = "";
-        let errorField = "";
-
-        // 오류 메시지 추출
-        if (typeof error.response.data === "string") {
-          errorMessage = error.response.data;
-        } else if (error.response.data.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.response.data.error) {
-          errorMessage = error.response.data.error;
-        } else {
-          // 객체인 경우 첫 번째 오류 메시지 사용
-          const errorObj = error.response.data;
-          for (const key in errorObj) {
-            if (errorObj[key]) {
-              errorMessage = errorObj[key];
-              errorField = key; // 오류 발생한 필드
-              break;
-            }
-          }
-        }
-
-        // 오류 메시지가 없으면 기본 메시지 사용
-        if (!errorMessage) {
-          errorMessage = "회원가입에 실패했습니다.";
-        }
-
-        setServerError(errorMessage);
-
-        toast({
-          variant: "destructive",
-          title: "회원가입 실패",
-          description: errorMessage,
-        });
-
-        setTimeout(() => {
-          if (errorField === "userId" && userIdInputRef.current) {
-            userIdInputRef.current.focus();
-          } else if (errorField === "userPw" && userPwInputRef.current) {
-            userPwInputRef.current.focus();
-          } else if (errorField === "userName" && userNameInputRef.current) {
-            userNameInputRef.current.focus();
-          } else if (errorField === "userNick" && userNickInputRef.current) {
-            userNickInputRef.current.focus();
-          } else if (errorField === "userEmail" && userEmailInputRef.current) {
-            userEmailInputRef.current.focus();
-          } else if (errorField === "jobIdx" && jobIdxInputRef.current) {
-            jobIdxInputRef.current.focus();
-          } else if (errorField === "targetIdx" && targetIdxInputRef.current) {
-            targetIdxInputRef.current.focus();
-          } else if (errorField === "userPhone" && userPhoneInputRef.current) {
-            userPhoneInputRef.current.focus();
-          } else if (
-            errorField === "userGender" &&
-            userGenderInputRef.current
-          ) {
-            userGenderInputRef.current.focus();
-          }
-        }, 0);
-      } else {
-        setServerError("회원가입에 실패했습니다.");
-        toast({
-          variant: "destructive",
-          title: "회원가입 실패",
-          description: "회원가입 처리 중 오류가 발생했습니다.",
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="h-screen bg-gray-200 flex items-center justify-center">
@@ -480,7 +196,7 @@ const SignUpForm = () => {
           <div className="pb-7 text-4xl font-bold">Sign up</div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(handleSignUpSubmit)} className="space-y-4">
               {/* 서버에서 반환된 오류 메시지 표시 */}
               {serverError && (
                 <div className="text-red-500 text-sm p-2 bg-red-50 rounded-md">
@@ -506,9 +222,10 @@ const SignUpForm = () => {
                         <Button
                           type="button"
                           className="min-w-[68px] bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 text-xs rounded"
-                          onClick={checkDuplicateEmail}
+                          onClick={requestEmailVerification}
+                          disabled={validationLoading} // 로딩 중에는 클릭 방지
                         >
-                          인증하기
+                          {validationLoading ? "요청 중..." : "인증 하기"}
                         </Button>
                       </div>
                     </FormControl>
@@ -531,9 +248,10 @@ const SignUpForm = () => {
                         <Button
                           type="button"
                           className="min-w-[68px] bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 text-xs rounded"
-                          onClick={checkVerificationsEmail}
+                          onClick={verifyEmailCode}
+                          disabled={validationLoading} // 로딩 중에는 클릭 방지
                         >
-                          확인
+                          {validationLoading ? "검증 중..." : "확인"}
                         </Button>
                       </div>
                     </FormControl>
@@ -558,8 +276,9 @@ const SignUpForm = () => {
                           type="button"
                           className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 text-xs rounded"
                           onClick={checkDuplicateId}
+                          disabled={validationLoading} // 로딩 중에는 클릭 방지
                         >
-                          중복 확인
+                          {validationLoading ? "검증 중..." : "중복 확인"}
                         </Button>
                       </div>
                     </FormControl>
@@ -797,9 +516,9 @@ const SignUpForm = () => {
               <Button
                 type="submit"
                 className="w-full bg-black text-white"
-                disabled={loading}
+                disabled={signUpLoading}
               >
-                {loading ? "회원가입 중..." : "회원가입"}
+                {signUpLoading ? "회원가입 중..." : "회원가입"}
               </Button>
             </form>
           </Form>
