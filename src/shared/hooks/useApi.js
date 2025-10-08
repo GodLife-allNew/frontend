@@ -27,7 +27,8 @@ export const useApi = () => {
   const get = useCallback((url, options = {}) => request("get", url, options), [request]);
   const post = useCallback((url, data = {}, options = {}) => request("post", url, { ...options, data }), [request]);
   const put = useCallback((url, data = {}, options = {}) => request("put", url, { ...options, data }), [request]);
+  const patch = useCallback((url, data = {}, options = {}) => request("patch", url, { ...options, data }), [request]);
   const del = useCallback((url, options = {}) => request("delete", url, options), [request]);
 
-  return { loading, error, get, post, put, delete: del };
+  return { loading, error, get, post, put, patch, delete: del };
 };
