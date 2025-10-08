@@ -11,9 +11,14 @@ import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 
+// 카테고리 조회 훅
 import { useCategories } from "@/shared/hooks/categories/useCategories";
+// 회원가입 유효성 검증 훅
 import { useSignUpValid } from "../hooks/useSignUpValid";
+// 회원가입 요청 훅
 import { useSignUp } from "../hooks/useSignUp";
+// 휴대폰 번호 포맷팅 훅
+import { usePhoneFormatter } from "@/shared/hooks/formatter/usePhoneFormatter";
 
 //유효성 검사 스키마
 const signupSchema = z
@@ -51,8 +56,14 @@ const SignUpForm = () => {
 
   // 직업 카테고리 조회
   const { categories: jobCategories } = useCategories("job");
+  // console.log("회원가입 폼에서의 직업 카테고리",jobCategories);
   // 목표 카테고리 조회
   const { categories: targetCategories } = useCategories("target");
+  // console.log("회원가입 폼에서의 목표 카테고리",targetCategories);
+
+  // 휴대폰 번호 자동 포맷 객체
+  const { formatPhoneNumber } = usePhoneFormatter();
+
   const { toast } = useToast();
 
   const form = useForm({
@@ -123,9 +134,14 @@ const SignUpForm = () => {
           }
       }
     }
+    // eslint 경고 무시
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.formState.submitCount]); // 매번 렌더링마다 체크하지 않고 제출할 때만 체크
 
+  /**
+   * 비밀번호 일치 여부 검증
+   * @returns void
+   */
   const checkPassdMatch = () => {
     // form.getValues()로 현재 입력된 값을 가져옵니다.
     const password = form.getValues("userPw").trim();
@@ -143,7 +159,9 @@ const SignUpForm = () => {
     }
   };
 
-  // 아이디, 이메일 검증 요청 및 확인 커스텀 훅
+  /**
+   * 아이디, 이메일 검증 요청 및 확인 커스텀 훅
+   */
   const {
     checkDuplicateId,
     requestEmailVerification,
@@ -153,7 +171,9 @@ const SignUpForm = () => {
     loading: validationLoading,
   } = useSignUpValid(form, { userIdInputRef, userEmailInputRef, emailCheckInputRef, });
 
-    // 회원가입 요청 커스텀 훅
+  /**
+   * 회원가입 요청 커스텀 훅
+   */
   const { onSubmit: handleSignUpSubmit, loading: signUpLoading, serverError } = useSignUp({
     form, // ← 여기서 form 전달 필수
     refs: {
@@ -331,11 +351,15 @@ const SignUpForm = () => {
                     <FormControl>
                       <Input
                         type="tel"
-                        placeholder="'-' 포함하고 입력"
-                        pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
-                        {...field}
+                        placeholder="자동으로 '-'가 입력됩니다"
+                        value={field.value || ""}
+                        onChange={(e) => {
+                          const formatted = formatPhoneNumber(e.target.value);
+                          field.onChange(formatted); // react-hook-form에 반영
+                        }}
                         ref={userPhoneInputRef}
                         style={getInputStyle("userPhone")}
+                        maxLength={13} // 010-0000-0000
                       />
                     </FormControl>
                   </FormItem>
@@ -448,10 +472,10 @@ const SignUpForm = () => {
                               {jobCategories.length > 0 ? (
                                 jobCategories.map((job) => (
                                   <SelectItem
-                                    key={job.jobIdx}
-                                    value={job.jobIdx?.toString()}
+                                    key={job.idx}
+                                    value={job.idx?.toString()}
                                   >
-                                    {job.jobName}
+                                    {job.name}
                                   </SelectItem>
                                 ))
                               ) : (
@@ -492,10 +516,10 @@ const SignUpForm = () => {
                               {targetCategories.length > 0 ? (
                                 targetCategories.map((target) => (
                                   <SelectItem
-                                    key={target.targetIdx}
-                                    value={target.targetIdx?.toString()}
+                                    key={target.idx}
+                                    value={target.idx?.toString()}
                                   >
-                                    {target.targetName}
+                                    {target.name}
                                   </SelectItem>
                                 ))
                               ) : (

@@ -85,7 +85,7 @@ export const useSignUpValid = (form, refs = {}) => {
     } catch (err) {
       console.error("이메일 인증 코드 전송 오류:", err);
       const message =
-        err?.response?.data?.message || "인증 코드 전송 중 오류가 발생했습니다.";
+        err?.response?.data?.userEmail || "인증 코드 전송 중 오류가 발생했습니다.";
       toast({
         title: "오류",
         description: message,

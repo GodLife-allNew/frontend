@@ -1,4 +1,3 @@
-// 📁 src/hooks/useSignUp.js
 import { useState } from "react";
 import axiosInstance from "@/shared/api/axiosInstance";
 import { useToast } from "@/shared/components/ui/use-toast";

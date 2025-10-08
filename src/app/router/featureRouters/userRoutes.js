@@ -1,6 +1,4 @@
 import Home from "@/pages/Home/Home";
-// import Signup from "@/pages/Auth/SignUp";
-// import Login from "@/pages/Auth/Login";
 import { Login, Signup } from "@/features/auth";
 import FindPassword from "@/pages/Auth/FindPassword";
 import FindId from "@/pages/Auth/FindId";

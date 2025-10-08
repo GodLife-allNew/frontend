@@ -43,10 +43,11 @@ export const useCategories = (type = "job") => {
     };
 
     fetchCategories();
-    
+
   }, [get, type]);
 
-  console.log(categories);
+  // console.log(`${type} 카테고리 조회 결과`, categories);
+
   // ✅ 로딩, 에러, 데이터 반환
   return { categories, loading, error };
 };
