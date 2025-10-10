@@ -14,14 +14,14 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    // console.log("++++++++++++++ api 요청 +++++++++++++++++++");
+    console.log("++++++++++++++ api 요청 +++++++++++++++++++");
     // JWT 토큰 가져오기 (로컬 스토리지)
     const token = localStorage.getItem("accessToken");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    // console.log(config);
+    console.log(config);
     return config;
   },
   (error) => Promise.reject(error)

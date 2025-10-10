@@ -10,11 +10,16 @@ export const useApi = () => {
     setError(null);
     try {
       let response;
+
       if (method === "get" || method === "delete") {
+        // GET / DELETE → (url, config)
         response = await axiosInstance[method](url, options);
       } else {
-        response = await axiosInstance[method](url, options.data || {}, options);
+        // POST / PUT / PATCH → (url, data, config)
+        const { data, ...config } = options;
+        response = await axiosInstance[method](url, data, config);
       }
+
       return response;
     } catch (err) {
       setError(err);
@@ -23,6 +28,7 @@ export const useApi = () => {
       setLoading(false);
     }
   }, []);
+
 
   const get = useCallback((url, options = {}) => request("get", url, options), [request]);
   const post = useCallback((url, data = {}, options = {}) => request("post", url, { ...options, data }), [request]);
