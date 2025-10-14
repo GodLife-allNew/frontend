@@ -1,8 +1,5 @@
 import Home from "@/pages/Home/Home";
-import Signup from "@/pages/Auth/SignUp";
-import Login from "@/pages/Auth/Login";
-import FindPassword from "@/pages/Auth/FindPassword";
-import FindId from "@/pages/Auth/FindId";
+import { Login, Signup, FindId, FindPassword } from "@/features/auth";
 import MyPage from "@/pages/MyPage/MyPage";
 
 export const USER_ROUTES = [
