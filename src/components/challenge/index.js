@@ -25,6 +25,12 @@ const signupSchema = z.object({
   challStartTime: z.string().optional(),
   duration: z.string().min(1, "유지 기간을 입력해주세요"),
   userJoin: z.string().optional(),
+  challengeType: z.enum(["NORMAL", "SPECIAL"], {
+    required_error: "챌린지 타입을 선택해주세요",
+  }),
+  visibilityType: z.enum(["PUBLIC", "PRIVATE"], {
+    required_error: "공개 여부를 선택해주세요",
+  }),
 });
 
 const ChallengeForm = ({ onSaveComplete, onCancel, isIntegrated = false }) => {
@@ -85,6 +91,8 @@ const ChallengeForm = ({ onSaveComplete, onCancel, isIntegrated = false }) => {
       challState: "",
       challStartTime: "",
       duration: "",
+      challengeType: "NORMAL",
+      visibilityType: "PUBLIC",
       userJoin: "",
     },
   });
@@ -139,6 +147,8 @@ const ChallengeForm = ({ onSaveComplete, onCancel, isIntegrated = false }) => {
         maxParticipants: parseInt(data.maxParticipants, 10),
         userJoin: challengeType === "0" ? 0 : 1,
         duration: parseInt(data.duration, 10),
+        challengeType: data.challengeType,
+        visibilityType: data.visibilityType,
       };
 
       console.log("제출할 챌린지 데이터:", submitData);
@@ -287,6 +297,66 @@ const ChallengeForm = ({ onSaveComplete, onCancel, isIntegrated = false }) => {
                       />
                     </FormControl>
                     <p className="text-sm text-gray-500 mt-2">{descriptionLength}/500자</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-sm">
+            <CardHeader>
+              <CardTitle>챌린지 타입</CardTitle>
+              <CardDescription>챌린지의 타입을 선택해주세요.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="challengeType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <RadioGroup className="flex space-x-4" value={field.value} onValueChange={field.onChange}>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="NORMAL" id="normal-challenge" />
+                          <Label htmlFor="normal-challenge">일반 챌린지</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="SPECIAL" id="special-challenge" />
+                          <Label htmlFor="special-challenge">스페셜 챌린지</Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-sm">
+            <CardHeader>
+              <CardTitle>공개 여부</CardTitle>
+              <CardDescription>챌린지의 공개 범위를 선택해주세요.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="visibilityType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <RadioGroup className="flex space-x-4" value={field.value} onValueChange={field.onChange}>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="PUBLIC" id="public-challenge" />
+                          <Label htmlFor="public-challenge">공개</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="PRIVATE" id="private-challenge" />
+                          <Label htmlFor="private-challenge">비공개</Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
