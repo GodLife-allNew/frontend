@@ -1,11 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
@@ -16,14 +10,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "@/shared/api/axiosInstance";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/shared/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/shared/components/ui/form";
 import { useToast } from "@/shared/components/ui/use-toast";
 
 // 유효성 검사 스키마
@@ -37,15 +24,16 @@ const modifySchema = z.object({
   challState: z.enum(["0", "1"]),
   challStartTime: z.string().optional(),
   duration: z.string().min(1, "유지 기간을 입력해주세요"),
+  challengeType: z.enum(["NORMAL", "SPECIAL"], {
+    required_error: "챌린지 타입을 선택해주세요",
+  }),
+  visibilityType: z.enum(["PUBLIC", "PRIVATE"], {
+    required_error: "공개 여부를 선택해주세요",
+  }),
   userJoin: z.string().optional(),
 });
 
-const ChallengeModifyForm = ({
-  challIdx: propChallIdx,
-  onSaveComplete,
-  onCancel,
-  isIntegrated = false,
-}) => {
+const ChallengeModifyForm = ({ challIdx: propChallIdx, onSaveComplete, onCancel, isIntegrated = false }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { challIdx: paramChallIdx } = useParams();
@@ -53,7 +41,7 @@ const ChallengeModifyForm = ({
   // 🔥 challIdx는 props에서 우선 가져오고, 없으면 useParams에서 가져옴
   const challIdx = propChallIdx || paramChallIdx;
 
-  const [challengeType, setChallengeType] = useState("0");
+  const [challengeState, setChallengeState] = useState("0");
   const [titleLength, setTitleLength] = useState(0);
   const [descriptionLength, setDescriptionLength] = useState(0);
   const [challengeCategories, setChallengeCategories] = useState([]);
@@ -108,6 +96,8 @@ const ChallengeModifyForm = ({
       challState: "",
       challStartTime: "",
       duration: "",
+      challengeType: "NORMAL",
+      visibilityType: "PUBLIC",
       userJoin: "",
     },
   });
@@ -141,20 +131,18 @@ const ChallengeModifyForm = ({
           challDescription: challengeData.challDescription || "",
           challCategoryIdx: String(challengeData.challCategoryIdx || ""),
           totalClearTime: String(challengeData.totalClearTime || ""),
-          minParticipationTime: String(
-            challengeData.minParticipationTime || ""
-          ),
+          minParticipationTime: String(challengeData.minParticipationTime || ""),
           maxParticipants: String(challengeData.maxParticipants || ""),
           challState: challengeData.userJoin === 0 ? "0" : "1",
-          challStartTime: challengeData.challStartTime
-            ? new Date(challengeData.challStartTime).toISOString().split("T")[0]
-            : "",
+          challStartTime: challengeData.challStartTime ? new Date(challengeData.challStartTime).toISOString().split("T")[0] : "",
           duration: String(challengeData.duration || ""),
+          challengeType: challengeData.challengeType || "NORMAL",
+          visibilityType: challengeData.visibilityType || "PUBLIC",
           userJoin: String(challengeData.userJoin || ""),
         });
 
-        // 챌린지 타입 설정
-        setChallengeType(challengeData.userJoin === 0 ? "0" : "1");
+        // 챌린지 상태 설정
+        setChallengeState(challengeData.userJoin === 0 ? "0" : "1");
 
         // 텍스트 길이 설정
         setTitleLength(challengeData.challTitle?.length || 0);
@@ -189,10 +177,10 @@ const ChallengeModifyForm = ({
     }
   };
 
-  // challengeType이 변경될 때마다 challState 값 업데이트
+  // challengeState가 변경될 때마다 challState 값 업데이트
   useEffect(() => {
-    form.setValue("challState", challengeType);
-  }, [challengeType, form]);
+    form.setValue("challState", challengeState);
+  }, [challengeState, form]);
 
   // 🔥 챌린지 수정 API 요청 함수
   const onSubmit = async (data) => {
@@ -222,8 +210,10 @@ const ChallengeModifyForm = ({
         minParticipationTime: parseInt(data.minParticipationTime, 10),
         totalClearTime: parseInt(data.totalClearTime, 10),
         maxParticipants: parseInt(data.maxParticipants, 10),
-        userJoin: challengeType === "0" ? 0 : 1,
+        userJoin: challengeState === "0" ? 0 : 1,
         duration: parseInt(data.duration, 10),
+        challengeType: data.challengeType,
+        visibilityType: data.visibilityType,
       };
 
       // 시작일이 있으면 T12:00:00 형식으로 변환하여 추가
@@ -233,13 +223,9 @@ const ChallengeModifyForm = ({
 
       console.log("수정할 챌린지 데이터:", submitData);
 
-      const response = await axiosInstance.patch(
-        "/admin/challenges/modify",
-        submitData,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
+      const response = await axiosInstance.patch("/admin/challenges/modify", submitData, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
 
       console.log("챌린지 수정 성공:", response.data);
 
@@ -313,9 +299,7 @@ const ChallengeModifyForm = ({
           <Card className="bg-white shadow-sm">
             <CardHeader>
               <CardTitle>카테고리</CardTitle>
-              <CardDescription>
-                챌린지의 카테고리를 선택해주세요.
-              </CardDescription>
+              <CardDescription>챌린지의 카테고리를 선택해주세요.</CardDescription>
             </CardHeader>
             <CardContent>
               <FormField
@@ -337,13 +321,7 @@ const ChallengeModifyForm = ({
                         >
                           <option value="">카테고리를 선택해주세요</option>
                           {challengeCategories.map((category) => (
-                            <option
-                              key={
-                                category.challCateIdx ||
-                                `category-${category.challName}`
-                              }
-                              value={String(category.challCateIdx)}
-                            >
+                            <option key={category.challCateIdx || `category-${category.challName}`} value={String(category.challCateIdx)}>
                               {category.challName}
                             </option>
                           ))}
@@ -360,9 +338,7 @@ const ChallengeModifyForm = ({
           <Card className="bg-white shadow-sm">
             <CardHeader>
               <CardTitle>제목</CardTitle>
-              <CardDescription>
-                챌린지에 적절한 제목을 입력해주세요.
-              </CardDescription>
+              <CardDescription>챌린지에 적절한 제목을 입력해주세요.</CardDescription>
             </CardHeader>
             <CardContent>
               <FormField
@@ -382,9 +358,7 @@ const ChallengeModifyForm = ({
                         }}
                       />
                     </FormControl>
-                    <p className="text-sm text-gray-500 mt-2">
-                      {titleLength}/50자
-                    </p>
+                    <p className="text-sm text-gray-500 mt-2">{titleLength}/50자</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -395,9 +369,7 @@ const ChallengeModifyForm = ({
           <Card className="bg-white shadow-sm">
             <CardHeader>
               <CardTitle>소개</CardTitle>
-              <CardDescription>
-                챌린지에 대한 자세한 설명을 적어주세요.
-              </CardDescription>
+              <CardDescription>챌린지에 대한 자세한 설명을 적어주세요.</CardDescription>
             </CardHeader>
             <CardContent>
               <FormField
@@ -416,9 +388,67 @@ const ChallengeModifyForm = ({
                         }}
                       />
                     </FormControl>
-                    <p className="text-sm text-gray-500 mt-2">
-                      {descriptionLength}/500자
-                    </p>
+                    <p className="text-sm text-gray-500 mt-2">{descriptionLength}/500자</p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-sm">
+            <CardHeader>
+              <CardTitle>챌린지 타입</CardTitle>
+              <CardDescription>챌린지의 타입을 선택해주세요.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="challengeType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <RadioGroup className="flex space-x-4" value={field.value} onValueChange={field.onChange}>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="NORMAL" id="normal-challenge" />
+                          <Label htmlFor="normal-challenge">일반 챌린지</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="SPECIAL" id="special-challenge" />
+                          <Label htmlFor="special-challenge">스페셜 챌린지</Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-sm">
+            <CardHeader>
+              <CardTitle>공개 여부</CardTitle>
+              <CardDescription>챌린지의 공개 범위를 선택해주세요.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="visibilityType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <RadioGroup className="flex space-x-4" value={field.value} onValueChange={field.onChange}>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="PUBLIC" id="public-challenge" />
+                          <Label htmlFor="public-challenge">공개</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="PRIVATE" id="private-challenge" />
+                          <Label htmlFor="private-challenge">비공개</Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -429,9 +459,7 @@ const ChallengeModifyForm = ({
           <Card className="bg-white shadow-sm">
             <CardHeader>
               <CardTitle>최소 참여 가능 시간 및 총 클리어 시간</CardTitle>
-              <CardDescription>
-                최소 참여 가능 시간과 총 클리어 시간을 설정해주세요.
-              </CardDescription>
+              <CardDescription>최소 참여 가능 시간과 총 클리어 시간을 설정해주세요.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -440,16 +468,9 @@ const ChallengeModifyForm = ({
                   name="minParticipationTime"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">
-                        참여 가능한 최소 시간
-                      </FormLabel>
+                      <FormLabel className="text-gray-700">참여 가능한 최소 시간(분)</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          type="number"
-                          id="minParticipationTime"
-                          min="1"
-                        />
+                        <Input {...field} type="number" id="minParticipationTime" min="1" />
                       </FormControl>
                       <FormMessage className="text-red-500 text-sm" />
                     </FormItem>
@@ -461,16 +482,9 @@ const ChallengeModifyForm = ({
                   name="totalClearTime"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">
-                        총 클리어 시간
-                      </FormLabel>
+                      <FormLabel className="text-gray-700">총 클리어 시간(분)</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          type="number"
-                          id="totalClearTime"
-                          min="1"
-                        />
+                        <Input {...field} type="number" id="totalClearTime" min="1" />
                       </FormControl>
                       <FormMessage className="text-red-500 text-sm" />
                     </FormItem>
@@ -483,9 +497,7 @@ const ChallengeModifyForm = ({
           <Card className="bg-white shadow-sm">
             <CardHeader>
               <CardTitle>최대 참여 가능 인원</CardTitle>
-              <CardDescription>
-                최대 참여 가능한 인원을 설정해주세요.
-              </CardDescription>
+              <CardDescription>최대 참여 가능한 인원을 설정해주세요.</CardDescription>
             </CardHeader>
             <CardContent>
               <FormField
@@ -494,13 +506,7 @@ const ChallengeModifyForm = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input
-                        {...field}
-                        className="w-full"
-                        type="number"
-                        id="maxParticipants"
-                        min="1"
-                      />
+                      <Input {...field} className="w-full" type="number" id="maxParticipants" min="1" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -522,23 +528,19 @@ const ChallengeModifyForm = ({
                     <FormControl>
                       <RadioGroup
                         className="flex space-x-4"
-                        value={challengeType}
+                        value={challengeState}
                         onValueChange={(value) => {
-                          setChallengeType(value);
+                          setChallengeState(value);
                           field.onChange(value);
                         }}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="0" id="admin-challenge" />
-                          <Label htmlFor="admin-challenge">
-                            관리자 개입형 챌린지
-                          </Label>
+                          <Label htmlFor="admin-challenge">관리자 개입형 챌린지</Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="1" id="user-challenge" />
-                          <Label htmlFor="user-challenge">
-                            유저 참여형 챌린지
-                          </Label>
+                          <Label htmlFor="user-challenge">유저 참여형 챌린지</Label>
                         </div>
                       </RadioGroup>
                     </FormControl>
@@ -552,22 +554,18 @@ const ChallengeModifyForm = ({
             <CardHeader>
               <CardTitle>챌린지 기간 설정</CardTitle>
               <CardDescription>
-                {challengeType === "0"
-                  ? "시작일과 챌린지 유지 기간을 설정해주세요."
-                  : "챌린지 유지 시간을 설정해주세요."}
+                {challengeState === "0" ? "시작일과 챌린지 유지 기간을 설정해주세요." : "챌린지 유지 시간을 설정해주세요."}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col md:flex-row gap-6">
-                {challengeType === "0" && (
+                {challengeState === "0" && (
                   <div className="flex-1 space-y-2">
                     <Label htmlFor="challStartTime">시작일</Label>
                     <Controller
                       control={form.control}
                       name="challStartTime"
-                      render={({ field }) => (
-                        <Input {...field} type="date" id="challStartTime" />
-                      )}
+                      render={({ field }) => <Input {...field} type="date" id="challStartTime" />}
                     />
                   </div>
                 )}
@@ -577,15 +575,7 @@ const ChallengeModifyForm = ({
                   <Controller
                     control={form.control}
                     name="duration"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        type="number"
-                        id="duration"
-                        min="1"
-                        className="w-full"
-                      />
-                    )}
+                    render={({ field }) => <Input {...field} type="number" id="duration" min="1" className="w-full" />}
                   />
                 </div>
               </div>
