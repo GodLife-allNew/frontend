@@ -819,8 +819,8 @@ import { Stomp } from "@stomp/stompjs";
 import axiosInstance from "@/shared/api/axiosInstance";
 
 // React-Quill 임포트 (뷰어 모드로 사용)
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 
 const ChatRoom = () => {
   const [chatList, setChatList] = useState([]);

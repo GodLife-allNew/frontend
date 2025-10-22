@@ -4,7 +4,7 @@ import { useApi } from "@/shared/hooks/useApi";
  * 공지사항 관련 API 요청 서비스
  */
 export const useNoticeService = () => {
-  const { get, post, patch, loading } = useApi();
+  const { get, post, patch, del, loading } = useApi();
 
   /** 공지사항 상세 조회 */
   const getNoticeById = async (noticeIdx) => {
@@ -22,5 +22,16 @@ export const useNoticeService = () => {
     await patch(`/notice/admin/${noticeIdx}`, noticeData);
   };
 
-  return { getNoticeById, createNotice, updateNotice, loading };
+  /** 공지사항 삭제 */
+  const deleteNotice = async (noticeIdx) => {
+    await del(`/notice/admin/${noticeIdx}`);
+  };
+
+  /** 공지사항 리스트 */
+  const getNoticeList = async (page, size) => {
+    const res = await get(`/notice?page=${page}&size=${size}`);
+    return res.data?.message ?? res.data;
+  };
+
+  return { getNoticeById, createNotice, updateNotice, deleteNotice, getNoticeList, loading };
 };

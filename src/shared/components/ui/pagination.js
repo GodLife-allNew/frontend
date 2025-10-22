@@ -29,7 +29,7 @@ const PaginationItem = React.forwardRef(({ className, ...props }, ref) => (
 PaginationItem.displayName = "PaginationItem";
 
 const PaginationLink = React.forwardRef(
-  ({ className, isActive, size = "icon", ...props }, ref) => (
+  ({ className, isActive, size = "icon", children, ...props }, ref) => (
     <a
       ref={ref}
       aria-current={isActive ? "page" : undefined}
@@ -41,9 +41,16 @@ const PaginationLink = React.forwardRef(
         className
       )}
       {...props}
-    />
+    >
+      {children ? (
+        children
+      ) : (
+        <span className="sr-only">Page link</span> // 기본 대체 텍스트
+      )}
+    </a>
   )
 );
+
 PaginationLink.displayName = "PaginationLink";
 
 const PaginationPrevious = React.forwardRef(({ className, ...props }, ref) => (

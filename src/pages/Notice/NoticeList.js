@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import {
   Pagination,
@@ -11,29 +11,9 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/shared/components/ui/pagination";
-import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import DOMPurify from "dompurify";
 import axiosInstance from "@/shared/api/axiosInstance";
-
-// 목 데이터 생성
-// const mockNotices = Array.from({ length: 35 }, (_, index) => ({
-//   noticeIdx: index + 1,
-//   noticeTitle: `공지사항 제목 ${index + 1}`,
-//   noticeSub: `이것은 공지사항 ${
-//     index + 1
-//   }의 내용입니다. 여기에는 공지사항의 상세 내용이 들어갑니다. 공지사항에는 다양한 정보가 포함될 수 있습니다. 예를 들어 서비스 점검 일정, 새로운 기능 소개, 중요 정책 안내 등이 여기에 기재됩니다.`,
-//   noticeDate: new Date(
-//     2025,
-//     3,
-//     Math.floor(Math.random() * 30) + 1
-//   ).toISOString(),
-//   noticeModify:
-//     Math.random() > 0.7
-//       ? new Date(2025, 3, Math.floor(Math.random() * 30) + 1).toISOString()
-//       : null,
-//   writeName: ["관리자", "시스템", "운영팀"][Math.floor(Math.random() * 3)],
-//   isPopup: Math.random() > 0.8 ? "Y" : "N",
-// }));
 
 const NoticeListPage = () => {
   const userInfoString = localStorage.getItem("userInfo");
@@ -61,20 +41,6 @@ const NoticeListPage = () => {
     const fetchNotices = async () => {
       setIsLoading(true);
       try {
-        // API 호출 대신 목 데이터 사용
-        // setTimeout(() => {
-        //   // 현재 페이지에 해당하는 데이터만 추출
-        //   const start = (currentPage - 1) * pageSize;
-        //   const end = start + pageSize;
-        //   const paginatedNotices = mockNotices.slice(start, end);
-
-        //   // 데이터 및 페이지네이션 정보 설정
-        //   setNotices(paginatedNotices);
-        //   setTotalPages(Math.ceil(mockNotices.length / pageSize));
-        //   setIsLoading(false);
-        // }, 500); // 로딩 시뮬레이션
-
-        // 실제 API 코드
         const url = `/notice?page=${currentPage}&size=${pageSize}`;
         const response = await axiosInstance.get(url);
 
