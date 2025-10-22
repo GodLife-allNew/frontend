@@ -22,12 +22,24 @@ import UserManager from "./AdminUser";
 import QnaAdminDashboard from "../QnA/QnADashboard";
 
 const AdminDashboard = () => {
-  const [menuCollapsed, setMenuCollapsed] = useState(false);
-  const [activePage, setActivePage] = useState("");
-  const [contentMenuExpanded, setContentMenuExpanded] = useState(false);
-  const [userMenuExpanded, setUserMenuExpanded] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // localStorage에서 마지막 페이지 가져오기, 없으면 "추천 루틴관리" 기본값
+  const getInitialPage = () => {
+    const savedPage = localStorage.getItem("adminActivePage");
+    return savedPage || "추천 루틴관리";
+  };
+
+  const [menuCollapsed, setMenuCollapsed] = useState(false);
+  const [activePage, setActivePage] = useState(getInitialPage());
+  const [contentMenuExpanded, setContentMenuExpanded] = useState(true); // 기본값 true로 변경
+  const [userMenuExpanded, setUserMenuExpanded] = useState(false);
+
+  // activePage가 변경될 때마다 localStorage에 저장
+  useEffect(() => {
+    localStorage.setItem("adminActivePage", activePage);
+  }, [activePage]);
 
   const toggleMenu = () => {
     setMenuCollapsed(!menuCollapsed);
@@ -76,27 +88,15 @@ const AdminDashboard = () => {
 
   // 풀페이지 컴포넌트인지 확인
   const isFullPageComponent =
-    activePage === "챌린지 관리" ||
-    activePage === "유저 관리" ||
-    activePage === "신고처리" ||
-    activePage === "권한관리";
+    activePage === "챌린지 관리" || activePage === "유저 관리" || activePage === "신고처리" || activePage === "권한관리";
 
   return (
     <div className="flex h-screen bg-gray-100">
       {/* 왼쪽 사이드바 */}
-      <div
-        className={`bg-blue-600 text-white ${
-          menuCollapsed ? "w-16" : "w-64"
-        } transition-all duration-300 flex flex-col`}
-      >
+      <div className={`bg-blue-600 text-white ${menuCollapsed ? "w-16" : "w-64"} transition-all duration-300 flex flex-col`}>
         <div className="p-4 flex items-center justify-between border-b border-blue-500">
-          {!menuCollapsed && (
-            <span className="text-lg font-semibold">관리자 페이지</span>
-          )}
-          <button
-            onClick={toggleMenu}
-            className="p-2 rounded-md hover:bg-blue-700"
-          >
+          {!menuCollapsed && <span className="text-lg font-semibold">관리자 페이지</span>}
+          <button onClick={toggleMenu} className="p-2 rounded-md hover:bg-blue-700">
             <Menu size={20} />
           </button>
         </div>
@@ -105,21 +105,12 @@ const AdminDashboard = () => {
           <ul>
             {/* 컨텐츠 관리 (하위메뉴 있음) */}
             <li>
-              <button
-                onClick={toggleContentMenu}
-                className="w-full flex items-center p-4 space-x-3 text-left hover:bg-blue-700"
-              >
+              <button onClick={toggleContentMenu} className="w-full flex items-center p-4 space-x-3 text-left hover:bg-blue-700">
                 <CheckCircle size={20} />
                 {!menuCollapsed && (
                   <>
                     <span>컨텐츠 관리</span>
-                    <div className="ml-auto">
-                      {contentMenuExpanded ? (
-                        <ChevronDown size={16} />
-                      ) : (
-                        <ChevronRight size={16} />
-                      )}
-                    </div>
+                    <div className="ml-auto">{contentMenuExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</div>
                   </>
                 )}
               </button>
@@ -127,27 +118,13 @@ const AdminDashboard = () => {
               {/* 컨텐츠 관리 하위 메뉴 */}
               {contentMenuExpanded && !menuCollapsed && (
                 <ul>
-                  <li
-                    className={`hover:bg-blue-700 ${
-                      activePage === "추천 루틴관리" ? "bg-blue-700" : ""
-                    }`}
-                  >
-                    <button
-                      onClick={() => setActivePage("추천 루틴관리")}
-                      className="w-full flex items-center p-3 pl-12 text-left text-sm"
-                    >
+                  <li className={`hover:bg-blue-700 ${activePage === "추천 루틴관리" ? "bg-blue-700" : ""}`}>
+                    <button onClick={() => setActivePage("추천 루틴관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
                       <span>추천 루틴관리</span>
                     </button>
                   </li>
-                  <li
-                    className={`hover:bg-blue-700 ${
-                      activePage === "챌린지 관리" ? "bg-blue-700" : ""
-                    }`}
-                  >
-                    <button
-                      onClick={() => setActivePage("챌린지 관리")}
-                      className="w-full flex items-center p-3 pl-12 text-left text-sm"
-                    >
+                  <li className={`hover:bg-blue-700 ${activePage === "챌린지 관리" ? "bg-blue-700" : ""}`}>
+                    <button onClick={() => setActivePage("챌린지 관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
                       <span>챌린지 관리</span>
                     </button>
                   </li>
@@ -156,15 +133,8 @@ const AdminDashboard = () => {
             </li>
 
             {/* 컴포넌트 관리 */}
-            <li
-              className={`hover:bg-blue-700 ${
-                activePage === "컴포넌트 관리" ? "bg-blue-700" : ""
-              }`}
-            >
-              <button
-                onClick={() => setActivePage("컴포넌트 관리")}
-                className="w-full flex items-center p-4 space-x-3 text-left"
-              >
+            <li className={`hover:bg-blue-700 ${activePage === "컴포넌트 관리" ? "bg-blue-700" : ""}`}>
+              <button onClick={() => setActivePage("컴포넌트 관리")} className="w-full flex items-center p-4 space-x-3 text-left">
                 <FileText size={20} />
                 {!menuCollapsed && <span>컴포넌트 관리</span>}
               </button>
@@ -172,21 +142,12 @@ const AdminDashboard = () => {
 
             {/* 유저 관리 (하위메뉴 있음) */}
             <li>
-              <button
-                onClick={toggleUserMenu}
-                className="w-full flex items-center p-4 space-x-3 text-left hover:bg-blue-700"
-              >
+              <button onClick={toggleUserMenu} className="w-full flex items-center p-4 space-x-3 text-left hover:bg-blue-700">
                 <User size={20} />
                 {!menuCollapsed && (
                   <>
                     <span>유저 관리</span>
-                    <div className="ml-auto">
-                      {userMenuExpanded ? (
-                        <ChevronDown size={16} />
-                      ) : (
-                        <ChevronRight size={16} />
-                      )}
-                    </div>
+                    <div className="ml-auto">{userMenuExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</div>
                   </>
                 )}
               </button>
@@ -194,39 +155,18 @@ const AdminDashboard = () => {
               {/* 유저 관리 하위 메뉴 */}
               {userMenuExpanded && !menuCollapsed && (
                 <ul>
-                  <li
-                    className={`hover:bg-blue-700 ${
-                      activePage === "유저 관리" ? "bg-blue-700" : ""
-                    }`}
-                  >
-                    <button
-                      onClick={() => setActivePage("유저 관리")}
-                      className="w-full flex items-center p-3 pl-12 text-left text-sm"
-                    >
+                  <li className={`hover:bg-blue-700 ${activePage === "유저 관리" ? "bg-blue-700" : ""}`}>
+                    <button onClick={() => setActivePage("유저 관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
                       <span>유저 관리</span>
                     </button>
                   </li>
-                  <li
-                    className={`hover:bg-blue-700 ${
-                      activePage === "신고처리" ? "bg-blue-700" : ""
-                    }`}
-                  >
-                    <button
-                      onClick={() => setActivePage("신고처리")}
-                      className="w-full flex items-center p-3 pl-12 text-left text-sm"
-                    >
+                  <li className={`hover:bg-blue-700 ${activePage === "신고처리" ? "bg-blue-700" : ""}`}>
+                    <button onClick={() => setActivePage("신고처리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
                       <span>신고처리</span>
                     </button>
                   </li>
-                  <li
-                    className={`hover:bg-blue-700 ${
-                      activePage === "권한관리" ? "bg-blue-700" : ""
-                    }`}
-                  >
-                    <button
-                      onClick={() => setActivePage("권한관리")}
-                      className="w-full flex items-center p-3 pl-12 text-left text-sm"
-                    >
+                  <li className={`hover:bg-blue-700 ${activePage === "권한관리" ? "bg-blue-700" : ""}`}>
+                    <button onClick={() => setActivePage("권한관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
                       <span>권한관리</span>
                     </button>
                   </li>
@@ -235,30 +175,16 @@ const AdminDashboard = () => {
             </li>
 
             {/* FAQ 관리 */}
-            <li
-              className={`hover:bg-blue-700 ${
-                activePage === "FAQ 관리" ? "bg-blue-700" : ""
-              }`}
-            >
-              <button
-                onClick={() => setActivePage("FAQ 관리")}
-                className="w-full flex items-center p-4 space-x-3 text-left"
-              >
+            <li className={`hover:bg-blue-700 ${activePage === "FAQ 관리" ? "bg-blue-700" : ""}`}>
+              <button onClick={() => setActivePage("FAQ 관리")} className="w-full flex items-center p-4 space-x-3 text-left">
                 <FileText size={20} />
                 {!menuCollapsed && <span>FAQ 관리</span>}
               </button>
             </li>
 
             {/* 1:1 문의 */}
-            <li
-              className={`hover:bg-blue-700 ${
-                activePage === "1:1 문의" ? "bg-blue-700" : ""
-              }`}
-            >
-              <button
-                onClick={() => setActivePage("1:1 문의")}
-                className="w-full flex items-center p-4 space-x-3 text-left"
-              >
+            <li className={`hover:bg-blue-700 ${activePage === "1:1 문의" ? "bg-blue-700" : ""}`}>
+              <button onClick={() => setActivePage("1:1 문의")} className="w-full flex items-center p-4 space-x-3 text-left">
                 <MessageSquare size={20} />
                 {!menuCollapsed && <span>1:1 문의</span>}
               </button>
@@ -297,9 +223,7 @@ const AdminDashboard = () => {
           {activePage === "챌린지 관리" && <ChallengeManager />}
 
           {/* 유저 관리 관련 페이지들 */}
-          {(activePage === "유저 관리" ||
-            activePage === "신고처리" ||
-            activePage === "권한관리") && (
+          {(activePage === "유저 관리" || activePage === "신고처리" || activePage === "권한관리") && (
             <UserManager initialTab={activePage} />
           )}
 
