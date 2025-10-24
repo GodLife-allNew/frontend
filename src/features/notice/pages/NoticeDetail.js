@@ -73,23 +73,29 @@ const NoticeDetail = () => {
       <Card className="overflow-hidden border shadow-sm">
         <CardHeader className="pb-4 pt-6 px-6">
           <div className="flex flex-col space-y-1.5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap">
               <div className="flex items-center">
                 <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700 ring-1 ring-inset ring-blue-700/10 mr-2">
                   No.{notice.noticeIdx}
                 </span>
               </div>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <Calendar className="mr-1 h-4 w-4" />
-                <span>{formatDate(notice.noticeDate)}</span>
-                {notice.noticeModify && (
-                  <div className="flex items-center ml-4">
+
+              {/* ✅ 날짜 표시 영역 */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center text-sm text-muted-foreground mt-2 sm:mt-0">
+                <div className="flex items-center">
+                  <Calendar className="mr-1 h-4 w-4" />
+                  <span>{formatDate(notice.noticeDate)}</span>
+                </div>
+
+                {notice.noticeModify && notice.noticeDate !== notice.noticeModify && (
+                  <div className="flex items-center sm:ml-4 mt-1 sm:mt-0">
                     <Clock className="mr-1 h-4 w-4" />
                     <span>{formatDate(notice.noticeModify)} (수정됨)</span>
                   </div>
                 )}
               </div>
             </div>
+
             <CardTitle className="text-2xl font-bold mt-2">
               {notice.noticeTitle}
             </CardTitle>
@@ -104,6 +110,7 @@ const NoticeDetail = () => {
             </div>
           </div>
         </CardHeader>
+
 
         <CardContent className="px-6 py-4 border-t border-b">
           <ReactQuill

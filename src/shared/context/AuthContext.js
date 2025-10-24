@@ -17,13 +17,13 @@ export const AuthProvider = ({ children }) => {
         const accessToken = localStorage.getItem("accessToken");
         const userInfo = localStorage.getItem("userInfo");
 
-        console.log("로컬 스토리지 확인:", { accessToken, userInfo });
+        // console.log("로컬 스토리지 확인:", { accessToken, userInfo });
 
         if (accessToken && userInfo) {
           const parsedUser = JSON.parse(userInfo);
           setUser(parsedUser);
           setIsAuthenticated(true); // roleStatus와 상관없이 토큰이 있으면 인증된 것으로 간주
-          console.log("인증 완료:", parsedUser);
+          // console.log("인증 완료:", parsedUser);
         }
       } catch (error) {
         console.error("인증 확인 중 오류 발생:", error);
