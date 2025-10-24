@@ -36,5 +36,5 @@ export const useApi = () => {
   const patch = useCallback((url, data = {}, options = {}) => request("patch", url, { ...options, data }), [request]);
   const del = useCallback((url, options = {}) => request("delete", url, options), [request]);
 
-  return { loading, error, get, post, put, patch, delete: del };
+  return { loading, error, get, post, put, patch, del };
 };

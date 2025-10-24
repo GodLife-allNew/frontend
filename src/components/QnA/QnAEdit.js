@@ -522,8 +522,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/aler
 import { AlertCircle, ArrowLeft, Save, RotateCcw } from "lucide-react";
 
 // React-Quill 임포트
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 
 const QnAEdit = () => {
   // URL 파라미터에서 QnA ID 가져오기

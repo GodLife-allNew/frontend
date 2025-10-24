@@ -1,14 +1,12 @@
 "use client";
 
 import {
-  useState,
   useEffect,
   createContext,
   useContext,
   useReducer,
 } from "react";
 
-const TOAST_LIMIT = 5;
 const TOAST_REMOVE_DELAY = 5000;
 
 const ToastActionType = {

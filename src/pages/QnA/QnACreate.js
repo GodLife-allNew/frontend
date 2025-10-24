@@ -358,8 +358,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/aler
 import { AlertCircle, Send, RotateCcw } from "lucide-react";
 
 // React-Quill 임포트
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 
 const QnACreate = () => {
   // 상태 관리
