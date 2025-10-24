@@ -47,7 +47,6 @@ const NoticeForm = ({
     "underline",
     "strike",
     "list",
-    "bullet",
     "indent",
     "link",
     "image",

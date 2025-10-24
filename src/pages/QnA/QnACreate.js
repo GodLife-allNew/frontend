@@ -396,7 +396,6 @@ const QnACreate = () => {
     "underline",
     "strike",
     "list",
-    "bullet",
     "indent",
     "link",
     "image",

@@ -29,8 +29,8 @@ export const useNoticeService = () => {
 
   /** 공지사항 리스트 */
   const getNoticeList = async (page, size) => {
-    const res = await get(`/notice?page=${page}&size=${size}`);
-    return res.data?.message ?? res.data;
+    const { data: {data, currentPage, totalPages, }} = await get(`/notice?page=${page}&size=${size}`);
+    return { data, currentPage, totalPages };
   };
 
   return { getNoticeById, createNotice, updateNotice, deleteNotice, getNoticeList, loading };

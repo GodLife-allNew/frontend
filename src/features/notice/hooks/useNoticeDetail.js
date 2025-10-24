@@ -46,6 +46,8 @@ export const useNoticeDetail = (noticeIdx) => {
 
   useEffect(() => {
     if (noticeIdx) fetchNoticeDetail();
+    // eslint 경고 무시
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [noticeIdx]);
 
   return { notice, error, apiLoading, fetchNoticeDetail, fetchDeleteNotice };

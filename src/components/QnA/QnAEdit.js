@@ -563,7 +563,6 @@ const QnAEdit = () => {
     "underline",
     "strike",
     "list",
-    "bullet",
     "indent",
     "link",
     "image",
