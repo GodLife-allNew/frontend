@@ -35,7 +35,7 @@ import axiosInstance from "@/shared/api/axiosInstance";
 //   isPopup: Math.random() > 0.8 ? "Y" : "N",
 // }));
 
-const NoticeListPage = () => {
+const NoticeListPage = ({ isAdminMode = false }) => {
   const userInfoString = localStorage.getItem("userInfo");
   const userInfo = userInfoString ? JSON.parse(userInfoString) : null;
   const roleStatus = userInfo?.roleStatus || false;
@@ -134,10 +134,7 @@ const NoticeListPage = () => {
       }
     }
 
-    const pages = Array.from(
-      { length: endPage - startPage + 1 },
-      (_, i) => startPage + i
-    );
+    const pages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 
     return (
       <Pagination className="mt-6 mb-6">
@@ -145,20 +142,14 @@ const NoticeListPage = () => {
           <PaginationItem>
             <PaginationPrevious
               onClick={() => handlePageChange(currentPage - 1)}
-              className={
-                currentPage <= 1
-                  ? "pointer-events-none opacity-50"
-                  : "cursor-pointer"
-              }
+              className={currentPage <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
             />
           </PaginationItem>
 
           {startPage > 1 && (
             <>
               <PaginationItem>
-                <PaginationLink onClick={() => handlePageChange(1)}>
-                  1
-                </PaginationLink>
+                <PaginationLink onClick={() => handlePageChange(1)}>1</PaginationLink>
               </PaginationItem>
               {startPage > 2 && (
                 <PaginationItem>
@@ -170,10 +161,7 @@ const NoticeListPage = () => {
 
           {pages.map((page) => (
             <PaginationItem key={page}>
-              <PaginationLink
-                isActive={page === currentPage}
-                onClick={() => handlePageChange(page)}
-              >
+              <PaginationLink isActive={page === currentPage} onClick={() => handlePageChange(page)}>
                 {page}
               </PaginationLink>
             </PaginationItem>
@@ -187,9 +175,7 @@ const NoticeListPage = () => {
                 </PaginationItem>
               )}
               <PaginationItem>
-                <PaginationLink onClick={() => handlePageChange(totalPages)}>
-                  {totalPages}
-                </PaginationLink>
+                <PaginationLink onClick={() => handlePageChange(totalPages)}>{totalPages}</PaginationLink>
               </PaginationItem>
             </>
           )}
@@ -197,11 +183,7 @@ const NoticeListPage = () => {
           <PaginationItem>
             <PaginationNext
               onClick={() => handlePageChange(currentPage + 1)}
-              className={
-                currentPage >= totalPages
-                  ? "pointer-events-none opacity-50"
-                  : "cursor-pointer"
-              }
+              className={currentPage >= totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
             />
           </PaginationItem>
         </PaginationContent>
@@ -244,26 +226,26 @@ const NoticeListPage = () => {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8 flex flex-col space-y-2">
-        <h1 className="text-3xl font-extrabold tracking-tight">공지사항</h1>
-        <p className="text-muted-foreground">
-          중요한 안내 및 업데이트 사항을 확인하세요
-        </p>
-      </div>
+    <div className="container mx-auto py-8 ">
+      {/* 관리자 모드가 아닐 때만 제목 표시*/}
+      {!isAdminMode && (
+        <div className="mb-8 flex flex-col space-y-2">
+          <h1 className="text-3xl font-extrabold tracking-tight">공지사항</h1>
+          <p className="text-muted-foreground">중요한 안내 및 업데이트 사항을 확인하세요</p>
+        </div>
+      )}
 
-      <div className="flex justify-end mb-6">
-        {roleStatus && (
-          <Button
-            onClick={handleCreateNotice}
-            className="bg-primary hover:bg-primary/90 text-white font-medium"
-          >
-            공지사항 작성
-          </Button>
-        )}
-      </div>
+      {isAdminMode && (
+        <div className="flex justify-end mb-6">
+          {roleStatus && (
+            <Button onClick={handleCreateNotice} className="bg-primary hover:bg-primary/90 text-white font-medium">
+              공지사항 작성
+            </Button>
+          )}
+        </div>
+      )}
 
-      <Card className="overflow-hidden border-0 shadow-md">
+      <Card className="overflow-hidden border-0 shadow-md bg-white">
         {isLoading ? (
           <div className="flex justify-center items-center h-60">
             <div className="flex flex-col items-center gap-2">
@@ -274,9 +256,7 @@ const NoticeListPage = () => {
         ) : error ? (
           <div className="flex justify-center items-center h-60 p-6">
             <div className="text-center">
-              <p className="text-red-500 text-lg mb-2">
-                ⚠️ 오류가 발생했습니다
-              </p>
+              <p className="text-red-500 text-lg mb-2">⚠️ 오류가 발생했습니다</p>
               <p className="text-muted-foreground">{error}</p>
             </div>
           </div>
@@ -284,9 +264,7 @@ const NoticeListPage = () => {
           <div className="flex justify-center items-center h-60 p-6">
             <div className="text-center">
               <p className="text-lg mb-2">📝 등록된 공지사항이 없습니다</p>
-              <p className="text-muted-foreground">
-                곧 새로운 공지사항이 등록될 예정입니다
-              </p>
+              <p className="text-muted-foreground">곧 새로운 공지사항이 등록될 예정입니다</p>
             </div>
           </div>
         ) : (
@@ -306,18 +284,12 @@ const NoticeListPage = () => {
                         <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700 ring-1 ring-inset ring-blue-700/10 mr-2">
                           No.{notice.noticeIdx}
                         </span>
-                        <h3 className="text-lg font-semibold inline">
-                          {notice.noticeTitle}
-                        </h3>
+                        <h3 className="text-lg font-semibold inline">{notice.noticeTitle}</h3>
                       </div>
                       <time className="text-xs text-muted-foreground flex items-center">
-                        {displayDate.isModified && (
-                          <Clock className="mr-1 h-3 w-3" />
-                        )}
+                        {displayDate.isModified && <Clock className="mr-1 h-3 w-3" />}
                         {displayDate.date}
-                        {displayDate.isModified && (
-                          <span className="ml-1 text-xs">(수정됨)</span>
-                        )}
+                        {displayDate.isModified && <span className="ml-1 text-xs">(수정됨)</span>}
                       </time>
                     </div>
 
@@ -325,9 +297,7 @@ const NoticeListPage = () => {
                       <div className="h-6 w-6 rounded-full bg-indigo-100 flex items-center justify-center text-xs text-indigo-700 font-medium">
                         {notice.writeName ? notice.writeName.charAt(0) : "?"}
                       </div>
-                      <span className="ml-2 text-sm font-medium text-gray-600">
-                        {notice.writeName || "알 수 없음"}
-                      </span>
+                      <span className="ml-2 text-sm font-medium text-gray-600">{notice.writeName || "알 수 없음"}</span>
                     </div>
 
                     <div className="mt-3 relative">
@@ -339,9 +309,7 @@ const NoticeListPage = () => {
                       />
                       {notice.noticeSub && notice.noticeSub.length > 100 && (
                         <div className="absolute bottom-0 right-0 bg-gradient-to-l from-white via-white to-transparent w-20 h-full flex items-end justify-end">
-                          <span className="text-xs text-blue-500 px-2 py-1">
-                            더보기
-                          </span>
+                          <span className="text-xs text-blue-500 px-2 py-1">더보기</span>
                         </div>
                       )}
                     </div>
