@@ -8,14 +8,7 @@ import "react-quill/dist/quill.snow.css";
 import DateSelector from "./DateSelector";
 
 /** 📝 공지사항 작성/수정 폼 */
-const NoticeForm = ({
-  isEditMode,
-  notice,
-  handleChange,
-  handleSubmit,
-  isSubmitting,
-  navigate,
-}) => {
+const NoticeForm = ({ isEditMode, notice, handleChange, handleSubmit, isSubmitting, navigate, isAdminMode = false }) => {
   const { noticeTitle, noticeSub, isPopup, popupStartDate, popupEndDate } = notice;
 
   const quillRef = useRef(null);
@@ -62,8 +55,11 @@ const NoticeForm = ({
     <form onSubmit={onSubmit} className="space-y-6">
       {/* 제목 */}
       <div className="space-y-2">
-        <label htmlFor="title" className="text-sm font-medium"> 제목 </label>
-      
+        <label htmlFor="title" className="text-sm font-medium">
+          {" "}
+          제목{" "}
+        </label>
+
         <Input
           id="title"
           value={noticeTitle}
@@ -75,15 +71,15 @@ const NoticeForm = ({
       <div className="space-y-2">
         <label className="text-sm font-medium">내용</label>
         <div className="min-h-[400px] border rounded-md">
-        <ReactQuill
-          value={noticeSub}
-          onChange={(v) => handleChange("noticeSub", v)}
-          modules={quillModules}
-          formats={quillFormats}
-          placeholder="공지사항 내용을 입력하세요"
-          style={{ height: "400px", marginBottom: "42px" }}
-          ref={quillRef}
-        />
+          <ReactQuill
+            value={noticeSub}
+            onChange={(v) => handleChange("noticeSub", v)}
+            modules={quillModules}
+            formats={quillFormats}
+            placeholder="공지사항 내용을 입력하세요"
+            style={{ height: "400px", marginBottom: "42px" }}
+            ref={quillRef}
+          />
         </div>
       </div>
 
@@ -99,11 +95,7 @@ const NoticeForm = ({
 
         {isPopup && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <DateSelector
-              label="팝업 시작일"
-              date={popupStartDate}
-              onSelect={(d) => handleChange("popupStartDate", d)}
-            />
+            <DateSelector label="팝업 시작일" date={popupStartDate} onSelect={(d) => handleChange("popupStartDate", d)} />
             <DateSelector
               label="팝업 종료일"
               date={popupEndDate}
@@ -111,31 +103,31 @@ const NoticeForm = ({
               minDate={popupStartDate}
             />
 
-            <p className="text-xs text-muted-foreground">
-              설정된 기간 동안 사용자에게 공지사항 팝업이 표시됩니다.
-            </p>
+            <p className="text-xs text-muted-foreground">설정된 기간 동안 사용자에게 공지사항 팝업이 표시됩니다.</p>
           </div>
         )}
       </div>
 
       {/* 버튼 */}
-      <div className="flex justify-end space-x-4">
-        <Button type="button" variant="outline" onClick={() => navigate(-1)}>
-          취소
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {isEditMode ? "수정 중..." : "등록 중..."}
-            </>
-          ) : isEditMode ? (
-            "수정하기"
-          ) : (
-            "등록하기"
-          )}
-        </Button>
-      </div>
+      {isAdminMode && (
+        <div className="flex justify-end space-x-4">
+          <Button type="button" variant="outline" onClick={() => navigate(-1)}>
+            취소
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isEditMode ? "수정 중..." : "등록 중..."}
+              </>
+            ) : isEditMode ? (
+              "수정하기"
+            ) : (
+              "등록하기"
+            )}
+          </Button>
+        </div>
+      )}
     </form>
   );
 };

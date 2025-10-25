@@ -1,22 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Loader2,
-  ArrowLeft,
-  Calendar,
-  Edit2,
-  Clock,
-  Trash2,
-  RefreshCcw,
-} from "lucide-react";
+import { Loader2, ArrowLeft, Calendar, Edit2, Clock, Trash2, RefreshCcw } from "lucide-react";
 import { useToast } from "@/shared/components/ui/use-toast";
 import axiosInstance from "@/shared/api/axiosInstance";
 
@@ -35,7 +21,7 @@ import "react-quill/dist/quill.snow.css";
 //   writeName: "테스트유저1",
 // };
 
-const NoticeDetail = () => {
+const NoticeDetail = ({ isAdminMode = false }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
   const { noticeIdx } = useParams();
@@ -112,7 +98,7 @@ const NoticeDetail = () => {
   };
 
   const handleGoBack = () => {
-    navigate("/notice/list");
+    navigate(-1);
   };
 
   const handleDeleteNotice = async (noticeIdx) => {
@@ -199,11 +185,7 @@ const NoticeDetail = () => {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 목록 보기
               </Button>
-              <Button
-                variant="default"
-                onClick={handleRetry}
-                disabled={isRetrying}
-              >
+              <Button variant="default" onClick={handleRetry} disabled={isRetrying}>
                 {isRetrying ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -266,17 +248,13 @@ const NoticeDetail = () => {
                 )}
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold mt-2">
-              {notice.noticeTitle}
-            </CardTitle>
+            <CardTitle className="text-2xl font-bold mt-2">{notice.noticeTitle}</CardTitle>
 
             <div className="flex items-center mt-3">
               <div className="h-7 w-7 rounded-full bg-indigo-100 flex items-center justify-center text-xs text-indigo-700 font-medium">
                 {notice.writeName ? notice.writeName.charAt(0) : "?"}
               </div>
-              <span className="ml-2 text-sm font-medium text-gray-600">
-                {notice.writeName || "알 수 없음"}
-              </span>
+              <span className="ml-2 text-sm font-medium text-gray-600">{notice.writeName || "알 수 없음"}</span>
             </div>
           </div>
         </CardHeader>
@@ -300,20 +278,13 @@ const NoticeDetail = () => {
         </CardContent>
 
         <CardFooter className="flex justify-end gap-2 pt-6 pb-6 px-6">
-          {notice.userIdx === userIdx ? (
+          {isAdminMode && (
             <>
-              <Button
-                variant="outline"
-                onClick={() => navigate(`/notice/edit/${notice.noticeIdx}`)}
-              >
+              <Button variant="outline" onClick={() => navigate(`/notice/edit/${notice.noticeIdx}`)}>
                 <Edit2 className="mr-2 h-4 w-4" />
                 수정
               </Button>
-              <Button
-                variant="destructive"
-                onClick={() => handleDeleteNotice(notice.noticeIdx)}
-                disabled={isDeleting}
-              >
+              <Button variant="destructive" onClick={() => handleDeleteNotice(notice.noticeIdx)} disabled={isDeleting}>
                 {isDeleting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -327,8 +298,6 @@ const NoticeDetail = () => {
                 )}
               </Button>
             </>
-          ) : (
-            <></>
           )}
         </CardFooter>
       </Card>

@@ -105,7 +105,13 @@ const NoticeListPage = ({ isAdminMode = false }) => {
   };
 
   const handleViewNotice = (noticeIdx) => {
-    navigate(`/notice/detail/${noticeIdx}`);
+    if (isAdminMode) {
+      // 관리자 모드에서는 관리자 라우트로 이동
+      navigate(`/admin/notice/detail/${noticeIdx}`);
+    } else {
+      // 일반 유저는 일반 라우트로 이동
+      navigate(`/notice/detail/${noticeIdx}`);
+    }
   };
 
   // 페이지네이션 표시 함수
