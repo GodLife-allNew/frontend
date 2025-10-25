@@ -5,9 +5,18 @@ import Layout from "@/app/Layout";
 import PopupManager from "@/components/common/Popup/PopupManager";
 import { ALL_ROUTES } from "./routes";
 
-function ProtectedRoute({ children }) {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/user/login" replace />;
+function ProtectedRoute({ children, allowedRoles }) {
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/user/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
 }
 
 export default function AppRouter() {
@@ -28,20 +37,10 @@ export default function AppRouter() {
     <>
       <PopupManager />
       <Routes>
-        {ALL_ROUTES.map(({ path, element, layout = true, protected: isProtected }, idx) => {
-          const content = isProtected ? (
-            <ProtectedRoute>{element}</ProtectedRoute>
-          ) : (
-            element
-          );
+        {ALL_ROUTES.map(({ path, element, layout = true, protected: isProtected, roles }, idx) => {
+          const content = isProtected ? <ProtectedRoute allowedRoles={roles}>{element}</ProtectedRoute> : element;
 
-          return (
-            <Route
-              key={idx}
-              path={path}
-              element={layout ? <Layout>{content}</Layout> : content}
-            />
-          );
+          return <Route key={idx} path={path} element={layout ? <Layout>{content}</Layout> : content} />;
         })}
       </Routes>
     </>
