@@ -1,21 +1,8 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
-import {
-  ArrowLeft,
-  Calendar,
-  Edit2,
-  Clock,
-  Trash2,
-  RefreshCcw,
-} from "lucide-react";
+import { ArrowLeft, Calendar, Edit2, Clock, Trash2, RefreshCcw } from "lucide-react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 
@@ -96,21 +83,16 @@ const NoticeDetail = () => {
               </div>
             </div>
 
-            <CardTitle className="text-2xl font-bold mt-2">
-              {notice.noticeTitle}
-            </CardTitle>
+            <CardTitle className="text-2xl font-bold mt-2">{notice.noticeTitle}</CardTitle>
 
             <div className="flex items-center mt-3">
               <div className="h-7 w-7 rounded-full bg-indigo-100 flex items-center justify-center text-xs text-indigo-700 font-medium">
                 {notice.writeName ? notice.writeName.charAt(0) : "?"}
               </div>
-              <span className="ml-2 text-sm font-medium text-gray-600">
-                {notice.writeName || "알 수 없음"}
-              </span>
+              <span className="ml-2 text-sm font-medium text-gray-600">{notice.writeName || "알 수 없음"}</span>
             </div>
           </div>
         </CardHeader>
-
 
         <CardContent className="px-6 py-4 border-t border-b">
           <ReactQuill
