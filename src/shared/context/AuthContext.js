@@ -21,9 +21,16 @@ export const AuthProvider = ({ children }) => {
 
         if (accessToken && userInfo) {
           const parsedUser = JSON.parse(userInfo);
-          setUser(parsedUser);
+
+          const userWithRole = {
+            ...parsedUser,
+            role: parsedUser.roleStatus === true ? "admin" : "user",
+          };
+
+          setUser(userWithRole);
           setIsAuthenticated(true); // roleStatus와 상관없이 토큰이 있으면 인증된 것으로 간주
           // console.log("인증 완료:", parsedUser);
+          console.log("인증 완료:", userWithRole);
         }
       } catch (error) {
         console.error("인증 확인 중 오류 발생:", error);
@@ -41,6 +48,10 @@ export const AuthProvider = ({ children }) => {
 
     const accessToken = tokens;
 
+    const userWithRole = {
+      ...userData,
+      role: userData.roleStatus === true ? "admin" : "user",
+    };
     // 토큰 저장
     localStorage.setItem("accessToken", accessToken);
 
@@ -48,12 +59,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("userInfo", JSON.stringify(userData));
 
     // 상태 업데이트
-    setUser(userData);
+    setUser(userWithRole);
     setIsAuthenticated(true);
 
     console.log("로그인 완료, 상태:", {
       isAuthenticated: true,
-      user: userData,
+      user: userWithRole,
     });
   };
 
@@ -73,6 +84,11 @@ export const AuthProvider = ({ children }) => {
   // 사용자 정보 업데이트
   const updateUser = (newUserData) => {
     const updatedUser = { ...user, ...newUserData };
+
+    if (newUserData.roleStatus !== undefined) {
+      updatedUser.role = newUserData.roleStatus === true ? "admin" : "user";
+    }
+
     localStorage.setItem("userInfo", JSON.stringify(updatedUser));
     setUser(updatedUser);
   };

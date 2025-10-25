@@ -1,11 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/shared/components/ui/form";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
@@ -40,9 +34,7 @@ export default function BadgeSelector({
   const [isCustomInputActive, setIsCustomInputActive] = useState(false);
   const [customInputError, setCustomInputError] = useState(null); // 에러 메시지 상태 추가
   const [customValue, setCustomValue] = useState("");
-  const [selectedIconKey, setSelectedIconKey] = useState(
-    availableIcons.length > 0 ? availableIcons[0].iconKey : "briefcase"
-  );
+  const [selectedIconKey, setSelectedIconKey] = useState(availableIcons.length > 0 ? availableIcons[0].iconKey : "briefcase");
   const customInputRef = useRef(null);
 
   // jobEtcCateDTO 데이터를 저장할 상태 추가
@@ -78,26 +70,20 @@ export default function BadgeSelector({
 
   // 보여줄 옵션과 드롭다운에 넣을 옵션 분리
   const visibleOptions = options.slice(0, maxVisible);
-  const dropdownOptions =
-    options.length > maxVisible ? options.slice(maxVisible) : [];
+  const dropdownOptions = options.length > maxVisible ? options.slice(maxVisible) : [];
 
   // 이미 사용 중인 아이콘 키 목록 계산
   const usedIconKeys = options.map((option) => option.iconKey);
 
   // 사용 가능한 아이콘 (이미 사용 중인 아이콘 제외)
-  const filteredAvailableIcons = availableIcons.filter(
-    (icon) => !usedIconKeys.includes(icon.iconKey) && icon.visible === 1
-  );
+  const filteredAvailableIcons = availableIcons.filter((icon) => !usedIconKeys.includes(icon.iconKey) && icon.visible === 1);
 
   // 사용 가능한 아이콘 키 목록
   const availableIconKeys = filteredAvailableIcons.map((icon) => icon.iconKey);
 
   // 사용 가능한 아이콘이 없을 경우를 대비해 기본 아이콘 키 설정
   useEffect(() => {
-    if (
-      availableIconKeys.length > 0 &&
-      !availableIconKeys.includes(selectedIconKey)
-    ) {
+    if (availableIconKeys.length > 0 && !availableIconKeys.includes(selectedIconKey)) {
       setSelectedIconKey(availableIconKeys[0]);
     }
   }, [availableIconKeys, selectedIconKey]);
@@ -200,41 +186,62 @@ export default function BadgeSelector({
             <FormControl>
               <div className="flex flex-wrap gap-2">
                 {/* 상위 X개 옵션을 배지로 표시 */}
-                {visibleOptions.map((option) => (
-                  <Badge
-                    key={option.idx}
-                    option={option}
-                    selected={
-                      field.value &&
-                      typeof field.value === "object" &&
-                      field.value.value !== undefined
-                        ? field.value.value === option.idx
-                        : field.value === option.idx
-                    }
-                    onSelect={() => {
-                      // 읽기 모드일 때는 이 콜백이 실행되지 않지만, 안전을 위해 여기서도 확인
-                      if (readOnly) return;
-
-                      // 일반 옵션 선택 시에는 단순히 idx 값만 전달
-                      field.onChange(option.idx);
-
-                      // 일반 옵션 선택 시 jobEtcCateDTO null로 설정 (customIdxValue가 아닌 경우)
-                      if (option.idx !== customIdxValue && name === "jobIdx") {
-                        onCustomJobSelected(null);
-                        setEtcCateData(null);
+                {!readOnly &&
+                  visibleOptions.map((option) => (
+                    <Badge
+                      key={option.idx}
+                      option={option}
+                      selected={
+                        field.value && typeof field.value === "object" && field.value.value !== undefined
+                          ? field.value.value === option.idx
+                          : field.value === option.idx
                       }
+                      onSelect={() => {
+                        // 읽기 모드일 때는 이 콜백이 실행되지 않지만, 안전을 위해 여기서도 확인
+                        if (readOnly) return;
 
-                      if (onChange) {
-                        onChange(option.idx);
-                      }
-                    }}
-                    renderIcon={renderIcon}
-                    readOnly={readOnly} // 읽기 모드 전달
-                  />
-                ))}
+                        // 일반 옵션 선택 시에는 단순히 idx 값만 전달
+                        field.onChange(option.idx);
 
+                        // 일반 옵션 선택 시 jobEtcCateDTO null로 설정 (customIdxValue가 아닌 경우)
+                        if (option.idx !== customIdxValue && name === "jobIdx") {
+                          onCustomJobSelected(null);
+                          setEtcCateData(null);
+                        }
+
+                        if (onChange) {
+                          onChange(option.idx);
+                        }
+                      }}
+                      renderIcon={renderIcon}
+                      readOnly={readOnly} // 읽기 모드 전달
+                    />
+                  ))}
+
+                {/* 읽기 모드일 때 선택된 배지만 표시 */}
+                {readOnly &&
+                  field.value &&
+                  visibleOptions.find(
+                    (opt) =>
+                      opt.idx ===
+                      (field.value && typeof field.value === "object" && field.value.value !== undefined ? field.value.value : field.value)
+                  ) && (
+                    <Badge
+                      option={visibleOptions.find(
+                        (opt) =>
+                          opt.idx ===
+                          (field.value && typeof field.value === "object" && field.value.value !== undefined
+                            ? field.value.value
+                            : field.value)
+                      )}
+                      selected={true}
+                      onSelect={() => {}}
+                      renderIcon={renderIcon}
+                      readOnly={true}
+                    />
+                  )}
                 {/* 드롭다운 메뉴 - allowCustomInput이 false이고 드롭다운 옵션이 없는 경우 숨김 */}
-                {shouldShowDropdown && (
+                {!readOnly && shouldShowDropdown && (
                   <DropdownMenu>
                     <DropdownMenuTrigger
                       disabled={readOnly} // 읽기 모드일 때 비활성화
@@ -245,18 +252,14 @@ export default function BadgeSelector({
                           options.find(
                             (opt) =>
                               opt.idx ===
-                              (field.value &&
-                              typeof field.value === "object" &&
-                              field.value.value !== undefined
+                              (field.value && typeof field.value === "object" && field.value.value !== undefined
                                 ? field.value.value
                                 : field.value)
                           ) &&
                           !visibleOptions.find(
                             (opt) =>
                               opt.idx ===
-                              (field.value &&
-                              typeof field.value === "object" &&
-                              field.value.value !== undefined
+                              (field.value && typeof field.value === "object" && field.value.value !== undefined
                                 ? field.value.value
                                 : field.value)
                           )
@@ -268,18 +271,14 @@ export default function BadgeSelector({
                         options.find(
                           (opt) =>
                             opt.idx ===
-                            (field.value &&
-                            typeof field.value === "object" &&
-                            field.value.value !== undefined
+                            (field.value && typeof field.value === "object" && field.value.value !== undefined
                               ? field.value.value
                               : field.value)
                         ) &&
                         !visibleOptions.find(
                           (opt) =>
                             opt.idx ===
-                            (field.value &&
-                            typeof field.value === "object" &&
-                            field.value.value !== undefined
+                            (field.value && typeof field.value === "object" && field.value.value !== undefined
                               ? field.value.value
                               : field.value)
                         )
@@ -288,9 +287,7 @@ export default function BadgeSelector({
                                 options.find(
                                   (opt) =>
                                     opt.idx ===
-                                    (field.value &&
-                                    typeof field.value === "object" &&
-                                    field.value.value !== undefined
+                                    (field.value && typeof field.value === "object" && field.value.value !== undefined
                                       ? field.value.value
                                       : field.value)
                                 ).color || "#3B82F6",
@@ -304,18 +301,14 @@ export default function BadgeSelector({
                       options.find(
                         (opt) =>
                           opt.idx ===
-                          (field.value &&
-                          typeof field.value === "object" &&
-                          field.value.value !== undefined
+                          (field.value && typeof field.value === "object" && field.value.value !== undefined
                             ? field.value.value
                             : field.value)
                       ) &&
                       !visibleOptions.find(
                         (opt) =>
                           opt.idx ===
-                          (field.value &&
-                          typeof field.value === "object" &&
-                          field.value.value !== undefined
+                          (field.value && typeof field.value === "object" && field.value.value !== undefined
                             ? field.value.value
                             : field.value)
                       ) ? (
@@ -324,9 +317,7 @@ export default function BadgeSelector({
                             options.find(
                               (opt) =>
                                 opt.idx ===
-                                (field.value &&
-                                typeof field.value === "object" &&
-                                field.value.value !== undefined
+                                (field.value && typeof field.value === "object" && field.value.value !== undefined
                                   ? field.value.value
                                   : field.value)
                             ).iconKey,
@@ -336,9 +327,7 @@ export default function BadgeSelector({
                             options.find(
                               (opt) =>
                                 opt.idx ===
-                                (field.value &&
-                                typeof field.value === "object" &&
-                                field.value.value !== undefined
+                                (field.value && typeof field.value === "object" && field.value.value !== undefined
                                   ? field.value.value
                                   : field.value)
                             ).color
@@ -348,9 +337,7 @@ export default function BadgeSelector({
                               options.find(
                                 (opt) =>
                                   opt.idx ===
-                                  (field.value &&
-                                  typeof field.value === "object" &&
-                                  field.value.value !== undefined
+                                  (field.value && typeof field.value === "object" && field.value.value !== undefined
                                     ? field.value.value
                                     : field.value)
                               ).name
@@ -358,20 +345,11 @@ export default function BadgeSelector({
                           </span>
                         </>
                       ) : (
-                        <span>
-                          {dropdownOptions.length > 0
-                            ? "기타 옵션"
-                            : allowCustomInput
-                            ? "직접 입력"
-                            : ""}
-                        </span>
+                        <span>{dropdownOptions.length > 0 ? "기타 옵션" : allowCustomInput ? "직접 입력" : ""}</span>
                       )}
                       <ChevronDown className="h-4 w-4 ml-1" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="bg-white border shadow-md rounded-md p-1"
-                    >
+                    <DropdownMenuContent align="end" className="bg-white border shadow-md rounded-md p-1">
                       {/* 추가 옵션 목록 */}
                       {dropdownOptions.map((option) => (
                         <DropdownMenuItem
@@ -380,10 +358,7 @@ export default function BadgeSelector({
                             field.onChange(option.idx);
 
                             // 일반 옵션 선택 시 jobEtcCateDTO null로 설정 (customIdxValue가 아닌 경우)
-                            if (
-                              option.idx !== customIdxValue &&
-                              name === "jobIdx"
-                            ) {
+                            if (option.idx !== customIdxValue && name === "jobIdx") {
                               onCustomJobSelected(null);
                               setEtcCateData(null);
                             }
@@ -393,14 +368,10 @@ export default function BadgeSelector({
                               onChange(option.idx);
                             }
                           }}
-                          className={cn(
-                            "cursor-pointer flex items-center px-2 py-1.5 rounded hover:bg-blue-100 transition-colors"
-                          )}
+                          className={cn("cursor-pointer flex items-center px-2 py-1.5 rounded hover:bg-blue-100 transition-colors")}
                           style={
                             (
-                              field.value &&
-                              typeof field.value === "object" &&
-                              field.value.value !== undefined
+                              field.value && typeof field.value === "object" && field.value.value !== undefined
                                 ? field.value.value === option.idx
                                 : field.value === option.idx
                             )
@@ -415,24 +386,15 @@ export default function BadgeSelector({
                             option.iconKey,
                             18,
                             "mr-2",
-                            field.value &&
-                              typeof field.value === "object" &&
-                              field.value.value !== undefined
+                            field.value && typeof field.value === "object" && field.value.value !== undefined
                               ? field.value.value === option.idx
                               : field.value === option.idx,
                             option.color
                           )}
                           <span>{option.name}</span>
-                          {(field.value &&
-                          typeof field.value === "object" &&
-                          field.value.value !== undefined
+                          {(field.value && typeof field.value === "object" && field.value.value !== undefined
                             ? field.value.value === option.idx
-                            : field.value === option.idx) && (
-                            <Check
-                              className="ml-auto h-4 w-4"
-                              style={{ color: option.color }}
-                            />
-                          )}
+                            : field.value === option.idx) && <Check className="ml-auto h-4 w-4" style={{ color: option.color }} />}
                         </DropdownMenuItem>
                       ))}
 
@@ -463,18 +425,9 @@ export default function BadgeSelector({
                       <div className="relative flex-shrink-0">
                         <DropdownMenu>
                           <DropdownMenuTrigger className="flex items-center justify-center w-10 h-10 rounded-md border border-gray-300 hover:bg-gray-50">
-                            {renderIcon(
-                              selectedIconKey,
-                              20,
-                              "",
-                              false,
-                              getColorForIcon(selectedIconKey)
-                            )}
+                            {renderIcon(selectedIconKey, 20, "", false, getColorForIcon(selectedIconKey))}
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="start"
-                            className="bg-white border shadow-md rounded-md p-1"
-                          >
+                          <DropdownMenuContent align="start" className="bg-white border shadow-md rounded-md p-1">
                             <div className="grid grid-cols-5 gap-1 p-2 max-h-64 overflow-y-auto">
                               {/* 사용 가능한 아이콘만 표시 */}
                               {filteredAvailableIcons.length > 0 ? (
@@ -484,27 +437,15 @@ export default function BadgeSelector({
                                     type="button"
                                     className={cn(
                                       "flex items-center justify-center w-8 h-8 rounded hover:bg-blue-50 transition-colors",
-                                      selectedIconKey === icon.iconKey
-                                        ? "bg-blue-100"
-                                        : ""
+                                      selectedIconKey === icon.iconKey ? "bg-blue-100" : ""
                                     )}
-                                    onClick={() =>
-                                      setSelectedIconKey(icon.iconKey)
-                                    }
+                                    onClick={() => setSelectedIconKey(icon.iconKey)}
                                   >
-                                    {renderIcon(
-                                      icon.iconKey,
-                                      20,
-                                      "",
-                                      false,
-                                      icon.color
-                                    )}
+                                    {renderIcon(icon.iconKey, 20, "", false, icon.color)}
                                   </button>
                                 ))
                               ) : (
-                                <div className="col-span-5 p-2 text-sm text-gray-500 text-center">
-                                  사용 가능한 아이콘이 없습니다
-                                </div>
+                                <div className="col-span-5 p-2 text-sm text-gray-500 text-center">사용 가능한 아이콘이 없습니다</div>
                               )}
                             </div>
                           </DropdownMenuContent>
@@ -520,9 +461,7 @@ export default function BadgeSelector({
                           if (customInputError) setCustomInputError(null); // 입력 시 에러 메시지 제거
                         }}
                         placeholder="직업명을 입력하세요"
-                        className={`flex-grow ${
-                          customInputError ? "border-red-500" : ""
-                        }`} // 에러가 있을 때 테두리 색 변경
+                        className={`flex-grow ${customInputError ? "border-red-500" : ""}`} // 에러가 있을 때 테두리 색 변경
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
@@ -536,11 +475,7 @@ export default function BadgeSelector({
                       />
 
                       {/* 에러 메시지 표시 */}
-                      {customInputError && (
-                        <div className="text-red-500 text-sm mt-1 ml-1">
-                          {customInputError}
-                        </div>
-                      )}
+                      {customInputError && <div className="text-red-500 text-sm mt-1 ml-1">{customInputError}</div>}
                     </div>
                     <div className="flex flex-col gap-2">
                       <div className="flex gap-2 justify-end">
@@ -549,11 +484,7 @@ export default function BadgeSelector({
                           size="sm"
                           onClick={() => addCustomOption(field)}
                           disabled={filteredAvailableIcons.length === 0}
-                          title={
-                            filteredAvailableIcons.length === 0
-                              ? "사용 가능한 아이콘이 없습니다"
-                              : ""
-                          }
+                          title={filteredAvailableIcons.length === 0 ? "사용 가능한 아이콘이 없습니다" : ""}
                         >
                           추가
                         </Button>
@@ -571,9 +502,7 @@ export default function BadgeSelector({
                       </div>
 
                       {filteredAvailableIcons.length === 0 && (
-                        <div className="text-sm text-red-500 mt-1">
-                          사용 가능한 아이콘이 없습니다. 관리자에게 문의하세요.
-                        </div>
+                        <div className="text-sm text-red-500 mt-1">사용 가능한 아이콘이 없습니다. 관리자에게 문의하세요.</div>
                       )}
                     </div>
                   </div>
@@ -590,9 +519,7 @@ export default function BadgeSelector({
                         idx: customIdxValue,
                         name: etcCateData.name || "직접 입력",
                         iconKey: etcCateData.iconKey || "briefcase",
-                        color: getColorForIcon(
-                          etcCateData.iconKey || "briefcase"
-                        ),
+                        color: getColorForIcon(etcCateData.iconKey || "briefcase"),
                         isCustom: true,
                       }}
                       selected={true}
@@ -608,25 +535,15 @@ export default function BadgeSelector({
                   !visibleOptions.find(
                     (opt) =>
                       opt.idx ===
-                      (field.value &&
-                      typeof field.value === "object" &&
-                      field.value.value !== undefined
-                        ? field.value.value
-                        : field.value)
+                      (field.value && typeof field.value === "object" && field.value.value !== undefined ? field.value.value : field.value)
                   ) &&
-                  !(
-                    name === "jobIdx" &&
-                    field.value === customIdxValue &&
-                    etcCateData
-                  ) && (
+                  !(name === "jobIdx" && field.value === customIdxValue && etcCateData) && (
                     <Badge
                       option={
                         options.find(
                           (opt) =>
                             opt.idx ===
-                            (field.value &&
-                            typeof field.value === "object" &&
-                            field.value.value !== undefined
+                            (field.value && typeof field.value === "object" && field.value.value !== undefined
                               ? field.value.value
                               : field.value)
                         ) || {
