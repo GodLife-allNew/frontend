@@ -9,6 +9,8 @@ function ActivitiesTimeline({
   certifiedActivities = {},
   isActive = false,
   onCertifyActivity = null, // 인증 기능 추가
+  isEditMode = false,
+  routineData = null,
 }) {
   const activities = useWatch({
     control,
@@ -105,12 +107,12 @@ function ActivitiesTimeline({
     const importance = activity.activityImp;
 
     // 인증 상태 확인 - activityIdx 기반으로 수정
-    const isCertified = certifiedActivities[activity.activityIdx] === true;
+    const isCertified = activity.verified === true || certifiedActivities[activity.activityIdx] === true;
 
     // 중요도에 따른 배경색 (더 연한 색상으로 변경)
     const getColor = (importance, isCertified) => {
       // 인증 완료된 활동은 연한 녹색 배경으로 표시
-      if (isCertified && isActive) {
+      if (!isEditMode && isCertified && isActive) {
         return "bg-green-50 border-l-4 border-green-500";
       }
 
@@ -173,7 +175,7 @@ function ActivitiesTimeline({
                 {activity.activityName || "무제 활동"}
               </h4>
               {/* 인증 완료 배지 */}
-              {isCertified && isActive && (
+              {!isEditMode && isCertified && isActive && (
                 <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full text-xs flex items-center">
                   <CheckCircle2 className="h-3 w-3 mr-0.5" />
                   완료
@@ -193,7 +195,8 @@ function ActivitiesTimeline({
           )}
 
           {/* 인증 버튼 추가 - 디버깅 정보 포함 */}
-          {isActive && !isCertified && onCertifyActivity && (
+          {!isEditMode && isActive && !isCertified && onCertifyActivity &&
+            (routineData?.isWriter === 1 || routineData == null) && (
             <div className="mt-2 flex justify-end">
               <Button
                 size="sm"
@@ -283,7 +286,7 @@ function ActivitiesTimeline({
         <div className="py-2">
           {sortedActivities.map((activity, index) => (
             <TimelineItem
-              key={activity.id}
+              key={activity.activityIdx ?? index}
               activity={activity}
               isLast={index === sortedActivities.length - 1}
               index={index}

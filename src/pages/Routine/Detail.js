@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Lock, Edit, Trash2, AlertCircle } from "lucide-react";
-import { BiChevronLeftCircle } from "react-icons/bi";
 
 // API 및 유틸리티
 import axiosInstance from "@/shared/api/axiosInstance";
@@ -17,8 +16,6 @@ import FloatingActionButton from "../../components/routine/detail/FloatingAction
 
 // 커스텀 훅
 import useRoutineDetail from "../../components/routine/detail/hooks/useRoutineDetail";
-import FlameLevel from "@/components/routine/FlameLevel";
-import FlameProgressBar from "@/components/routine/FlameProgressBar";
 
 export default function RoutineDetailPage() {
   const { planIdx } = useParams();
