@@ -1,18 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  User,
-  FileText,
-  MessageSquare,
-  CheckCircle,
-  Menu,
-  ChevronDown,
-  ChevronRight,
-  Shield,
-  AlertTriangle,
-  Users,
-  Home,
-  LogOut,
-} from "lucide-react";
+import { User, FileText, MessageSquare, CheckCircle, Menu, ChevronDown, ChevronRight, Home } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import CompSystem from "@/components/ServiceAdmin/compSystem/compSystem";
 import FaqCategory from "@/components/ServiceAdmin/faqPage/faqCategory";
@@ -20,6 +7,7 @@ import ChallengeManager from "@/components/ServiceAdmin/contentsPage/ChallengeM"
 import RoutineManager from "@/components/ServiceAdmin/contentsPage/RoutineM";
 import UserManager from "./AdminUser";
 import QnaAdminDashboard from "../QnA/QnADashboard";
+import NoticeListPage from "@/features/notice/pages/NoticeList";
 
 const AdminDashboard = () => {
   const location = useLocation();
@@ -64,6 +52,9 @@ const AdminDashboard = () => {
 
     if (tab === "faq") {
       setActivePage("FAQ 관리");
+    } else if (tab === "공지사항 관리") {
+      setActivePage("공지사항 관리");
+      setContentMenuExpanded(true);
     } else if (tab === "challenge") {
       setActivePage("챌린지 관리");
       setContentMenuExpanded(true);
@@ -182,6 +173,14 @@ const AdminDashboard = () => {
               </button>
             </li>
 
+            {/* 공지사항 관리 */}
+            <li className={`hover:bg-blue-700 ${activePage === "공지사항 관리" ? "bg-blue-700" : ""}`}>
+              <button onClick={() => setActivePage("공지사항 관리")} className="w-full flex items-center p-4 space-x-3 text-left">
+                <FileText size={20} />
+                {!menuCollapsed && <span>공지사항 관리</span>}
+              </button>
+            </li>
+
             {/* 1:1 문의 */}
             <li className={`hover:bg-blue-700 ${activePage === "1:1 문의" ? "bg-blue-700" : ""}`}>
               <button onClick={() => setActivePage("1:1 문의")} className="w-full flex items-center p-4 space-x-3 text-left">
@@ -228,7 +227,7 @@ const AdminDashboard = () => {
           )}
 
           {activePage === "FAQ 관리" && <FaqCategory />}
-
+          {activePage === "공지사항 관리" && <NoticeListPage isAdminMode={true} />}
           {activePage === "1:1 문의" && <QnaAdminDashboard />}
         </main>
       </div>
