@@ -19,7 +19,7 @@ const DaySelector = ({
     { value: "thu", label: "목", color: "bg-purple-500 hover:bg-purple-600" },
     { value: "fri", label: "금", color: "bg-pink-500 hover:bg-pink-600" },
     { value: "sat", label: "토", color: "bg-gray-200 hover:bg-gray-300 text-gray-800" },
-    { value: "sun", label: "일", color: "bg-red-100 hover:bg-red-200 text-red-500" },
+    { value: "sun", label: "일", color: "bg-red-400 hover:bg-red-200 text-red-500" },
   ];
 
   return (
@@ -53,22 +53,26 @@ const DaySelector = ({
             <FormControl>
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-2">
-                  {days.map((day) => (
-                    <button
-                      key={day.value}
-                      type="button"
-                      className={cn(
-                        "w-7 h-7 rounded-full flex items-center justify-center text-white font-medium transition-all",
-                        day.color,
-                        selectedDays.includes(day.value) ? "ring-2 ring-offset-2 ring-blue-600" : "opacity-80",
-                        readOnly && "cursor-not-allowed opacity-60"
-                      )}
-                      onClick={() => toggleDay(day.value)}
-                      disabled={readOnly}
-                    >
-                      {day.label}
-                    </button>
-                  ))}
+                  {days.map((day) => {
+                    const isSelected = selectedDays.includes(day.value);
+                    return (
+                      <button
+                        key={day.value}
+                        type="button"
+                        className={cn(
+                          "w-7 h-7 rounded-full flex items-center justify-center font-medium transition-all",
+                          isSelected
+                            ? cn(day.color, "text-white ring-2 ring-offset-2 ring-blue-600")
+                            : "bg-gray-200 text-gray-400 hover:bg-gray-300",
+                          readOnly && "cursor-not-allowed opacity-60"
+                        )}
+                        onClick={() => toggleDay(day.value)}
+                        disabled={readOnly}
+                      >
+                        {day.label}
+                      </button>
+                    );
+                  })}
                 </div>
                 {description && <p className="text-sm text-gray-500">{description}</p>}
               </div>
