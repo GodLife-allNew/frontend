@@ -13,7 +13,6 @@ import { useDateFormatter } from "@/shared/hooks/formatter/useDateFormatter";
 const NoticeDetail = ({ isAdminMode = false }) => {
   const { noticeIdx } = useParams();
   const navigate = useNavigate();
-  const isAdmin = JSON.parse(localStorage.getItem("userInfo"))?.roleStatus;
   const { notice, error, apiLoading, fetchNoticeDetail, fetchDeleteNotice } = useNoticeDetail(noticeIdx);
   const { formatDate } = useDateFormatter(); // ✅ 공통 훅 사용
 
