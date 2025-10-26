@@ -204,7 +204,7 @@ export default function useRoutineDetail(planIdx, navigate) {
           }
         }
 
-        alert(`"${activityIdx + 1}번 활동"이 인증되었습니다!`);
+        // alert(`"${activityIdx + 1}번 활동"이 인증되었습니다!`);
 
         // 최신 데이터로 갱신
         await fetchRoutineData();

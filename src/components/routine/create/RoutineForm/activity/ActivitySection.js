@@ -67,9 +67,7 @@ function ActivitiesSection({
         </div>
       )}
 
-      {isOwner &&
-        !readOnly &&
-        fields.map((field, index) => (
+      {isOwner && !readOnly && fields.map((field, index) => (
           <Card key={field.id} className="p-4 relative">
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
