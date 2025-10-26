@@ -10,7 +10,7 @@ import { useNoticeDetail } from "../hooks/useNoticeDetail";
 import NoticeLoading from "../components/NoticeLoading";
 import { useDateFormatter } from "@/shared/hooks/formatter/useDateFormatter";
 
-const NoticeDetail = () => {
+const NoticeDetail = ({ isAdminMode = false }) => {
   const { noticeIdx } = useParams();
   const navigate = useNavigate();
   const isAdmin = JSON.parse(localStorage.getItem("userInfo"))?.roleStatus;
@@ -104,7 +104,7 @@ const NoticeDetail = () => {
           />
         </CardContent>
 
-        {isAdmin && (
+        {isAdminMode && (
           <CardFooter className="flex justify-end gap-2 py-6 px-6">
             <Button variant="outline" onClick={handleEdit}>
               <Edit2 className="mr-2 h-4 w-4" />
