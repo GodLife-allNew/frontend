@@ -17,6 +17,7 @@ function ActivitiesSection({
   certifiedActivities = {},
   onCertifyActivity = null,
   routineData = null,
+  isEditMode = false,
 }) {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -183,6 +184,7 @@ function ActivitiesSection({
             certifiedActivities={certifiedActivities}
             isActive={isActive}
             onCertifyActivity={onCertifyActivity}
+            isEditMode={isEditMode}
           />
         </>
       )}

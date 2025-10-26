@@ -9,6 +9,7 @@ function ActivitiesTimeline({
   certifiedActivities = {},
   isActive = false,
   onCertifyActivity = null, // 인증 기능 추가
+  isEditMode = false,
 }) {
   const activities = useWatch({
     control,
@@ -193,7 +194,7 @@ function ActivitiesTimeline({
           )}
 
           {/* 인증 버튼 추가 - 디버깅 정보 포함 */}
-          {isActive && !isCertified && onCertifyActivity && (
+          {!isEditMode && isActive && !isCertified && onCertifyActivity && (
             <div className="mt-2 flex justify-end">
               <Button
                 size="sm"
@@ -283,7 +284,7 @@ function ActivitiesTimeline({
         <div className="py-2">
           {sortedActivities.map((activity, index) => (
             <TimelineItem
-              key={activity.id}
+              key={activity.activityIdx ?? index}
               activity={activity}
               isLast={index === sortedActivities.length - 1}
               index={index}

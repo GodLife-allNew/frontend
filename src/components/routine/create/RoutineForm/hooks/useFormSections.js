@@ -282,6 +282,7 @@ export default function useFormSections({ form, isReadOnly, isActive, certifiedA
             certifiedActivities={certifiedActivities}
             onCertifyActivity={onCertifyActivity}
             routineData={routineData}
+            isEditMode={!isReadOnly}
           />
         </CardContent>
       </Card>
