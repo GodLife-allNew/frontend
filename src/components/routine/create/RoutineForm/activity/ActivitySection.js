@@ -26,10 +26,6 @@ function ActivitiesSection({
 
   const formState = useFormState({ control });
 
-  // 사용자가 루틴의 소유자인지 확인
-  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-  const isOwner = routineData ? parseInt(userInfo.userIdx) === parseInt(routineData.userIdx) : true;
-
   // 새 활동 추가
   const addActivity = () => {
     append({
@@ -68,14 +64,14 @@ function ActivitiesSection({
         </div>
       )}
 
-      {isOwner && !readOnly && fields.map((field, index) => (
+      {(routineData?.isWriter === 1 || routineData == null) && !readOnly && fields.map((field, index) => (
           <Card key={field.id} className="p-4 relative">
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
                 <Badge className="bg-blue-500">{index + 1}번 활동</Badge>
 
                 {/* 인증 상태 표시 (활성화 상태이고 읽기 모드일 때만) */}
-                {isActive && certifiedActivities[index] && (
+                {isActive && (field.verified || certifiedActivities[index]) && (
                   <Badge className="bg-green-500 flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3" />
                     인증 완료
@@ -185,6 +181,7 @@ function ActivitiesSection({
             isActive={isActive}
             onCertifyActivity={onCertifyActivity}
             isEditMode={isEditMode}
+            routineData={routineData}
           />
         </>
       )}
