@@ -11,8 +11,9 @@ const NoticeCreateEdit = () => {
   const isEditMode = !!noticeIdx;
   const navigate = useNavigate();
 
-  const { notice, handleChange, handleSubmit, isLoading, isSubmitting } =
-    useNoticeEdit(noticeIdx, navigate);
+  const isAdmin = JSON.parse(localStorage.getItem("userInfo"))?.roleStatus || false;
+
+  const { notice, handleChange, handleSubmit, isLoading, isSubmitting } = useNoticeEdit(noticeIdx, navigate);
 
   if (isLoading) return <NoticeLoading />;
 
@@ -22,20 +23,17 @@ const NoticeCreateEdit = () => {
 
       <Card className="w-full">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">
-            공지사항 {isEditMode ? "수정" : "작성"}
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold">공지사항 {isEditMode ? "수정" : "작성"}</CardTitle>
         </CardHeader>
         <CardContent>
           <NoticeForm
             isEditMode={isEditMode}
             notice={notice}
             handleChange={handleChange}
-            handleSubmit={(mode, data) =>
-              handleSubmit(mode, data)
-            }
+            handleSubmit={(mode, data) => handleSubmit(mode, data)}
             isSubmitting={isSubmitting}
             navigate={navigate}
+            isAdminMode={isAdmin}
           />
         </CardContent>
       </Card>

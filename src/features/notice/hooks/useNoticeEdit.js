@@ -67,12 +67,8 @@ export const useNoticeEdit = (noticeIdx, navigate) => {
       const payload = {
         ...noticeData,
         isPopup: noticeData.isPopup ? "Y" : "N",
-        popupStartDate: noticeData.popupStartDate
-          ? format(noticeData.popupStartDate, "yyyy-MM-dd HH:mm:ss")
-          : null,
-        popupEndDate: noticeData.popupEndDate
-          ? format(noticeData.popupEndDate, "yyyy-MM-dd HH:mm:ss")
-          : null,
+        popupStartDate: noticeData.popupStartDate ? format(noticeData.popupStartDate, "yyyy-MM-dd HH:mm:ss") : null,
+        popupEndDate: noticeData.popupEndDate ? format(noticeData.popupEndDate, "yyyy-MM-dd HH:mm:ss") : null,
       };
 
       console.log("전송 데이터:", payload);
@@ -85,7 +81,15 @@ export const useNoticeEdit = (noticeIdx, navigate) => {
         toast({ title: "공지사항이 등록되었습니다." });
       }
 
-      navigate("/notice/list");
+      const isAdmin = JSON.parse(localStorage.getItem("userInfo"))?.roleStatus;
+
+      if (isAdmin) {
+        // 관리자용 공지사항 관리 페이지로 이동
+        navigate("/adminBoard?tab=공지사항 관리");
+      } else {
+        // 일반 사용자는 공지사항 목록으로
+        navigate("/notice/list");
+      }
     } catch (err) {
       toast({
         title: `공지사항 ${isEditMode ? "수정" : "등록"} 실패`,

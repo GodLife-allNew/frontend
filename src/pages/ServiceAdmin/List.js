@@ -1,18 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  User,
-  FileText,
-  MessageSquare,
-  CheckCircle,
-  Menu,
-  ChevronDown,
-  ChevronRight,
-  Shield,
-  AlertTriangle,
-  Users,
-  Home,
-  LogOut,
-} from "lucide-react";
+import { User, FileText, MessageSquare, CheckCircle, Menu, ChevronDown, ChevronRight, Home } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import CompSystem from "@/components/ServiceAdmin/compSystem/compSystem";
 import FaqCategory from "@/components/ServiceAdmin/faqPage/faqCategory";
@@ -20,7 +7,7 @@ import ChallengeManager from "@/components/ServiceAdmin/contentsPage/ChallengeM"
 import RoutineManager from "@/components/ServiceAdmin/contentsPage/RoutineM";
 import UserManager from "./AdminUser";
 import QnaAdminDashboard from "../QnA/QnADashboard";
-import NoticeListPage from "@/pages/Notice/NoticeList";
+import NoticeListPage from "@/features/notice/pages/NoticeList";
 
 const AdminDashboard = () => {
   const location = useLocation();
