@@ -36,6 +36,12 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+  // 라벨 유틸 (용기)
+  const visibilityLabels = { PUBLIC: "공개", PRIVATE: "비공개" };
+  const typeLabels = { NORMAL: "일반", SPECIAL: "이벤트" };
+  const [updatingId, setUpdatingId] = useState(null);
+
+
   // 카테고리 관련 상태
   const [categories, setCategories] = useState([{ value: "all", label: "모든 카테고리" }]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
@@ -345,7 +351,9 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
     }
 
     try {
-      await axiosInstance.put(`/challenges/admin/earlyFinish/${challIdx}`, {
+      await axiosInstance.put(`/admin/challenges/earlyFinish/${challIdx}`,
+      null,
+      {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -366,6 +374,60 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
       });
     }
   };
+
+  // 공개/비공개 변경 (용기)
+  const handleVisibilityChange = async (challIdx: number, next: "PUBLIC" | "PRIVATE") => {
+    if (!accessToken) {
+      toast({ title: "권한 없음", description: "로그인이 필요합니다.", variant: "destructive" });
+      return;
+    }
+    try {
+      setUpdatingId(challIdx);
+      await axiosInstance.post(
+        `/admin/challenges/visibility/${challIdx}`,
+        null,
+        {
+          params: { visibilityType: next },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      toast({ title: "완료", description: `챌린지 공개 상태가 '${visibilityLabels[next]}'로 변경되었습니다.` });
+      fetchChallenges();
+    } catch (e) {
+      console.error(e);
+      toast({ title: "오류", description: "공개 상태 변경에 실패했습니다.", variant: "destructive" });
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  // 타입 변경 (용기)
+  const handleTypeChange = async (challIdx: number, next: "NORMAL" | "SPECIAL") => {
+    if (!accessToken) {
+      toast({ title: "권한 없음", description: "로그인이 필요합니다.", variant: "destructive" });
+      return;
+    }
+    try {
+      setUpdatingId(challIdx);
+      await axiosInstance.post(
+        `/admin/challenges/type/${challIdx}`,
+        null,
+        {
+          params: { challengeType: next },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      toast({ title: "완료", description: `챌린지 타입이 '${typeLabels[next]}'로 변경되었습니다.` });
+      fetchChallenges();
+    } catch (e) {
+      console.error(e);
+      toast({ title: "오류", description: "챌린지 타입 변경에 실패했습니다.", variant: "destructive" });
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+
 
   const handleEditClick = (challIdx, event) => {
     event.stopPropagation();
@@ -701,14 +763,62 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
                       <span>{formatDate(challenge.challEndTime)}</span>
                     </div>
                   </CardContent>
+
                   {roleStatus === true && (
                     <CardFooter className="pt-0">
-                      <EarlyFinishButton challenge={challenge} />
+                      <div className="w-full flex flex-wrap items-center gap-2">
+                        {/* 왼쪽: 조기종료 */}
+                        <div className="flex items-center">
+                          {/* EarlyFinishButton은 size="sm"라서 h-9 높이 -> 셀렉트도 h-9로 맞춰줍니다 */}
+                          <EarlyFinishButton challenge={challenge} />
+                        </div>
+
+                        {/* 오른쪽: 공개/비공개 + 타입 (오른쪽 정렬) */}
+                        <div className="ml-auto flex items-center gap-3">
+                          {/* 공개/비공개 */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600 whitespace-nowrap">공개 상태</span>
+                            <Select
+                              value={(challenge.visibilityType || "PUBLIC").toUpperCase()}
+                              onValueChange={(v) => handleVisibilityChange(challenge.challIdx, v)}
+                              disabled={updatingId === challenge.challIdx}
+                            >
+                              {/* h-9로 버튼(sm)과 동일 높이, 내부 패딩을 조정해 라인 높이 맞춤 */}
+                              <SelectTrigger className="h-9 w-[140px] px-3 py-0">
+                                <SelectValue placeholder="선택" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white">
+                                <SelectItem value="PUBLIC">공개</SelectItem>
+                                <SelectItem value="PRIVATE">비공개</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* 챌린지 타입 */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600 whitespace-nowrap">챌린지 타입</span>
+                            <Select
+                              value={(challenge.challengeType || "NORMAL").toUpperCase()}
+                              onValueChange={(v) => handleTypeChange(challenge.challIdx, v)}
+                              disabled={updatingId === challenge.challIdx}
+                            >
+                              {/* 동일하게 h-9로 통일 */}
+                              <SelectTrigger className="h-9 w-[140px] px-3 py-0">
+                                <SelectValue placeholder="선택" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white">
+                                <SelectItem value="NORMAL">일반</SelectItem>
+                                <SelectItem value="SPECIAL">이벤트</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
                     </CardFooter>
                   )}
                 </Card>
               );
-            })}
+             })}
           </div>
 
           {totalPages > 1 && (
