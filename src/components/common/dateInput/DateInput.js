@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   FormControl,
   FormField,
@@ -29,6 +29,17 @@ const DateInput = ({
   // indefinite 값을 위한 이름 생성
   const indefiniteName = `${name}Indefinite`;
 
+    // ✅ endTo 값이 99999이면 자동으로 "기한없음" 체크박스 활성화
+  useEffect(() => {
+    const currentValue = control._formValues[name];
+    const currentIndefinite = control._formValues[indefiniteName];
+
+    // 99999이고, 아직 체크 안 되어 있으면 체크 활성화
+    if (currentValue === 99999 && !currentIndefinite) {
+      control._formValues[indefiniteName] = true;
+    }
+  }, [control, name, indefiniteName]);
+
   return (
     <FormField
       control={control}
@@ -50,16 +61,13 @@ const DateInput = ({
             {readOnly ? (
               // 읽기 전용 모드일 때의 표시 방식
               <div className="py-2">
-                {/* 기한없음인 경우 */}
-                {control._formValues[indefiniteName] ? (
+                {/* 99999이거나 indefiniteName이 true인 경우 */}
+                {control._formValues[indefiniteName] || field.value === 99999 ? (
                   <span className="text-gray-700">{indefiniteLabel}</span>
                 ) : (
-                  // 일반적인 일수 표시
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-gray-700">
-                      {field.value || min}일
-                    </span>
+                    <span className="text-gray-700">{field.value || min}일</span>
                   </div>
                 )}
               </div>

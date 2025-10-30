@@ -21,14 +21,14 @@ function ActivitiesTimeline({
   const [sortedActivities, setSortedActivities] = useState([]);
 
   // 루틴 상태 디버깅
-  useEffect(() => {
-    console.log("ActivitiesTimeline Props:", {
-      isActive,
-      certifiedActivities,
-      hasActivities: activities && activities.length > 0,
-      hasCallback: !!onCertifyActivity,
-    });
-  }, [isActive, certifiedActivities, activities, onCertifyActivity]);
+  // useEffect(() => {
+  //   console.log("ActivitiesTimeline Props:", {
+  //     isActive,
+  //     certifiedActivities,
+  //     hasActivities: activities && activities.length > 0,
+  //     hasCallback: !!onCertifyActivity,
+  //   });
+  // }, [isActive, certifiedActivities, activities, onCertifyActivity]);
 
   // 활동을 시간순으로 정렬
   useEffect(() => {
@@ -37,7 +37,7 @@ function ActivitiesTimeline({
       return;
     }
 
-    console.log("원본 활동 데이터:", activities);
+    // console.log("원본 활동 데이터:", activities);
 
     // 모든 시작 시간을 분으로 변환하여 정렬
     const processedActivities = activities.map((activity) => {

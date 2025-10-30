@@ -51,7 +51,7 @@ export default function useRoutineDetail(planIdx, navigate) {
     setIsLoading(true);
     // 데이터 로드 후 활동 데이터에 activityIdx가 있는지 확인
     if (routineData && routineData.activities) {
-      console.log("서버에서 받은 활동 데이터:", routineData.activities);
+      // console.log("서버에서 받은 활동 데이터:", routineData.activities);
 
       // 활동 데이터에 activityIdx가 없으면 경고 로그 출력
       const missingIds = routineData.activities.filter(
@@ -88,7 +88,7 @@ export default function useRoutineDetail(planIdx, navigate) {
       // 추천 상태 가져오기
       if (token) {
         const likeStatus = await fetchLikeStatus(planIdx);
-        console.log("좋아요 상태 API 응답:", likeStatus);
+        // console.log("좋아요 상태 API 응답:", likeStatus);
 
         if (likeStatus !== null) {
           // isLiked 값은 항상 설정
@@ -100,7 +100,7 @@ export default function useRoutineDetail(planIdx, navigate) {
           }
           // likeCount가 없을 경우 원래 값 유지 (API에서 받은 초기값)
 
-          console.log("좋아요 정보 업데이트 후:", routineData);
+          // console.log("좋아요 정보 업데이트 후:", routineData);
         }
       }
 
@@ -109,7 +109,7 @@ export default function useRoutineDetail(planIdx, navigate) {
       // 인증 데이터 가져오기
       fetchCertificationData(routineData.planIdx);
 
-      console.log("루틴 데이터:", routineData);
+      // console.log("루틴 데이터:", routineData);
 
       setError(null);
     } catch (error) {
@@ -130,7 +130,7 @@ export default function useRoutineDetail(planIdx, navigate) {
   // 활동 인증 처리 함수
   const handleActivityCertification = async (activityIdx) => {
     try {
-      console.log(`활동 ID ${activityIdx} 인증 시도 - 시작`);
+      // console.log(`활동 ID ${activityIdx} 인증 시도 - 시작`);
 
       const token = localStorage.getItem("accessToken");
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
@@ -143,14 +143,14 @@ export default function useRoutineDetail(planIdx, navigate) {
         userIdx: parseInt(userIdx),
       };
 
-      console.log(
-        "활동 인증 요청 데이터:",
-        JSON.stringify(certificationData, null, 2)
-      );
+      // console.log(
+      //   "활동 인증 요청 데이터:",
+      //   JSON.stringify(certificationData, null, 2)
+      // );
 
       // API 호출 함수 (토큰 만료 처리 포함)
       const makeRequest = async (authToken) => {
-        console.log("인증 json : ", certificationData);
+        // console.log("인증 json : ", certificationData);
         try {
           return await axiosInstance.post(
             "/verify/auth/routine",
@@ -344,7 +344,7 @@ export default function useRoutineDetail(planIdx, navigate) {
         isDeleted: 0, // 고정 값 (삭제되지 않은 루틴에만 적용함)
       };
 
-      console.log("리뷰 작성 json : ", reviewData);
+      // console.log("리뷰 작성 json : ", reviewData);
 
       // API 요청
       const response = await axiosInstance.patch(
@@ -357,7 +357,7 @@ export default function useRoutineDetail(planIdx, navigate) {
         }
       );
 
-      console.log("리뷰 작성 api :", response);
+      // console.log("리뷰 작성 api :", response);
 
       if (response.data.status === "success" || response.data.code === 200) {
         // 리뷰 입력창 초기화
@@ -395,7 +395,7 @@ export default function useRoutineDetail(planIdx, navigate) {
         userIdx: parseInt(userIdx),
       };
 
-      console.log("루틴 추천하기 데이터", likeData);
+      // console.log("루틴 추천하기 데이터", likeData);
       // API 요청
       const response = await axiosInstance.post(
         `/plan/auth/likePlan/${planIdx}`,
