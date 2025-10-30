@@ -27,20 +27,31 @@ export default function RoutineForm({
   const navigate = useNavigate();
 
   // 기본값 설정 - 읽기 전용 모드에서는 routineData 사용
-  const defaultValues = routineData || {
-    planTitle: "",
-    userIdx: null,
-    endTo: 7,
-    targetIdx: null,
-    isShared: 0,
-    planImp: 5,
-    jobIdx: null,
-    jobEtcCateDTO: null,
-    activities: [],
-    repeatDays: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
-    forkIdx: null,
-    forked: false,
-  };
+  const defaultValues = routineData
+    ? {
+        ...routineData,
+        activities: routineData.activities.map((a) => ({
+          activityIdx: a.activityIdx,        // 기존 활동 ID 유지
+          activityName: a.activityName || "",
+          setTime: a.setTime || "08:00",
+          description: a.description || "",
+          activityImp: a.activityImp ?? 3,   // 기본 중요도 3
+        })),
+      }
+    : {
+        planTitle: "",
+        userIdx: null,
+        endTo: 7,
+        targetIdx: null,
+        isShared: 0,
+        planImp: 5,
+        jobIdx: null,
+        jobEtcCateDTO: null,
+        activities: [],
+        repeatDays: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        forkIdx: null,
+        forked: false,
+      };
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -116,13 +127,16 @@ export default function RoutineForm({
   async function handleFormSubmit(values) {
     if (isReadOnly) return;
 
+    console.log("테스트",values);
+
     // 수정 모드일 때만 삭제된 활동 추적
     let deleteActivityIdx = [];
     if (isEditMode && routineData?.activities) {
       const originalActivityIds = routineData.activities.map((a) => a.activityIdx);
-      const currentActivityIds = values.activities.filter((a) => a.activityIdx).map((a) => a.activityIdx);
-
-      deleteActivityIdx = originalActivityIds.filter((id) => !currentActivityIds.includes(id));
+      const currentActivityIds = values.activities
+          .filter(a => a.activityIdx && a.activityIdx > 0)
+          .map(a => a.activityIdx);
+      deleteActivityIdx = originalActivityIds.filter(id => !currentActivityIds.includes(id));
 
       console.log("삭제할 활동 IDs:", deleteActivityIdx);
     }

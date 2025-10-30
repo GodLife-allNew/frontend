@@ -234,6 +234,7 @@ export default function RoutineDetailPage() {
     );
   }
 
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 py-8 relative">
       {/* 모든 활동 완료 축하 메시지 */}
