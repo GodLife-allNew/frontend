@@ -17,6 +17,7 @@ import { MdOutlineMode, MdOutlineDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/shared/components/ui/use-toast";
 import axiosInstance from "@/shared/api/axiosInstance";
+import { Checkbox } from "@/shared/components/ui/checkbox"; // 체크박스 컴포넌트 추가
 
 // Props 추가: onChallengeSelect, onCreateNew
 const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
@@ -41,7 +42,6 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
   const typeLabels = { NORMAL: "일반", SPECIAL: "이벤트" };
   const [updatingId, setUpdatingId] = useState(null);
 
-
   // 카테고리 관련 상태
   const [categories, setCategories] = useState([{ value: "all", label: "모든 카테고리" }]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
@@ -54,6 +54,13 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
   const [searchInput, setSearchInput] = useState(""); // 검색어 임시 상태
   const [searchCategory, setSearchCategory] = useState("all");
   const [sortOrder, setSortOrder] = useState("default");
+
+  // 새로운 필터 상태 추가
+  const [onlyActive, setOnlyActive] = useState(true); // 기본값: 활성화된 챌린지만 표시
+  const [onlyEnded, setOnlyEnded] = useState(false); // 기본값: 종료된 챌린지 제외
+  const [selectedState, setSelectedState] = useState("all"); // 챌린지 상태 필터 (PUBLISHED, IN_PROGRESS, FINISHED 등)
+  const [selectedVisibility, setSelectedVisibility] = useState("all"); // 공개/비공개 필터
+  const [selectedType, setSelectedType] = useState("all"); // 챌린지 타입 필터 (NORMAL, SPECIAL)
 
   // 페이징 상태
   const [currentPage, setCurrentPage] = useState(0);
@@ -70,12 +77,36 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
     { value: "challEndTime DESC", label: "마감일 늦은 순" },
   ];
 
+  // 챌린지 상태 옵션
+  const stateOptions = [
+    { value: "all", label: "모든 상태" },
+    { value: "PUBLISHED", label: "게시중" },
+    { value: "IN_PROGRESS", label: "진행중" },
+    { value: "FINISHED", label: "종료됨" },
+    { value: "WAITING", label: "대기중" },
+  ];
+
+  // 공개 상태 옵션
+  const visibilityOptions = [
+    { value: "all", label: "모든 공개 상태" },
+    { value: "PUBLIC", label: "공개" },
+    { value: "PRIVATE", label: "비공개" },
+  ];
+
+  // 챌린지 타입 옵션
+  const typeOptions = [
+    { value: "all", label: "모든 타입" },
+    { value: "NORMAL", label: "일반" },
+    { value: "SPECIAL", label: "이벤트" },
+  ];
+
   // 상태 텍스트 매핑 함수
   const getStatusText = (status) => {
     const statusMap = {
       IN_PROGRESS: "진행중",
       PUBLISHED: "게시중",
       COMPLETED: "종료됨",
+      FINISHED: "종료됨",
       WAITING: "대기중",
       게시중: "게시중",
       진행중: "진행중",
@@ -127,7 +158,6 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
     try {
       setCategoriesLoading(true);
       const response = await axiosInstance.get("/categories/challenge");
-      console.log("카테고리 API 응답:", response.data);
 
       let categoryData = [];
       if (Array.isArray(response.data)) {
@@ -148,8 +178,6 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
           })
           .filter((option) => option.label && option.label.trim() !== ""),
       ];
-
-      console.log("처리된 카테고리 옵션:", categoryOptions);
       setCategories(categoryOptions);
     } catch (err) {
       console.error("카테고리 불러오기 오류:", err);
@@ -164,25 +192,30 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
     fetchCategories();
   }, []);
 
-  // 챌린지 데이터 fetching (검색 API 사용)
+  // 챌린지 데이터 fetching - 새로운 API 엔드포인트 사용
   const fetchChallenges = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
+      // API 요청 파라미터 구성
       const params = {};
 
+      // 페이징 파라미터
       params.page = currentPage + 1;
       params.size = pageSize;
 
+      // 정렬 파라미터
       if (sortOrder && sortOrder !== "default") {
         params.sort = sortOrder;
       }
 
+      // 검색어 파라미터
       if (searchTitle.trim()) {
         params.challTitle = searchTitle.trim();
       }
 
+      // 카테고리 파라미터
       if (searchCategory && searchCategory !== "all") {
         const categoryIdx = parseInt(searchCategory);
         if (!isNaN(categoryIdx)) {
@@ -190,14 +223,47 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
         }
       }
 
-      console.log("🔍 최종 검색 파라미터:", params);
-      console.log("📡 API 호출 URL:", `/challenges/search?${new URLSearchParams(params).toString()}`);
+      // 챌린지 상태 필터
+      if (selectedState && selectedState !== "all") {
+        params.challState = selectedState;
+      }
 
-      const response = await axiosInstance.get("/challenges/search", {
+      // 챌린지 타입 필터
+      if (selectedType && selectedType !== "all") {
+        params.challengeType = selectedType;
+
+        // SPECIAL 타입인 경우에는 종료된 챌린지도 볼 수 있음
+        // 일반 유저에게는 공개된 챌린지만 보임 (백엔드에서 처리)
+        if (selectedType === "SPECIAL") {
+          // SPECIAL 타입은 종료된 챌린지도 볼 수 있음
+          params.onlyEnded = false; // onlyEnded 설정을 무시하고 항상 false로 설정
+        } else {
+          // NORMAL 타입은 종료된 챌린지 조회 불가능
+          params.onlyEnded = false; // 항상 false로 설정 (종료된 챌린지 제외)
+        }
+      } else {
+        // 타입 필터가 선택되지 않은 경우, 기본 필터 적용
+        params.onlyEnded = onlyEnded;
+      }
+
+      // 일반 사용자는 공개 챌린지만 볼 수 있음 (백엔드에서 처리)
+      // 단, 관리자는 모든 챌린지 조회 가능
+      if (!roleStatus) {
+        params.visibilityType = "PUBLIC"; // 일반 사용자는 공개 챌린지만 볼 수 있음
+      } else if (selectedVisibility && selectedVisibility !== "all") {
+        params.visibilityType = selectedVisibility; // 관리자가 선택한 공개/비공개 필터 적용
+      }
+
+      // 활성화 필터 적용
+      params.onlyActive = onlyActive;
+
+      // console.log("🔍 최종 검색 파라미터:", params);
+      // console.log("📡 API 호출 URL:", `/challenges/latest?${new URLSearchParams(params).toString()}`);
+
+      // 일반 유저용 최신 챌린지 조회
+      const response = await axiosInstance.get("/challenges/latest", {
         params,
       });
-
-      console.log("✅ 검색 API 응답:", response.data);
 
       if (response.data && typeof response.data === "object") {
         if (response.data.content && Array.isArray(response.data.content)) {
@@ -214,7 +280,6 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
 
           for (const field of possibleArrays) {
             if (Array.isArray(response.data[field])) {
-              console.log(`데이터 필드 발견: ${field}`);
               setChallenges(response.data[field]);
               setTotalPages(response.data.totalPages || 1);
               setTotalElements(response.data.totalElements || response.data[field].length);
@@ -237,6 +302,7 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
         setTotalElements(0);
       }
     } catch (err) {
+      console.error("챌린지 불러오기 오류:", err);
       setError("챌린지를 불러오는 중 오류가 발생했습니다.");
       setChallenges([]);
       setTotalPages(0);
@@ -244,7 +310,19 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, sortOrder, searchTitle, searchCategory]);
+  }, [
+    currentPage,
+    pageSize,
+    sortOrder,
+    searchTitle,
+    searchCategory,
+    selectedState,
+    selectedVisibility,
+    selectedType,
+    onlyActive,
+    onlyEnded,
+    roleStatus, // 관리자 여부에 따라 필터링이 달라지므로 의존성 추가
+  ]);
 
   useEffect(() => {
     fetchChallenges();
@@ -272,6 +350,11 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
     setSearchTitle("");
     setSearchCategory("all");
     setSortOrder("default");
+    setSelectedState("all");
+    setSelectedVisibility("all");
+    setSelectedType("all");
+    setOnlyActive(true);
+    setOnlyEnded(false);
     setCurrentPage(0);
   };
 
@@ -351,9 +434,7 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
     }
 
     try {
-      await axiosInstance.put(`/admin/challenges/earlyFinish/${challIdx}`,
-      null,
-      {
+      await axiosInstance.put(`/admin/challenges/earlyFinish/${challIdx}`, null, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -375,22 +456,18 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
     }
   };
 
-  // 공개/비공개 변경 (용기)
-  const handleVisibilityChange = async (challIdx: number, next: "PUBLIC" | "PRIVATE") => {
+  // 공개/비공개 변경
+  const handleVisibilityChange = async (challIdx, next) => {
     if (!accessToken) {
       toast({ title: "권한 없음", description: "로그인이 필요합니다.", variant: "destructive" });
       return;
     }
     try {
       setUpdatingId(challIdx);
-      await axiosInstance.post(
-        `/admin/challenges/visibility/${challIdx}`,
-        null,
-        {
-          params: { visibilityType: next },
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
+      await axiosInstance.post(`/admin/challenges/visibility/${challIdx}`, null, {
+        params: { visibilityType: next },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       toast({ title: "완료", description: `챌린지 공개 상태가 '${visibilityLabels[next]}'로 변경되었습니다.` });
       fetchChallenges();
     } catch (e) {
@@ -401,22 +478,18 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
     }
   };
 
-  // 타입 변경 (용기)
-  const handleTypeChange = async (challIdx: number, next: "NORMAL" | "SPECIAL") => {
+  // 타입 변경
+  const handleTypeChange = async (challIdx, next) => {
     if (!accessToken) {
       toast({ title: "권한 없음", description: "로그인이 필요합니다.", variant: "destructive" });
       return;
     }
     try {
       setUpdatingId(challIdx);
-      await axiosInstance.post(
-        `/admin/challenges/type/${challIdx}`,
-        null,
-        {
-          params: { challengeType: next },
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
+      await axiosInstance.post(`/admin/challenges/type/${challIdx}`, null, {
+        params: { challengeType: next },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       toast({ title: "완료", description: `챌린지 타입이 '${typeLabels[next]}'로 변경되었습니다.` });
       fetchChallenges();
     } catch (e) {
@@ -426,8 +499,6 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
       setUpdatingId(null);
     }
   };
-
-
 
   const handleEditClick = (challIdx, event) => {
     event.stopPropagation();
@@ -507,6 +578,9 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
     );
   };
 
+  // 관리자가 아닌 경우, SPECIAL 타입이 아니면 종료된 챌린지 필터를 비활성화
+  const isEndedFilterDisabled = !roleStatus && selectedType !== "SPECIAL";
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-full py-10">
@@ -573,11 +647,17 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
           </button>
 
           {showAdvancedFilter && (
-            <div className=" p-4 rounded-lg space-y-4">
+            <div className="p-4 rounded-lg space-y-4 border border-gray-200 bg-gray-50">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
-                  <Select value={searchCategory} onValueChange={setSearchCategory}>
+                  <Select
+                    value={searchCategory}
+                    onValueChange={(value) => {
+                      setSearchCategory(value);
+                      setCurrentPage(0);
+                    }}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="카테고리 선택" />
                     </SelectTrigger>
@@ -620,6 +700,83 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
                 </div>
               </div>
 
+              {/* 새로운 필터 옵션들 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">챌린지 상태</label>
+                  <Select
+                    value={selectedState}
+                    onValueChange={(value) => {
+                      setSelectedState(value);
+                      setCurrentPage(0);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="상태 선택" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {stateOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {roleStatus && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">공개 상태</label>
+                    <Select
+                      value={selectedVisibility}
+                      onValueChange={(value) => {
+                        setSelectedVisibility(value);
+                        setCurrentPage(0);
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="공개 상태 선택" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {visibilityOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">챌린지 타입</label>
+                  <Select
+                    value={selectedType}
+                    onValueChange={(value) => {
+                      setSelectedType(value);
+                      // 타입이 NORMAL이면 종료된 챌린지 필터 비활성화
+                      if (value === "NORMAL" && onlyEnded) {
+                        setOnlyEnded(false);
+                      }
+                      setCurrentPage(0);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="타입 선택" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {typeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div className="flex justify-start">
                 <button
                   onClick={handleFiltersReset}
@@ -631,7 +788,15 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
             </div>
           )}
 
-          {(searchTitle || searchCategory !== "all" || sortOrder !== "default") && (
+          {/* 현재 적용된 필터 표시 */}
+          {(searchTitle ||
+            searchCategory !== "all" ||
+            sortOrder !== "default" ||
+            selectedState !== "all" ||
+            (roleStatus && selectedVisibility !== "all") ||
+            selectedType !== "all" ||
+            !onlyActive ||
+            onlyEnded) && (
             <div className="flex flex-wrap items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <span className="text-sm font-medium text-blue-800">적용된 필터:</span>
 
@@ -681,6 +846,81 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
                 </div>
               )}
 
+              {selectedState !== "all" && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                  <span>상태: {stateOptions.find((s) => s.value === selectedState)?.label}</span>
+                  <button
+                    onClick={() => {
+                      setSelectedState("all");
+                      setCurrentPage(0);
+                    }}
+                    className="hover:bg-blue-200 rounded-full p-0.5"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+
+              {roleStatus && selectedVisibility !== "all" && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                  <span>공개 상태: {visibilityOptions.find((v) => v.value === selectedVisibility)?.label}</span>
+                  <button
+                    onClick={() => {
+                      setSelectedVisibility("all");
+                      setCurrentPage(0);
+                    }}
+                    className="hover:bg-blue-200 rounded-full p-0.5"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+
+              {selectedType !== "all" && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                  <span>타입: {typeOptions.find((t) => t.value === selectedType)?.label}</span>
+                  <button
+                    onClick={() => {
+                      setSelectedType("all");
+                      setCurrentPage(0);
+                    }}
+                    className="hover:bg-blue-200 rounded-full p-0.5"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+
+              {!onlyActive && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                  <span>모든 챌린지 표시 (종료 포함)</span>
+                  <button
+                    onClick={() => {
+                      setOnlyActive(true);
+                      setCurrentPage(0);
+                    }}
+                    className="hover:bg-blue-200 rounded-full p-0.5"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+
+              {onlyEnded && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                  <span>종료된 챌린지만 표시</span>
+                  <button
+                    onClick={() => {
+                      setOnlyEnded(false);
+                      setCurrentPage(0);
+                    }}
+                    className="hover:bg-blue-200 rounded-full p-0.5"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+
               <button onClick={handleFiltersReset} className="ml-2 text-xs text-blue-600 hover:text-blue-800 underline">
                 모든 필터 제거
               </button>
@@ -691,7 +931,12 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
 
       {challenges.length === 0 ? (
         <div className="text-center text-gray-500 py-10">
-          {searchTitle || (searchCategory && searchCategory !== "all")
+          {searchTitle ||
+          searchCategory !== "all" ||
+          selectedState !== "all" ||
+          (roleStatus && selectedVisibility !== "all") ||
+          selectedType !== "all" ||
+          onlyEnded
             ? "검색 조건에 맞는 챌린지가 없습니다."
             : "현재 진행 중인 챌린지가 없습니다."}
         </div>
@@ -818,7 +1063,7 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
                   )}
                 </Card>
               );
-             })}
+            })}
           </div>
 
           {totalPages > 1 && (
