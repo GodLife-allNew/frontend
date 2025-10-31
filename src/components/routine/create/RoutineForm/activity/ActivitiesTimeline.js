@@ -107,7 +107,9 @@ function ActivitiesTimeline({
     const importance = activity.activityImp;
 
     // 인증 상태 확인 - activityIdx 기반으로 수정
-    const isCertified = activity.verified === true || certifiedActivities[activity.activityIdx] === true;
+    const isCertified =
+  (activity.verified === true || certifiedActivities[activity.activityIdx] === true) &&
+  routineData?.isWriter === 1;
 
     // 중요도에 따른 배경색 (더 연한 색상으로 변경)
     const getColor = (importance, isCertified) => {
@@ -286,7 +288,7 @@ function ActivitiesTimeline({
         <div className="py-2">
           {sortedActivities.map((activity, index) => (
             <TimelineItem
-              key={activity.activityIdx ?? index}
+              key={activity.activityIdx ? `a-${activity.activityIdx}` : `temp-${index}`}
               activity={activity}
               isLast={index === sortedActivities.length - 1}
               index={index}

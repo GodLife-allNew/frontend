@@ -116,7 +116,7 @@ const DateInput = ({
                       <div className="flex items-center ml-1">
                         <Checkbox
                           id={indefiniteName}
-                          checked={indefiniteField.value}
+                          checked={!!indefiniteField.value}
                           onCheckedChange={(checked) => {
                             indefiniteField.onChange(checked);
                             // 체크되면 필드 값을 99999로 설정하고 비활성화

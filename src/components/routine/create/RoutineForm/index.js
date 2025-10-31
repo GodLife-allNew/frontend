@@ -36,6 +36,7 @@ export default function RoutineForm({
           setTime: a.setTime || "08:00",
           description: a.description || "",
           activityImp: a.activityImp ?? 3,   // 기본 중요도 3
+          verified: a.verified ?? false, 
         })),
       }
     : {
@@ -57,11 +58,12 @@ export default function RoutineForm({
     resolver: zodResolver(formSchema),
     defaultValues,
     mode: "onSubmit",
+    shouldUnregister: false, // ✅ form 리렌더 시 기존 필드 유지
   });
 
   // 사용자 정보 및 포크 데이터 로드
   useEffect(() => {
-    if (!isReadOnly) {
+    if (!isReadOnly && !isEditMode) {
       try {
         // 1. 세션스토리지에서 포크된 루틴 데이터 확인
         const forkData = sessionStorage.getItem("forkRoutineData");
@@ -123,26 +125,53 @@ export default function RoutineForm({
     }
   }, [form, isReadOnly, routineData]);
 
+  useEffect(() => {
+  if (isEditMode && routineData) {
+    // ✅ routineData.activities에 activityIdx를 포함시켜 form에 다시 주입
+    const resetValues = {
+      ...routineData,
+      activities: routineData.activities.map((a) => ({
+        activityIdx: a.activityIdx,
+        activityName: a.activityName || "",
+        setTime: a.setTime || "08:00",
+        description: a.description || "",
+        activityImp: a.activityImp ?? 3,
+        verified: a.verified ?? false,
+      })),
+    };
+
+    console.log("폼 초기화 (resetValues):", resetValues);
+    form.reset(resetValues); // ✅ form 상태 강제 동기화
+
+    console.log("form.getValues('activities'):", form.getValues("activities"));
+
+  }
+}, [isEditMode, routineData]);
+
   // 폼 제출 핸들러
   async function handleFormSubmit(values) {
     if (isReadOnly) return;
 
-    console.log("테스트",values);
+    console.log("테스트",values.activities);
 
     // 수정 모드일 때만 삭제된 활동 추적
     let deleteActivityIdx = [];
     if (isEditMode && routineData?.activities) {
-      const originalActivityIds = routineData.activities.map((a) => a.activityIdx);
+      const originalActivityIds = routineData.activities.map((a) => Number(a.activityIdx));
       const currentActivityIds = values.activities
-          .filter(a => a.activityIdx && a.activityIdx > 0)
-          .map(a => a.activityIdx);
-      deleteActivityIdx = originalActivityIds.filter(id => !currentActivityIds.includes(id));
+        .filter(a => a.activityIdx && Number(a.activityIdx) > 0)
+        .map(a => Number(a.activityIdx));
+
+      const deleteActivityIdx = originalActivityIds.filter(id => !currentActivityIds.includes(id));
 
       console.log("삭제할 활동 IDs:", deleteActivityIdx);
     }
 
     const processedActivities = values.activities.map((activity) => ({
-      activityIdx: activity.activityIdx || 0,
+      activityIdx:
+        activity.activityIdx !== undefined && activity.activityIdx !== null
+          ? Number(activity.activityIdx)
+          : 0,
       planIdx: isEditMode ? routineData?.planIdx : null,
       activityName: activity.activityName,
       setTime: activity.setTime,
