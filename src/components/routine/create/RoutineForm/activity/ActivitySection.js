@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useFieldArray, useFormState } from "react-hook-form";
-import { Plus, Clock, Trash2, AlarmClock, FileText, Star, Award, CheckCircle2 } from "lucide-react";
+import React, { useEffect } from "react";
+import { useFieldArray, useFormState, useFormContext } from "react-hook-form";
+import { Plus, Trash2, AlarmClock, FileText, Star, CheckCircle2 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/shared/components/ui/form";
@@ -22,19 +22,47 @@ function ActivitiesSection({
   const { fields, append, remove } = useFieldArray({
     control,
     name: "activities",
+    keyName: "formFieldId", // ✅ react-hook-form 내부 ID key 지정 (기존 _id 대신)
   });
+
+  const { getValues, register } = useFormContext();
 
   const formState = useFormState({ control });
 
   // 새 활동 추가
   const addActivity = () => {
+    const activities = getValues("activities"); // 현재 입력 중인 모든 활동
+    let newStartTime = "09:00"; // 기본 시작 시간 (활동이 없을 경우)
+
+    if (activities.length > 0) {
+      const lastActivity = activities[activities.length - 1];
+      if (lastActivity.setTime) {
+        // 마지막 활동의 시간을 30분 추가
+        const [hour, minute] = lastActivity.setTime.split(":").map(Number);
+        const newDate = new Date();
+        newDate.setHours(hour);
+        newDate.setMinutes(minute + 30);
+
+        const newHour = String(newDate.getHours()).padStart(2, "0");
+        const newMinute = String(newDate.getMinutes()).padStart(2, "0");
+        newStartTime = `${newHour}:${newMinute}`;
+      }
+    }
+
     append({
+      activityIdx: 0,
       activityName: "",
-      setTime: "08:00",
+      setTime: newStartTime, // 👉 마지막 시간 + 30분
       description: "",
-      activityImp: 3, // 기본 중요도 3으로 설정
+      activityImp: 3,
+      verified: false,
     });
   };
+
+  useEffect(() => {
+  console.log("useFieldArray fields 초기값:", fields);
+}, [fields]);
+
 
   // 활동 인증 처리 함수
   // const handleCertify = (activityId) => {
@@ -65,10 +93,14 @@ function ActivitiesSection({
       )}
 
       {(routineData?.isWriter === 1 || routineData == null) && !readOnly && fields.map((field, index) => (
-          <Card key={field.id} className="p-4 relative">
+          <Card key={field.activityIdx ?? field.formFieldId} className="p-4 relative">
 
             {/* ① activityIdx hidden 필드 */}
-            <input type="hidden" {...control.register(`activities.${index}.activityIdx`)} />
+            <input
+              type="hidden"
+              defaultValue={field.activityIdx ?? 0}
+              {...register(`activities.${index}.activityIdx`)}
+            />
 
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
