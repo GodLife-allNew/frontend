@@ -52,17 +52,6 @@ export default function RoutineDetailPage() {
 
   console.log("루틴 정보 :", routineData);
 
-  // 리뷰 제출 처리 함수 - useCallback으로 메모이제이션
-  const handleReviewSubmit = useCallback(
-    (reviewText) => {
-      // 부모 컴포넌트 상태 업데이트
-      setNewReview(reviewText);
-      // 제출 처리
-      handleSubmitReview();
-    },
-    [setNewReview, handleSubmitReview]
-  );
-
   // 수정 모드 토글 함수
   const toggleEditMode = () => {
     const newEditMode = !isEditMode;
@@ -245,9 +234,6 @@ export default function RoutineDetailPage() {
     );
   }
 
-  // 사용자가 루틴의 소유자인지 확인
-  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-  const isOwner = parseInt(userInfo.userIdx) === parseInt(routineData.userIdx);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 py-8 relative">
@@ -291,7 +277,7 @@ export default function RoutineDetailPage() {
 
       <div className="max-w-3xl mx-auto px-4 relative">
         {/* 루틴 소유자인 경우에만 수정 및 삭제 버튼 표시하고, 수정 모드가 아닌 경우에만 표시 */}
-        {isOwner && !routineData.isCompleted && !isEditMode && (
+        {routineData?.isWriter === 1 && !routineData.isCompleted && !isEditMode && (
           <div className="flex justify-end mb-4 space-x-3">
             <Button
               onClick={handleDeleteClick}

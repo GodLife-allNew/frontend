@@ -43,7 +43,7 @@ export default function useFormSections({ form, isReadOnly, isActive, certifiedA
       const hasLocalData = getDataFromLocalStorage();
 
       if (!hasLocalData) {
-        console.log("API에서 카테고리 데이터 가져오기");
+        // console.log("API에서 카테고리 데이터 가져오기");
         const [jobsResponse, targetsResponse, jobIconsResponse] = await Promise.all([
           axiosInstance.get("/categories/job"),
           axiosInstance.get("/categories/target"),
@@ -58,7 +58,7 @@ export default function useFormSections({ form, isReadOnly, isActive, certifiedA
         localStorage.setItem("targetCategories", JSON.stringify(targetsResponse.data));
         localStorage.setItem("jobIcons", JSON.stringify(jobIconsResponse.data));
       } else {
-        console.log("로컬 스토리지에서 카테고리 데이터 가져옴");
+        // console.log("로컬 스토리지에서 카테고리 데이터 가져옴");
       }
     } catch (error) {
       console.error("카테고리 데이터 로드 실패:", error);
@@ -87,7 +87,7 @@ export default function useFormSections({ form, isReadOnly, isActive, certifiedA
         if (targetsFromStorage.length > 0) setTargets(targetsFromStorage);
         if (iconsFromStorage.length > 0) setJobIcons(iconsFromStorage);
 
-        console.log("수정 모드 전환: localStorage에서 아이콘 데이터 로드됨");
+        // console.log("수정 모드 전환: localStorage에서 아이콘 데이터 로드됨");
       } catch (error) {
         console.error("localStorage에서 데이터 로드 실패:", error);
       }
@@ -115,32 +115,45 @@ export default function useFormSections({ form, isReadOnly, isActive, certifiedA
 
   // 제목 섹션 컴포넌트
   const TitleSectionCard = useMemo(() => {
-    return () => (
-      <Card className="bg-white">
-        <CardHeader>
-          <CardTitle>
-            루틴 제목
-            {!isReadOnly && <span className="text-red-500 ml-1">*</span>}
-          </CardTitle>
-          <CardDescription>{isReadOnly ? "루틴 제목" : "루틴에 적절한 제목을 입력해주세요."}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TitleSection control={form.control} required={!isReadOnly} readOnly={isReadOnly} />
-        </CardContent>
-      </Card>
-    );
+    return () => {
+      // ✅ 조회 모드(isReadOnly=true)일 경우 제목 섹션 숨김
+      if (isReadOnly) {
+        return null;
+      }
+
+      return (
+        <Card className="bg-white">
+          <CardHeader>
+            <CardTitle>
+              루틴 제목
+              {!isReadOnly && <span className="text-red-500 ml-1">*</span>}
+            </CardTitle>
+            <CardDescription>
+              {isReadOnly ? "루틴 제목" : "루틴에 적절한 제목을 입력해주세요."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TitleSection
+              control={form.control}
+              required={!isReadOnly}
+              readOnly={isReadOnly}
+            />
+          </CardContent>
+        </Card>
+      );
+    };
   }, [form.control, isReadOnly]);
 
   // 직업 선택 섹션 컴포넌트
   const JobSectionCard = useMemo(() => {
     return () => {
       // 여기에 콘솔 로그 추가
-      console.log("JobSectionCard 렌더링:", {
-        isReadOnly,
-        jobsLength: jobs.length,
-        iconsLength: jobIcons.length,
-        jobIconsData: jobIcons,
-      });
+      // console.log("JobSectionCard 렌더링:", {
+      //   isReadOnly,
+      //   jobsLength: jobs.length,
+      //   iconsLength: jobIcons.length,
+      //   jobIconsData: jobIcons,
+      // });
 
       return (
         <Card className="bg-white">

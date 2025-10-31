@@ -161,11 +161,11 @@ export default function BadgeSelector({
     setIsCustomInputActive(false);
   };
 
-  console.log("BadgeSelector props:", {
-    name,
-    allowCustomInput,
-    readOnly,
-  });
+  // console.log("BadgeSelector props:", {
+  //   name,
+  //   allowCustomInput,
+  //   readOnly,
+  // });
 
   // allowCustomInput이 false이고 드롭다운 옵션이 없는 경우 드롭다운 버튼 숨기기
   const shouldShowDropdown = dropdownOptions.length > 0 || allowCustomInput;

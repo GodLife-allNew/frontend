@@ -37,11 +37,11 @@ function ActivitiesSection({
   };
 
   // 활동 인증 처리 함수
-  const handleCertify = (activityId) => {
-    if (onCertifyActivity) {
-      onCertifyActivity(activityId);
-    }
-  };
+  // const handleCertify = (activityId) => {
+  //   if (onCertifyActivity) {
+  //     onCertifyActivity(activityId);
+  //   }
+  // };
 
   return (
     <div className="space-y-4">
@@ -66,6 +66,10 @@ function ActivitiesSection({
 
       {(routineData?.isWriter === 1 || routineData == null) && !readOnly && fields.map((field, index) => (
           <Card key={field.id} className="p-4 relative">
+
+            {/* ① activityIdx hidden 필드 */}
+            <input type="hidden" {...control.register(`activities.${index}.activityIdx`)} />
+
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
                 <Badge className="bg-blue-500">{index + 1}번 활동</Badge>
@@ -128,7 +132,7 @@ function ActivitiesSection({
               <FormField
                 control={control}
                 name={`activities.${index}.activityImp`}
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-1">
                       <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
