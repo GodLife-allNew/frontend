@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -16,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22   # 로컬 Node 버전과 동일하게
+          node-version: 22
           cache: 'npm'
 
       - name: Set npm version
@@ -28,6 +29,9 @@ jobs:
       - name: Build React app
         run: CI=false npm run build
 
+      # ===============================
+      # EC2 서버 react-build 폴더로 업로드
+      # ===============================
       - name: Copy build files to remote server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -37,16 +41,25 @@ jobs:
           source: "build/**"
           target: "/home/${{ secrets.EC2_USER }}/react-build"
 
-      - name: Deploy to Nginx Docker
+      # ===============================
+      # Docker Compose 로 실행 중인 nginxserver 에 빌드 배포
+      # ===============================
+      - name: Deploy to Nginx Docker Compose
         uses: appleboy/ssh-action@v0.1.8
         with:
           username: ${{ secrets.EC2_USER }}
           host: ${{ secrets.GODLIFE_SERVER_IP }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Nginx 컨테이너 내 기존 파일 제거
+            echo "=== nginxserver 빌드 파일 배포 시작 ==="
+
+            # 기존 파일 제거
             sudo docker exec nginxserver rm -rf /usr/share/nginx/html/*
+
             # 새 빌드 파일 복사
             sudo docker cp /home/${{ secrets.EC2_USER }}/react-build/build/. nginxserver:/usr/share/nginx/html
-            # Nginx 재로드
+
+            # Nginx reload
             sudo docker exec nginxserver nginx -s reload
+
+            echo "=== React 빌드 배포 완료 ==="
