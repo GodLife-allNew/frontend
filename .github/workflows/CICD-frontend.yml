@@ -40,26 +40,3 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "build/**"
           target: "/home/${{ secrets.EC2_USER }}/nginx/html"
-
-      # ===============================
-      # Docker Compose 로 실행 중인 nginxserver 에 빌드 배포
-      # ===============================
-      - name: Deploy to Nginx Docker Compose
-        uses: appleboy/ssh-action@v0.1.8
-        with:
-          username: ${{ secrets.EC2_USER }}
-          host: ${{ secrets.GODLIFE_SERVER_IP }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            echo "=== nginxserver 빌드 파일 배포 시작 ==="
-
-            # # 기존 파일 제거
-            # sudo docker exec nginxserver rm -rf /usr/share/nginx/html/*
-
-            # # 새 빌드 파일 복사
-            # sudo docker cp /home/${{ secrets.EC2_USER }}/react-build/build/. nginxserver:/usr/share/nginx/html
-
-            # Nginx reload
-            sudo docker exec nginxserver nginx -s reload
-
-            echo "=== React 빌드 배포 완료 ==="
