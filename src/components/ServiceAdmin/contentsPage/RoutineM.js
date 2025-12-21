@@ -60,11 +60,9 @@ const AdminRoutineList = ({ onRoutineSelect, isStandalone = true }) => {
         return;
       }
 
-      const response = await axiosInstance.get("/categories/challenge", {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const response = await axiosInstance.get("/categories/target", { });
 
-      console.log("카테고리 데이터:", response.data);
+//      console.log("카테고리 데이터:", response.data);
 
       // 응답 데이터 구조에 따라 처리
       let categoryData = [];
@@ -77,7 +75,7 @@ const AdminRoutineList = ({ onRoutineSelect, isStandalone = true }) => {
       }
 
       setCategories(categoryData);
-      console.log("✅ 카테고리 로드 성공:", categoryData);
+//      console.log("✅ 카테고리 로드 성공:", categoryData);
     } catch (err) {
       console.error("❌ 카테고리 로드 실패:", err);
       toast({
@@ -138,7 +136,7 @@ const AdminRoutineList = ({ onRoutineSelect, isStandalone = true }) => {
           apiUrl = "/admin/plans";
         }
 
-        console.log("🔍 API 요청:", apiUrl, params);
+//        console.log("🔍 API 요청:", apiUrl, params);
 
         const response = await axiosInstance.get(apiUrl, {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -146,6 +144,10 @@ const AdminRoutineList = ({ onRoutineSelect, isStandalone = true }) => {
         });
 
         console.log("API 응답:", response);
+
+        if (response?.data?.status === 204 || response?.data) {
+          return;
+        }
 
         if (response?.data?.status === 200 || response?.data) {
           const responseData = response.data;
