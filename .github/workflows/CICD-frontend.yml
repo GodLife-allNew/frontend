@@ -41,3 +41,4 @@ jobs:
           source: "build/**"
           target: "/home/${{ secrets.EC2_USER }}/nginx/html"
           strip_components: 1
+          overwrite: true
