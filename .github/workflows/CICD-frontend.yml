@@ -38,5 +38,6 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           host: ${{ secrets.GODLIFE_SERVER_IP }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/*"
+          source: "build/**"
           target: "/home/${{ secrets.EC2_USER }}/nginx/html"
+          strip_components: 1
