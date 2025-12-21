@@ -25,12 +25,16 @@ export const formSchema = z.object({
   activities: z
     .array(
       z.object({
+        activityIdx: z.number().optional(),
         activityName: z.string().min(1, "활동 이름을 입력해주세요"),
         setTime: z.string(),
         description: z.string().nullable().optional(), // optional 및 nullable로 변경
         activityImp: z.number().min(1).max(5).default(3),
+        verified: z.boolean().optional(),
       })
     )
     .min(1, "최소 1개 이상의 활동을 추가해주세요")
     .default([]),
+  forkIdx: z.number().nullable().optional(),
+  forked: z.boolean().optional(),
 });
