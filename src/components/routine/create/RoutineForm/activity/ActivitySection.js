@@ -1,9 +1,27 @@
 import React, { useEffect } from "react";
-import { useFieldArray, useFormState, useFormContext } from "react-hook-form";
-import { Plus, Trash2, AlarmClock, FileText, Star, CheckCircle2 } from "lucide-react";
+import {
+  useFieldArray,
+  useFormState,
+  useFormContext,
+  Controller,
+} from "react-hook-form";
+import {
+  Plus,
+  Trash2,
+  AlarmClock,
+  FileText,
+  Star,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/shared/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/shared/components/ui/form";
 import { Card } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { Separator } from "@/shared/components/ui/separator";
@@ -22,7 +40,6 @@ function ActivitiesSection({
   const { fields, append, remove } = useFieldArray({
     control,
     name: "activities",
-    keyName: "formFieldId", // ✅ react-hook-form 내부 ID key 지정 (기존 _id 대신)
   });
 
   const { getValues, register } = useFormContext();
@@ -31,13 +48,12 @@ function ActivitiesSection({
 
   // 새 활동 추가
   const addActivity = () => {
-    const activities = getValues("activities"); // 현재 입력 중인 모든 활동
-    let newStartTime = "09:00"; // 기본 시작 시간 (활동이 없을 경우)
+    const activities = getValues("activities");
+    let newStartTime = "09:00";
 
     if (activities.length > 0) {
       const lastActivity = activities[activities.length - 1];
       if (lastActivity.setTime) {
-        // 마지막 활동의 시간을 30분 추가
         const [hour, minute] = lastActivity.setTime.split(":").map(Number);
         const newDate = new Date();
         newDate.setHours(hour);
@@ -50,9 +66,9 @@ function ActivitiesSection({
     }
 
     append({
-      activityIdx: 0,
+      activityIdx: 0, // 새 활동은 0
       activityName: "",
-      setTime: newStartTime, // 👉 마지막 시간 + 30분
+      setTime: newStartTime,
       description: "",
       activityImp: 3,
       verified: false,
@@ -60,53 +76,73 @@ function ActivitiesSection({
   };
 
   useEffect(() => {
-  console.log("useFieldArray fields 초기값:", fields);
-}, [fields]);
-
-
-  // 활동 인증 처리 함수
-  // const handleCertify = (activityId) => {
-  //   if (onCertifyActivity) {
-  //     onCertifyActivity(activityId);
-  //   }
-  // };
+    console.log("useFieldArray fields:", fields);
+    console.log(
+      "fields with activityIdx:",
+      fields.map((f) => ({
+        id: f.id,
+        activityIdx: f.activityIdx,
+        activityName: f.activityName,
+      }))
+    );
+    const formValues = getValues("activities");
+    console.log("현재 폼의 activities 값:", formValues);
+    console.log(
+      "각 activity의 activityIdx:",
+      formValues?.map((a) => a.activityIdx)
+    );
+  }, [fields]);
 
   return (
     <div className="space-y-4">
-      {/* 읽기 모드가 아닐 때만 추가 버튼 표시 */}
       {!readOnly && (
         <div className="flex justify-end">
-          <Button type="button" size="sm" onClick={addActivity} className="flex items-center gap-1 bg-blue-500">
+          <Button
+            type="button"
+            size="sm"
+            onClick={addActivity}
+            className="flex items-center gap-1 bg-blue-500"
+          >
             <Plus className="h-4 w-4" />새 활동 추가
           </Button>
         </div>
       )}
 
-      {/* 에러 메시지 표시 */}
-      {formState.errors.activities && <div className="text-red-500 text-sm mt-2">{formState.errors.activities.message}</div>}
+      {formState.errors.activities && (
+        <div className="text-red-500 text-sm mt-2">
+          {formState.errors.activities.message}
+        </div>
+      )}
 
       {fields.length === 0 && (
         <div className="text-center py-8 border border-dashed rounded-lg bg-muted/50">
           <AlarmClock className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
-          <p className="text-muted-foreground">{readOnly ? "등록된 활동이 없습니다" : "활동을 추가하여 루틴을 만들어보세요"}</p>
+          <p className="text-muted-foreground">
+            {readOnly
+              ? "등록된 활동이 없습니다"
+              : "활동을 추가하여 루틴을 만들어보세요"}
+          </p>
         </div>
       )}
 
-      {(routineData?.isWriter === 1 || routineData == null) && !readOnly && fields.map((field, index) => (
-          <Card key={field.activityIdx ?? field.formFieldId} className="p-4 relative">
-
-            {/* ① activityIdx hidden 필드 */}
-            <input
-              type="hidden"
+      {(routineData?.isWriter === 1 || routineData == null) &&
+        !readOnly &&
+        fields.map((field, index) => (
+          <Card key={field.id} className="p-4 relative">
+            {/* ✅ FormField로 activityIdx 등록 */}
+            <FormField
+              control={control}
+              name={`activities.${index}.activityIdx`}
               defaultValue={field.activityIdx ?? 0}
-              {...register(`activities.${index}.activityIdx`)}
+              render={({ field: fieldProps }) => (
+                <input type="hidden" {...fieldProps} />
+              )}
             />
 
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
                 <Badge className="bg-blue-500">{index + 1}번 활동</Badge>
 
-                {/* 인증 상태 표시 (활성화 상태이고 읽기 모드일 때만) */}
                 {isActive && (field.verified || certifiedActivities[index]) && (
                   <Badge className="bg-green-500 flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3" />
@@ -115,7 +151,6 @@ function ActivitiesSection({
                 )}
               </div>
 
-              {/* 읽기 모드가 아닐 때만 삭제 버튼 표시 */}
               {!readOnly && (
                 <Button
                   type="button"
@@ -138,7 +173,12 @@ function ActivitiesSection({
                   <FormItem className="flex-1">
                     <FormLabel>활동 이름</FormLabel>
                     <FormControl>
-                      <Input placeholder="예: 아침 운동, 독서 등" {...field} disabled={readOnly} readOnly={readOnly} />
+                      <Input
+                        placeholder="예: 아침 운동, 독서 등"
+                        {...field}
+                        disabled={readOnly}
+                        readOnly={readOnly}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -153,7 +193,13 @@ function ActivitiesSection({
                   <FormItem>
                     <FormLabel>시작 시간</FormLabel>
                     <FormControl>
-                      <Input type="time" placeholder="HH:MM" {...field} disabled={readOnly} readOnly={readOnly} />
+                      <Input
+                        type="time"
+                        placeholder="HH:MM"
+                        {...field}
+                        disabled={readOnly}
+                        readOnly={readOnly}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -198,7 +244,12 @@ function ActivitiesSection({
                     한줄 메모
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="활동에 대한 간단한 메모를 남겨보세요" {...field} disabled={readOnly} readOnly={readOnly} />
+                    <Input
+                      placeholder="활동에 대한 간단한 메모를 남겨보세요"
+                      {...field}
+                      disabled={readOnly}
+                      readOnly={readOnly}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
