@@ -58,13 +58,13 @@ const Footer = () => {
                   {
                     name: "임채림",
                     role: "Frontend",
-                    phone: "010-0000-0000",
+                    phone: "010-2931-5879",
                     email: "limcl1224@naver.com",
                   },
                   {
                     name: "신해지",
                     role: "Frontend",
-                    phone: "010-0000-0000",
+                    phone: "010-9004-5217",
                     email: "haeji1124@naver.com",
                   },
                 ].map((member, index) => (
