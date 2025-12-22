@@ -1,5 +1,5 @@
 // src/components/routine/RoutineForm/index.js
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,17 +26,19 @@ export default function RoutineForm({
   const [forkIdx, setForkIdx] = useState(null);
   const navigate = useNavigate();
 
+  const originalRoutineDataRef = useRef(null);
+
   // 기본값 설정 - 읽기 전용 모드에서는 routineData 사용
   const defaultValues = routineData
     ? {
         ...routineData,
         activities: routineData.activities.map((a) => ({
-          activityIdx: a.activityIdx,        // 기존 활동 ID 유지
+          activityIdx: a.activityIdx, // 기존 활동 ID 유지
           activityName: a.activityName || "",
           setTime: a.setTime || "08:00",
           description: a.description || "",
-          activityImp: a.activityImp ?? 3,   // 기본 중요도 3
-          verified: a.verified ?? false, 
+          activityImp: a.activityImp ?? 3, // 기본 중요도 3
+          verified: a.verified ?? false,
         })),
       }
     : {
@@ -126,44 +128,73 @@ export default function RoutineForm({
   }, [form, isReadOnly, routineData]);
 
   useEffect(() => {
-  if (isEditMode && routineData) {
-    // ✅ routineData.activities에 activityIdx를 포함시켜 form에 다시 주입
-    const resetValues = {
-      ...routineData,
-      activities: routineData.activities.map((a) => ({
-        activityIdx: a.activityIdx,
-        activityName: a.activityName || "",
-        setTime: a.setTime || "08:00",
-        description: a.description || "",
-        activityImp: a.activityImp ?? 3,
-        verified: a.verified ?? false,
-      })),
-    };
+    if (isEditMode && routineData) {
+      // ✅ routineData.activities에 activityIdx를 포함시켜 form에 다시 주입
+      originalRoutineDataRef.current = {
+        ...routineData,
+        activities: routineData.activities.map((a) => ({
+          activityIdx: a.activityIdx,
+          activityName: a.activityName || "",
+          setTime: a.setTime || "08:00",
+          description: a.description || "",
+          activityImp: a.activityImp ?? 3,
+          verified: a.verified ?? false,
+        })),
+      };
+      const resetValues = {
+        ...routineData,
+        activities: routineData.activities.map((a) => ({
+          activityIdx: a.activityIdx,
+          activityName: a.activityName || "",
+          setTime: a.setTime || "08:00",
+          description: a.description || "",
+          activityImp: a.activityImp ?? 3,
+          verified: a.verified ?? false,
+        })),
+      };
 
-    console.log("폼 초기화 (resetValues):", resetValues);
-    form.reset(resetValues); // ✅ form 상태 강제 동기화
+      console.log("폼 초기화 (resetValues):", resetValues);
+      form.reset(resetValues); // ✅ form 상태 강제 동기화
 
-    console.log("form.getValues('activities'):", form.getValues("activities"));
-
-  }
-}, [isEditMode, routineData]);
+      console.log(
+        "form.getValues('activities'):",
+        form.getValues("activities")
+      );
+    }
+  }, [isEditMode, routineData, form]);
 
   // 폼 제출 핸들러
   async function handleFormSubmit(values) {
     if (isReadOnly) return;
 
-    console.log("테스트",values.activities);
+    console.log("제출된 values:", values);
+    console.log("제출된 activities:", values.activities);
+    console.log(
+      "activities 상세:",
+      values.activities.map((a) => ({
+        activityIdx: a.activityIdx,
+        activityName: a.activityName,
+        hasIdx: !!a.activityIdx,
+      }))
+    );
 
     // 수정 모드일 때만 삭제된 활동 추적
-    let deleteActivityIdx = [];
-    if (isEditMode && routineData?.activities) {
-      const originalActivityIds = routineData.activities.map((a) => Number(a.activityIdx));
+    const deleteActivityIdx = [];
+    if (isEditMode && originalRoutineDataRef.current?.activities) {
+      const originalActivityIds = originalRoutineDataRef.current.activities
+        .map((a) => Number(a.activityIdx))
+        .filter((id) => id > 0); // 0이 아닌 ID만 포함
+
       const currentActivityIds = values.activities
-        .filter(a => a.activityIdx && Number(a.activityIdx) > 0)
-        .map(a => Number(a.activityIdx));
+        .filter((a) => a.activityIdx && Number(a.activityIdx) > 0)
+        .map((a) => Number(a.activityIdx));
 
-      const deleteActivityIdx = originalActivityIds.filter(id => !currentActivityIds.includes(id));
+      deleteActivityIdx.push(
+        ...originalActivityIds.filter((id) => !currentActivityIds.includes(id))
+      );
 
+      console.log("원본 활동 IDs:", originalActivityIds);
+      console.log("현재 활동 IDs:", currentActivityIds);
       console.log("삭제할 활동 IDs:", deleteActivityIdx);
     }
 
@@ -253,11 +284,15 @@ export default function RoutineForm({
       // 루틴 생성 API 호출 함수
       const createRoutine = async (authToken) => {
         try {
-          const response = await axiosInstance.post("/plan/auth/write", requestData, {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          });
+          const response = await axiosInstance.post(
+            "/plan/auth/write",
+            requestData,
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          );
           return response;
         } catch (error) {
           // 다른 오류는 그대로 던지기
@@ -271,7 +306,9 @@ export default function RoutineForm({
 
       // 성공 메시지
       alert(
-        startNow ? "루틴이 성공적으로 생성되었고 지금부터 시작됩니다!" : "루틴이 성공적으로 생성되었습니다. 나중에 시작할 수 있습니다."
+        startNow
+          ? "루틴이 성공적으로 생성되었고 지금부터 시작됩니다!"
+          : "루틴이 성공적으로 생성되었습니다. 나중에 시작할 수 있습니다."
       );
 
       // 루틴 목록 페이지로 이동
@@ -281,7 +318,11 @@ export default function RoutineForm({
       if (error.response) {
         console.error("응답 데이터:", error.response.data);
         console.error("응답 상태:", error.response.status);
-        alert(`루틴 생성 실패: ${error.response.data.message || "알 수 없는 오류가 발생했습니다."}`);
+        alert(
+          `루틴 생성 실패: ${
+            error.response.data.message || "알 수 없는 오류가 발생했습니다."
+          }`
+        );
       } else if (error.request) {
         console.error("요청 실패:", error.request);
         alert("서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.");
@@ -312,11 +353,16 @@ export default function RoutineForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6" lang="ko">
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-6"
+        lang="ko"
+      >
         {isForkData && forkIdx && (
           <div className="bg-purple-50 border border-purple-200 p-3 rounded-md text-purple-700 text-sm">
             <GitFork className="inline-block w-4 h-4 mr-1 mb-1" />
-            다른 사용자의 루틴을 포크하여 작성 중입니다. 루틴을 저장하면 원본 루틴의 포크 카운트가 증가합니다.
+            다른 사용자의 루틴을 포크하여 작성 중입니다. 루틴을 저장하면 원본
+            루틴의 포크 카운트가 증가합니다.
           </div>
         )}
 
@@ -332,7 +378,12 @@ export default function RoutineForm({
         {/* 제출 버튼 (읽기 전용 모드가 아닐 때만) */}
         {!isReadOnly && (
           <div className="flex gap-3">
-            <Button type="button" onClick={() => navigate(-1)} variant="outline" className="flex-1">
+            <Button
+              type="button"
+              onClick={() => navigate(-1)}
+              variant="outline"
+              className="flex-1"
+            >
               취소
             </Button>
             <Button type="submit" className="w-1/2 bg-blue-500">
@@ -343,7 +394,13 @@ export default function RoutineForm({
       </form>
 
       {/* 루틴 시작 확인 다이얼로그 - 수정 모드가 아닌 경우에만 표시 */}
-      {!isEditMode && <CreateRoutineDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} onConfirm={handleCreateRoutine} />}
+      {!isEditMode && (
+        <CreateRoutineDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          onConfirm={handleCreateRoutine}
+        />
+      )}
     </Form>
   );
 }
