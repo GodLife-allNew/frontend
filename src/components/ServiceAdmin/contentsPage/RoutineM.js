@@ -75,7 +75,7 @@ const AdminRoutineList = ({ onRoutineSelect, isStandalone = true }) => {
       }
 
       setCategories(categoryData);
-//      console.log("✅ 카테고리 로드 성공:", categoryData);
+      console.log("✅ 카테고리 로드 성공:", categoryData);
     } catch (err) {
       console.error("❌ 카테고리 로드 실패:", err);
       toast({
@@ -130,7 +130,7 @@ const AdminRoutineList = ({ onRoutineSelect, isStandalone = true }) => {
         let apiUrl;
         if (filters.targetIdx) {
           // 특정 카테고리의 최신 루틴 조회
-          apiUrl = `/admin/plans/latest/${filters.targetIdx}`;
+          apiUrl = `/admin/plans/${filters.targetIdx}`;
         } else {
           // 전체 관리자 루틴 조회
           apiUrl = "/admin/plans";
@@ -145,11 +145,21 @@ const AdminRoutineList = ({ onRoutineSelect, isStandalone = true }) => {
 
         console.log("API 응답:", response);
 
-        if (response?.data?.status === 204 || response?.data) {
+        if (response.status === 204) {
+          setRoutines([]);
+          setTotalPages(1);
+          setCurrentPage(1);
+          setTotalCount(0);
+
+          toast({
+            title: "작성된 루틴 없음",
+            description: "생성한 루틴이 없습니다.",
+          });
+
           return;
         }
 
-        if (response?.data?.status === 200 || response?.data) {
+        if (response?.data?.status === 200) {
           const responseData = response.data;
 
           // 응답 데이터 구조에 따라 처리
@@ -182,12 +192,6 @@ const AdminRoutineList = ({ onRoutineSelect, isStandalone = true }) => {
           setPageSize(pageSize);
           setCurrentPage(currentPage);
           setTotalCount(totalPages * pageSize);
-
-          console.log("✅ 데이터 로드 성공:", {
-            count: plans.length,
-            totalPages,
-            currentPage,
-          });
 
           if (plans.length === 0 && searchTerm) {
             toast({
