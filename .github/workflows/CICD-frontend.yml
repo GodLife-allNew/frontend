@@ -38,7 +38,50 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           host: ${{ secrets.GODLIFE_SERVER_IP }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/**"
-          target: "/home/${{ secrets.EC2_USER }}/nginx/html"
+          source: "build/*"
+          target: "/home/ubuntu/app/nginx/html"
           strip_components: 1
           overwrite: true
+          rm: true
+
+      - name: Set correct permissions
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.GODLIFE_SERVER_IP }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/app/nginx/html
+            sudo chown -R 101:101 .
+            sudo find . -type f -exec chmod 644 {} \;
+            sudo find . -type d -exec chmod 755 {} \;
+            echo "✓ Permissions updated"
+
+      - name: Reload Nginx
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.GODLIFE_SERVER_IP }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker exec nginxserver nginx -t
+            docker exec nginxserver nginx -s reload
+            echo "✅ Nginx reloaded successfully"
+
+      - name: Verify deployment
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.GODLIFE_SERVER_IP }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "=== Checking HTML files ==="
+            ls -lh /home/ubuntu/app/nginx/html/
+            
+            echo ""
+            echo "=== Testing frontend ==="
+            curl -I -k https://localhost/ | head -n 1
+            
+            echo ""
+            echo "=== Nginx container status ==="
+            docker ps --filter "name=nginxserver" --format "table {{.Names}}\t{{.Status}}"
