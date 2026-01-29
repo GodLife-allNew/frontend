@@ -29,9 +29,11 @@ jobs:
       - name: Build React app
         run: CI=false npm run build
 
-      # ===============================
-      # EC2 서버 nginx의 html 폴더로 업로드
-      # ===============================
+      - name: Check build output
+        run: |
+          ls -la build/
+          test -f build/index.html || exit 1
+
       - name: Copy build files to remote server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -39,34 +41,38 @@ jobs:
           host: ${{ secrets.GODLIFE_SERVER_IP }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "build/*"
-          target: "/home/ubuntu/app/nginx/html"
+          target: "/tmp/frontend-deploy"
           strip_components: 1
           overwrite: true
-          rm: true
 
-      - name: Set correct permissions
+      - name: Deploy to both host and container
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.GODLIFE_SERVER_IP }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/app/nginx/html
-            sudo chown -R 101:101 .
-            sudo find . -type f -exec chmod 644 {} \;
-            sudo find . -type d -exec chmod 755 {} \;
-            echo "✓ Permissions updated"
-
-      - name: Reload Nginx
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.GODLIFE_SERVER_IP }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            docker exec nginxserver nginx -t
+            # 호스트 디렉토리 업데이트 (영속성)
+            rm -rf /home/ubuntu/app/nginx/html/*
+            cp -r /tmp/frontend-deploy/* /home/ubuntu/app/nginx/html/
+            sudo chown -R 101:101 /home/ubuntu/app/nginx/html
+            sudo find /home/ubuntu/app/nginx/html -type f -exec chmod 644 {} \;
+            sudo find /home/ubuntu/app/nginx/html -type d -exec chmod 755 {} \;
+            
+            # 컨테이너에 직접 복사 (즉시 적용)
+            docker exec nginxserver sh -c "rm -rf /usr/share/nginx/html/*"
+            docker cp /tmp/frontend-deploy/. nginxserver:/usr/share/nginx/html/
+            docker exec nginxserver sh -c "chown -R nginx:nginx /usr/share/nginx/html && \
+                                           find /usr/share/nginx/html -type f -exec chmod 644 {} \; && \
+                                           find /usr/share/nginx/html -type d -exec chmod 755 {} \;"
+            
+            # Nginx 리로드
             docker exec nginxserver nginx -s reload
-            echo "✅ Nginx reloaded successfully"
+            
+            # 정리
+            rm -rf /tmp/frontend-deploy
+            
+            echo "✅ Deployment complete"
 
       - name: Verify deployment
         uses: appleboy/ssh-action@master
@@ -75,13 +81,21 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "=== Checking HTML files ==="
-            ls -lh /home/ubuntu/app/nginx/html/
+            echo "=== Host files ==="
+            ls -lh /home/ubuntu/app/nginx/html/ | head -5
             
             echo ""
-            echo "=== Testing frontend ==="
-            curl -I -k https://localhost/ | head -n 1
+            echo "=== Container files ==="
+            docker exec nginxserver ls -lh /usr/share/nginx/html/ | head -5
             
             echo ""
-            echo "=== Nginx container status ==="
-            docker ps --filter "name=nginxserver" --format "table {{.Names}}\t{{.Status}}"
+            echo "=== Health check ==="
+            HTTP_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" https://localhost/)
+            echo "HTTP Status: $HTTP_CODE"
+            
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Frontend is accessible!"
+            else
+              echo "❌ Failed with status $HTTP_CODE"
+              exit 1
+            fi
