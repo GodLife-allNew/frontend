@@ -3,37 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "@/shared/api/axiosInstance";
 
 // UI 컴포넌트
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Separator } from "@/shared/components/ui/separator";
 import { Textarea } from "@/shared/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/shared/components/ui/tooltip";
-import {
-  AlertCircle,
-  ArrowLeft,
-  RefreshCw,
-  Send,
-  Pencil,
-  Trash2,
-  MessageSquare,
-  Clock,
-  CheckCircle,
-  HelpCircle,
-  Info,
-} from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import { AlertCircle, ArrowLeft, RefreshCw, Send, Pencil, Trash2, MessageSquare, Clock, CheckCircle, HelpCircle, Info } from "lucide-react";
 
 const QnADetail = () => {
   // URL 파라미터에서 QnA ID 가져오기
@@ -62,6 +39,23 @@ const QnADetail = () => {
       console.error("카테고리 로딩 오류:", error);
     } finally {
       setCategoryLoading(false);
+    }
+  };
+
+  // 문의 완료
+  const completeQnA = async () => {
+    try {
+      const response = await axiosInstance.patch(`/qna/auth/complete/${qnaIdx}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      if (response.status === 200) {
+        fetchQnADetail();
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || "문의 완료 중 오류가 발생했습니다.";
+      alert(message);
     }
   };
 
@@ -99,23 +93,16 @@ const QnADetail = () => {
         console.error("상태 코드:", error.response.status);
 
         if (error.response.status === 403) {
-          setError(
-            "이 문의에 접근할 권한이 없습니다. 본인이 작성한 문의만 볼 수 있습니다."
-          );
+          setError("이 문의에 접근할 권한이 없습니다. 본인이 작성한 문의만 볼 수 있습니다.");
         } else if (error.response.status === 401) {
           setError("인증이 만료되었습니다. 다시 로그인해주세요.");
         } else {
-          setError(
-            error.response.data?.message ||
-              "문의 상세 정보를 불러오는 중 오류가 발생했습니다."
-          );
+          setError(error.response.data?.message || "문의 상세 정보를 불러오는 중 오류가 발생했습니다.");
         }
       } else if (error.request) {
         setError("서버에서 응답이 없습니다. 네트워크 연결을 확인해주세요.");
       } else {
-        setError(
-          error.message || "문의 상세 정보를 불러오는 중 오류가 발생했습니다."
-        );
+        setError(error.message || "문의 상세 정보를 불러오는 중 오류가 발생했습니다.");
       }
     } finally {
       setIsLoading(false);
@@ -186,15 +173,11 @@ const QnADetail = () => {
       console.log("댓글 작성 요청 데이터:", requestData);
 
       // API 요청
-      const response = await axiosInstance.post(
-        "/qna/auth/comment/reply",
-        requestData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+      const response = await axiosInstance.post("/qna/auth/comment/reply", requestData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
 
       console.log("댓글 작성 응답:", response);
 
@@ -218,9 +201,7 @@ const QnADetail = () => {
         } else if (error.response.status === 401) {
           setError("인증이 만료되었습니다. 다시 로그인해주세요.");
         } else {
-          setError(
-            error.response.data?.message || "댓글 작성 중 오류가 발생했습니다."
-          );
+          setError(error.response.data?.message || "댓글 작성 중 오류가 발생했습니다.");
         }
       } else if (error.request) {
         setError("서버에서 응답이 없습니다. 네트워크 연결을 확인해주세요.");
@@ -235,11 +216,7 @@ const QnADetail = () => {
   // 문의 삭제 처리
   const handleDelete = async () => {
     // 사용자에게 삭제 확인
-    if (
-      !window.confirm(
-        "정말 이 문의를 삭제하시겠습니까? 삭제된 문의는 복구할 수 없습니다."
-      )
-    ) {
+    if (!window.confirm("정말 이 문의를 삭제하시겠습니까? 삭제된 문의는 복구할 수 없습니다.")) {
       return;
     }
 
@@ -250,14 +227,11 @@ const QnADetail = () => {
       console.log("QnA 삭제 요청 시작. qnaIdx:", qnaIdx);
 
       // 삭제 API 호출
-      const response = await axiosInstance.delete(
-        `/qna/auth/delete/${qnaIdx}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+      const response = await axiosInstance.delete(`/qna/auth/delete/${qnaIdx}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
 
       console.log("삭제 API 응답:", response);
 
@@ -276,15 +250,11 @@ const QnADetail = () => {
         console.error("상태 코드:", error.response.status);
 
         if (error.response.status === 403) {
-          setError(
-            "이 문의를 삭제할 권한이 없습니다. 본인이 작성한 문의만 삭제할 수 있습니다."
-          );
+          setError("이 문의를 삭제할 권한이 없습니다. 본인이 작성한 문의만 삭제할 수 있습니다.");
         } else if (error.response.status === 401) {
           setError("인증이 만료되었습니다. 다시 로그인해주세요.");
         } else {
-          setError(
-            error.response.data?.message || "문의 삭제 중 오류가 발생했습니다."
-          );
+          setError(error.response.data?.message || "문의 삭제 중 오류가 발생했습니다.");
         }
       } else if (error.request) {
         setError("서버에서 응답이 없습니다. 네트워크 연결을 확인해주세요.");
@@ -457,17 +427,8 @@ const QnADetail = () => {
             </div>
             {!isLoading && qnaDetail && (
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={fetchQnADetail}
-                  disabled={isLoading || isDeletingQna}
-                >
-                  <RefreshCw
-                    className={`h-4 w-4 mr-1 ${
-                      isLoading ? "animate-spin" : ""
-                    }`}
-                  />
+                <Button variant="outline" size="sm" onClick={fetchQnADetail} disabled={isLoading || isDeletingQna}>
+                  <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? "animate-spin" : ""}`} />
                   새로고침
                 </Button>
 
@@ -487,12 +448,7 @@ const QnADetail = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={true}
-                          className="flex items-center cursor-help opacity-50 gap-1"
-                        >
+                        <Button variant="outline" size="sm" disabled={true} className="flex items-center cursor-help opacity-50 gap-1">
                           <Pencil className="h-4 w-4" />
                           수정
                           <Info className="h-3 w-3 text-gray-400" />
@@ -500,9 +456,7 @@ const QnADetail = () => {
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="max-w-xs text-sm">
-                        {getEditDisabledReason(qnaDetail.qnaStatus)}
-                      </p>
+                      <p className="max-w-xs text-sm">{getEditDisabledReason(qnaDetail.qnaStatus)}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -536,12 +490,7 @@ const QnADetail = () => {
                 <AlertDescription className="space-y-2">
                   <div>{error}</div>
                   <div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={fetchQnADetail}
-                      className="mt-2"
-                    >
+                    <Button variant="outline" size="sm" onClick={fetchQnADetail} className="mt-2">
                       다시 시도하기
                     </Button>
                   </div>
@@ -557,42 +506,26 @@ const QnADetail = () => {
                   <div className="flex flex-wrap items-center gap-2 justify-between">
                     <h2 className="text-xl font-semibold">{qnaDetail.title}</h2>
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary">
-                        {categoryLoading
-                          ? "카테고리 로딩 중..."
-                          : getCategoryName(qnaDetail.category)}
-                      </Badge>
+                      <Badge variant="secondary">{categoryLoading ? "카테고리 로딩 중..." : getCategoryName(qnaDetail.category)}</Badge>
                       {getStatusBadge(qnaDetail.qnaStatus)}
                     </div>
                   </div>
                   <div className="flex flex-wrap text-sm text-muted-foreground gap-x-4 gap-y-1">
                     <div>작성일: {formatDate(qnaDetail.createdAt)}</div>
-                    {qnaDetail.modifiedAt &&
-                      qnaDetail.modifiedAt !== qnaDetail.createdAt && (
-                        <div>수정일: {formatDate(qnaDetail.modifiedAt)}</div>
-                      )}
+                    {qnaDetail.modifiedAt && qnaDetail.modifiedAt !== qnaDetail.createdAt && (
+                      <div>수정일: {formatDate(qnaDetail.modifiedAt)}</div>
+                    )}
                   </div>
                 </div>
 
                 {/* 상태 안내 메시지 */}
                 {qnaDetail.qnaStatus && (
-                  <div
-                    className={`flex items-start p-4 rounded-md border ${
-                      getStatusMessage(qnaDetail.qnaStatus).color
-                    }`}
-                  >
-                    <div className="mr-3 mt-0.5">
-                      {getStatusMessage(qnaDetail.qnaStatus).icon}
-                    </div>
+                  <div className={`flex items-start p-4 rounded-md border ${getStatusMessage(qnaDetail.qnaStatus).color}`}>
+                    <div className="mr-3 mt-0.5">{getStatusMessage(qnaDetail.qnaStatus).icon}</div>
                     <div>
-                      <p className="font-medium">
-                        {getStatusMessage(qnaDetail.qnaStatus).text}
-                      </p>
+                      <p className="font-medium">{getStatusMessage(qnaDetail.qnaStatus).text}</p>
                       {!canAddComment(qnaDetail.qnaStatus) && (
-                        <p className="text-sm mt-1">
-                          문의가 접수되었습니다. 상담원이 배정되면 댓글을 작성할
-                          수 있습니다.
-                        </p>
+                        <p className="text-sm mt-1">문의가 접수되었습니다. 상담원이 배정되면 댓글을 작성할 수 있습니다.</p>
                       )}
                     </div>
                   </div>
@@ -603,9 +536,7 @@ const QnADetail = () => {
                 {/* 문의 내용 */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">문의 내용</h3>
-                  <div className="p-4 rounded-md bg-muted/50 whitespace-pre-wrap min-h-[150px]">
-                    {qnaDetail.body}
-                  </div>
+                  <div className="p-4 rounded-md bg-muted/50 whitespace-pre-wrap min-h-[150px]">{qnaDetail.body}</div>
                 </div>
 
                 <Separator />
@@ -632,45 +563,31 @@ const QnADetail = () => {
                         const displayName =
                           comment.userNick && comment.nickTag
                             ? `${comment.userNick}${comment.nickTag}`
-                            : comment.userNick ||
-                              comment.nickTag ||
-                              comment.userName ||
-                              "사용자";
+                            : comment.userNick || comment.nickTag || comment.userName || "사용자";
 
                         console.log("✨ 최종 표시명:", displayName);
 
                         // 관리자인지 사용자인지 구분 (필요시 백엔드에서 userType 필드 추가 가능)
-                        const isAdmin =
-                          comment.userType === "ADMIN" ||
-                          displayName.includes("상담원");
+                        const isAdmin = comment.userType === "ADMIN" || displayName.includes("상담원");
 
                         return (
                           <div
                             key={comment.qnaReplyIdx}
-                            className={`p-4 rounded-lg border ${
-                              isAdmin
-                                ? "bg-blue-50 border-blue-200"
-                                : "bg-gray-50 border-gray-200"
-                            }`}
+                            className={`p-4 rounded-lg border ${isAdmin ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-200"}`}
                           >
                             <div className="flex flex-wrap items-center justify-between mb-3">
                               <div className="flex items-center space-x-2">
                                 <Badge
                                   variant={isAdmin ? "default" : "secondary"}
                                   className={`${
-                                    isAdmin
-                                      ? "bg-blue-100 text-blue-800 border-blue-300"
-                                      : "bg-gray-100 text-gray-800 border-gray-300"
+                                    isAdmin ? "bg-blue-100 text-blue-800 border-blue-300" : "bg-gray-100 text-gray-800 border-gray-300"
                                   }`}
                                 >
                                   {isAdmin ? "🛡️ " : "👤 "}
                                   {displayName}
                                 </Badge>
                                 {isAdmin && (
-                                  <Badge
-                                    variant="outline"
-                                    className="text-xs bg-blue-50 text-blue-700"
-                                  >
+                                  <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
                                     관리자
                                   </Badge>
                                 )}
@@ -690,9 +607,7 @@ const QnADetail = () => {
                       })}
                     </div>
                   ) : (
-                    <div className="text-center py-6 text-muted-foreground">
-                      답변이 아직 없습니다.
-                    </div>
+                    <div className="text-center py-6 text-muted-foreground">답변이 아직 없습니다.</div>
                   )}
 
                   {/* 새 댓글 작성 - 오류 메시지 표시 영역 추가 */}
@@ -715,11 +630,7 @@ const QnADetail = () => {
                         disabled={isSubmittingComment}
                       />
                       <div className="flex justify-end">
-                        <Button
-                          type="submit"
-                          disabled={!newComment.trim() || isSubmittingComment}
-                          className="flex items-center"
-                        >
+                        <Button type="submit" disabled={!newComment.trim() || isSubmittingComment} className="flex items-center">
                           <Send className="h-4 w-4 mr-1" />
                           {isSubmittingComment ? "전송 중..." : "댓글 작성"}
                         </Button>
@@ -729,10 +640,7 @@ const QnADetail = () => {
                     <div className="rounded-md bg-gray-50 border-gray-200 border p-4 mt-4">
                       <div className="flex items-center gap-2">
                         <Clock className="h-5 w-5 text-gray-500" />
-                        <p className="text-gray-600">
-                          상담원이 배정되지 않아 댓글 작성이 제한됩니다. 상담원
-                          배정을 기다려주세요.
-                        </p>
+                        <p className="text-gray-600">상담원이 배정되지 않아 댓글 작성이 제한됩니다. 상담원 배정을 기다려주세요.</p>
                       </div>
                     </div>
                   )}
@@ -740,11 +648,11 @@ const QnADetail = () => {
               </CardContent>
 
               <CardFooter className="flex justify-between pt-0">
-                <Button
-                  variant="outline"
-                  onClick={() => navigate("/user/mypage?tab=chat")}
-                >
+                <Button variant="outline" onClick={() => navigate("/user/mypage?tab=chat")}>
                   목록으로
+                </Button>
+                <Button onClick={completeQnA} disabled={qnaDetail.qnaStatus === "COMPLETE"}>
+                  문의 완료
                 </Button>
               </CardFooter>
             </>
@@ -752,14 +660,8 @@ const QnADetail = () => {
             // 데이터가 없는 경우
             <CardContent>
               <div className="text-center py-12">
-                <p className="text-muted-foreground">
-                  문의를 찾을 수 없습니다.
-                </p>
-                <Button
-                  onClick={() => navigate("user/mypage?tab=chat")}
-                  variant="outline"
-                  className="mt-4"
-                >
+                <p className="text-muted-foreground">문의를 찾을 수 없습니다.</p>
+                <Button onClick={() => navigate("user/mypage?tab=chat")} variant="outline" className="mt-4">
                   목록으로 돌아가기
                 </Button>
               </div>
