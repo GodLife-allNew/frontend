@@ -207,17 +207,10 @@ export const QnAAdminDetail = ({
                     {qnaReplies && qnaReplies.length > 0 ? (
                         <div className="space-y-4">
                             {qnaReplies.map((comment) => {
-                                // 콘솔에 댓글 데이터 출력하여 확인
-                                console.log('관리자 패널 댓글 데이터:', comment);
-                                console.log('👤 userNick:', comment.userNick);
-                                console.log('🏷️ nickTag:', comment.nickTag);
-                                
                                 // userNick + nickTag 조합으로 사용자명 생성
                                 const displayName = comment.userNick && comment.nickTag
                                     ? `${comment.userNick}${comment.nickTag}`
                                     : comment.userNick || comment.nickTag || comment.userName || '상담원';
-
-                                console.log('✨ 최종 표시명:', displayName);
 
                                 // 관리자인지 사용자인지 구분 (필요시 백엔드에서 userType 필드 추가 가능)
                                 const isAdmin = comment.userType === 'ADMIN' || displayName.includes('상담원');
