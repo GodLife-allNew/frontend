@@ -1,6 +1,16 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 
+const formatDuration = (seconds) => {
+  if (seconds == null || seconds === "-") return "-";
+  const s = Math.floor(Number(seconds));
+  if (isNaN(s)) return "-";
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+};
+
 const StatsDashboard = ({ stats }) => {
   return (
     <Card className="col-span-12">
@@ -21,8 +31,8 @@ const StatsDashboard = ({ stats }) => {
               </div>
               <div className="bg-green-50 rounded-lg p-3">
                 <div className="text-sm text-green-600 mb-1">평균 소요시간</div>
-                <div className="text-2xl font-bold">{stats?.recentDuration ?? "-"}</div>
-                <div className="text-xs text-gray-500">평균: {stats?.recentDuration ?? "-"}</div>
+                <div className="text-2xl font-bold">{formatDuration(stats?.recentDuration)}</div>
+                <div className="text-xs text-gray-500">평균: {formatDuration(stats?.recentDuration)}</div>
               </div>
             </div>
           </div>
@@ -38,8 +48,8 @@ const StatsDashboard = ({ stats }) => {
               </div>
               <div className="bg-orange-50 rounded-lg p-3">
                 <div className="text-sm text-orange-600 mb-1">평균 소요시간</div>
-                <div className="text-2xl font-bold">{stats?.myMonthDuration ?? "-"} </div>
-                <div className="text-xs text-gray-500">평균: {stats?.myMonthDuration ?? "-"} </div>
+                <div className="text-2xl font-bold">{formatDuration(stats?.myMonthDuration)}</div>
+                <div className="text-xs text-gray-500">평균: {formatDuration(stats?.myMonthDuration)}</div>
               </div>
             </div>
           </div>
