@@ -34,21 +34,6 @@ const QnaAdminDashboard = () => {
   });
   const [isStatusVisible, setIsStatusVisible] = useState(false);
 
-  // 통계 데이터 (실제로는 API에서 가져올 데이터)
-  // const [stats, setStats] = useState({
-  //   today: {
-  //     completed: 12,
-  //     average: 8,
-  //     averageTime: "14분 35초",
-  //     myAverageTime: "11분 22초",
-  //   },
-  //   month: {
-  //     completed: 247,
-  //     average: 215,
-  //     averageTime: "15분 42초",
-  //     myAverageTime: "12분 18초",
-  //   },
-  // });
   const [stats, setStats] = useState({});
 
   // 참조 객체
@@ -70,28 +55,18 @@ const QnaAdminDashboard = () => {
     const fetchAdminStatus = async () => {
       setIsStatusLoading(true);
       try {
-        console.log("🔍 서버 상담원 상태 조회 시작...");
         const response = await axiosInstance.post("/service/admin/autoMatch/wakeUp", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
 
-        console.log("📋 상담원 상태 조회 전체 응답:", response);
-        console.log("📋 상담원 상태 응답 데이터:", response.data);
-        console.log("📋 상담원 상태 메시지:", response.data?.message);
-
         // 응답에서 상태 추출
         if (response.data && response.data.message) {
           const isAutoAssignment = response.data.message === "활성화";
-
-          console.log(`🎯 서버 상태: ${response.data.message}`);
-          console.log(`🎯 서버에서 파싱된 자동할당 여부: ${isAutoAssignment}`);
-
           setAutoAssignment(isAutoAssignment);
           // 상태를 localStorage에 저장하여 새로고침 시에도 유지
           localStorage.setItem("qnaAutoAssignment", isAutoAssignment.toString());
-          console.log(`✅ 상태 업데이트 완료: ${isAutoAssignment ? "자동 할당(활성화)" : "수동 할당(비활성화)"}`);
         } else {
           console.warn("⚠️ 서버 응답에 message 필드가 없습니다:", response.data);
           // 기본값으로 수동할당 설정 (관리자가 아닐 수 있음)
@@ -100,7 +75,6 @@ const QnaAdminDashboard = () => {
         }
       } catch (error) {
         console.error("❌ 상담원 상태 조회 오류:", error);
-        console.error("❌ 오류 상세:", error.response?.data || error.message);
 
         if (error.response?.status === 404) {
           console.warn("⚠️ 404 오류: 현재 사용자가 관리자로 등록되지 않았을 수 있습니다.");
@@ -117,9 +91,7 @@ const QnaAdminDashboard = () => {
         if (savedAutoAssignment !== null) {
           const fallbackValue = savedAutoAssignment === "true";
           setAutoAssignment(fallbackValue);
-          console.log(`🔄 API 오류로 localStorage 값 사용: ${fallbackValue ? "자동 할당" : "수동 할당"}`);
         } else {
-          console.log("⚠️ localStorage에도 저장된 상태가 없습니다. 기본값(자동할당) 사용");
           setAutoAssignment(true);
           localStorage.setItem("qnaAutoAssignment", "true");
         }
@@ -155,22 +127,19 @@ const QnaAdminDashboard = () => {
     }
 
     const socketUrl = "https://godlifelog.com/ws-stomp";
-    console.log("STOMP 연결 시도:", socketUrl);
 
     try {
-      // SockJS 객체 생성 - 더 많은 옵션 추가
+      // SockJS 객체 생성
       const socket = new SockJS(socketUrl, null, {
         transports: ["websocket", "xhr-streaming", "xhr-polling"],
-        timeout: 15000, // 타임아웃 늘리기
+        timeout: 15000,
       });
 
       // STOMP 클라이언트 생성
       const stompClient = Stomp.over(socket);
 
-      // 디버깅 활성화
-      stompClient.debug = function (str) {
-        console.log("STOMP 디버그:", str);
-      };
+      // STOMP 디버그 로그 비활성화
+      stompClient.debug = () => {};
 
       // 하트비트 설정 - Ngrok과의 연결 유지에 중요
       stompClient.heartbeat.outgoing = 30000; // 30초
@@ -178,7 +147,7 @@ const QnaAdminDashboard = () => {
 
       stompClientRef.current = stompClient;
 
-      // 연결 시도 - 접속 헤더 수정
+      // 연결 시도
       stompClient.connect(
         {
           Authorization: `Bearer ${accessToken}`,
@@ -187,24 +156,17 @@ const QnaAdminDashboard = () => {
         },
         (frame) => {
           setConnectionStatus("연결됨");
-          // 🔍 연결 후 상담원 할당 상태 다시 확인
-          console.log("🎯 WebSocket 연결 후 현재 할당 모드:", autoAssignment ? "자동" : "수동");
 
           // 자동할당 모드인 경우 서버에 상태 확인 및 알림
           if (autoAssignment) {
-            console.log("📡 자동할당 모드이므로 서버에 상태 확인 요청");
-
             // 현재 상담원 상태를 서버에 다시 확인
             setTimeout(async () => {
               try {
                 const statusResponse = await axiosInstance.get("/service/admin/get/status", {
                   headers: { Authorization: `Bearer ${accessToken}` },
                 });
-                console.log("🔍 WebSocket 연결 후 서버 상태 재확인:", statusResponse.data);
 
                 const serverAutoStatus = statusResponse.data?.message === "활성화";
-                console.log(`🎯 서버 자동할당 상태: ${serverAutoStatus ? "활성화" : "비활성화"}`);
-                console.log(`🎯 클라이언트 자동할당 상태: ${autoAssignment ? "활성화" : "비활성화"}`);
 
                 if (serverAutoStatus !== autoAssignment) {
                   console.warn("⚠️ 클라이언트-서버 상태 불일치 감지!");
@@ -224,8 +186,6 @@ const QnaAdminDashboard = () => {
           stompClient.subscribe("/sub/waitList", (message) => {
             try {
               let { waitQnA, status } = JSON.parse(message.body);
-              console.log("📥 대기중 문의 수신:", status, waitQnA);
-              console.log("대기중인 문의 수신 데이터 전체:", JSON.parse(message.body));
 
               if (!Array.isArray(waitQnA)) waitQnA = [waitQnA];
 
@@ -237,17 +197,7 @@ const QnaAdminDashboard = () => {
                   case "ADD": {
                     const newItems = waitQnA.filter((newItem) => !prevList.some((existing) => existing.qnaIdx === newItem.qnaIdx));
                     if (newItems.length > 0) {
-                      // 🚨 자동할당 모드인데 대기목록에 추가되는 경우 경고
                       if (autoAssignment) {
-                        console.warn("🚨 자동할당 모드인데 대기목록에 문의가 추가되었습니다!");
-                        console.warn("🚨 추가된 문의:", newItems);
-                        console.warn("🚨 현재 할당된 문의 수:", assignedList.length);
-                        console.warn("🚨 자동할당이 작동하지 않는 이유를 확인하세요:");
-                        console.warn("   - 상담원 온라인 상태");
-                        console.warn("   - 할당 가능한 문의 수 한도");
-                        console.warn("   - 문의 카테고리와 상담원 전문분야 매칭");
-                        console.warn("   - WebSocket 연결 상태");
-
                         showStatusMessage(
                           `⚠️ 자동할당 모드이지만 ${newItems.length}개 문의가 대기목록에 추가되었습니다. 설정을 확인해주세요.`,
                           "warning",
@@ -286,7 +236,6 @@ const QnaAdminDashboard = () => {
           stompClient.subscribe("/user/queue/matched/qna", (message) => {
             try {
               let { matchedQnA, status } = JSON.parse(message.body);
-              console.log("매칭된 문의 수신 데이터:", JSON.parse(message.body));
 
               if (!Array.isArray(matchedQnA)) matchedQnA = [matchedQnA];
 
@@ -298,7 +247,6 @@ const QnaAdminDashboard = () => {
                   case "ADD": {
                     const newItems = matchedQnA.filter((newItem) => !prevList.some((existing) => existing.qnaIdx === newItem.qnaIdx));
                     if (newItems.length > 0) {
-                      console.log("✅ 자동할당 성공! 새로운 문의가 할당되었습니다:", newItems);
                       showStatusMessage(`${newItems.length}개의 문의가 할당되었습니다.`, "success");
                     }
                     return [...prevList, ...newItems];
@@ -308,7 +256,6 @@ const QnaAdminDashboard = () => {
                     return prevList.filter((item) => !removeIds.includes(item.qnaIdx));
                   }
                   case "UPDATE": {
-                    const updateIds = matchedQnA.map((item) => item.qnaIdx);
                     return prevList.map((item) => {
                       const updatedItem = matchedQnA.find((update) => update.qnaIdx === item.qnaIdx);
                       return updatedItem ? updatedItem : item;
@@ -328,7 +275,6 @@ const QnaAdminDashboard = () => {
           // 3. 오류 처리 및 토큰 재발급
           stompClient.subscribe("/user/queue/admin/errors", async (message) => {
             const error = JSON.parse(message.body);
-            console.log("에러 메시지:", error);
             if (error.code === 4001) {
               try {
                 const response = await axiosInstance.post("/reissue", null, {
@@ -344,7 +290,6 @@ const QnaAdminDashboard = () => {
                   // 기존 연결 종료 후 재연결
                   if (stompClient?.connected) {
                     stompClient.disconnect(() => {
-                      console.log("STOMP 연결 재시도");
                       window.location.reload();
                     });
                   }
@@ -367,12 +312,10 @@ const QnaAdminDashboard = () => {
             }
           });
 
-          // 5. 댓글 응답 구독 (추가)
+          // 5. 댓글 응답 구독
           stompClient.subscribe("/user/queue/qna/reply/result", (message) => {
             try {
               const response = JSON.parse(message.body);
-              console.log("댓글 응답:", response);
-
               if (response.success) {
                 showStatusMessage("답변이 등록되었습니다.", "success");
               } else {
@@ -387,7 +330,6 @@ const QnaAdminDashboard = () => {
           stompClient.subscribe("/user/queue/message", (message) => {
             try {
               const data = JSON.parse(message.body);
-              console.log("메시지 수신:", data);
               showStatusMessage(data.message || message.body, "error");
             } catch (error) {
               showStatusMessage(message.body, "error");
@@ -398,13 +340,11 @@ const QnaAdminDashboard = () => {
           stompClient.subscribe("/user/queue/qna/admin/statistics", (message) => {
             try {
               const data = JSON.parse(message.body);
-              console.log("통계 데이터 수신:", data);
               setStats(data);
             } catch (error) {
               console.error("통계 데이터 처리 오류:", error);
             }
           });
-          //console.log("통계 구독 등록 완료");
 
           // 초기 데이터 요청
           stompClient.send("/pub/get/waitList/init", {}, JSON.stringify({}));
@@ -412,7 +352,6 @@ const QnaAdminDashboard = () => {
             Authorization: `Bearer ${accessToken}`,
           });
           stompClient.send("/pub/get/qna/statistics/init", { Authorization: `Bearer ${accessToken}` }, JSON.stringify({}));
-          //console.log(" 통계 데이터 요청 전송");
         },
         (error) => {
           console.error("❌ STOMP 연결 실패:", error);
@@ -444,7 +383,6 @@ const QnaAdminDashboard = () => {
 
       if (stompClientRef.current?.connected) {
         stompClientRef.current.disconnect(() => {
-          console.log("STOMP 연결 해제");
           setConnectionStatus("연결끊김");
         });
       }
@@ -469,9 +407,6 @@ const QnaAdminDashboard = () => {
       return;
     }
 
-    console.log(`🔄 할당 모드 전환 시작 - 현재 상태: ${autoAssignment ? "자동" : "수동"}`);
-    console.log(`🎯 예상 전환 결과: ${autoAssignment ? "수동" : "자동"}`);
-
     try {
       const response = await axiosInstance.patch(
         "/service/admin/switch/status",
@@ -479,21 +414,10 @@ const QnaAdminDashboard = () => {
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
 
-      console.log("📋 상태 전환 전체 응답:", response);
-      console.log("📋 상태 전환 응답 데이터:", response.data);
-
       // 응답에서 새로운 상태 확인
       if (response.data && response.data.message) {
-        // message가 "활성화"면 자동 할당, "비활성화"면 수동 할당
-        const newStatus = response.data.message === "활성화";
-
-        console.log(`🎯 전환 후 서버 상태: ${response.data.message}`);
-        console.log(`🎯 전환 후 파싱된 자동할당 여부: ${newStatus}`);
-        console.log(`🎯 이전 상태와 비교: ${autoAssignment} → ${newStatus}`);
-
-        // 🔧 강제 동기화: 서버 응답과 관계없이 현재 상태의 반대로 설정
+        // 🔧 강제 동기화: 현재 상태의 반대로 설정
         const expectedNewStatus = !autoAssignment;
-        console.log(`🔧 강제 동기화: 서버 응답(${newStatus}) 무시, 예상값(${expectedNewStatus}) 사용`);
 
         // 상태 업데이트
         setAutoAssignment(expectedNewStatus);
@@ -503,15 +427,6 @@ const QnaAdminDashboard = () => {
         const statusText = expectedNewStatus ? "자동 할당" : "수동 할당";
         showStatusMessage(`${statusText} 모드로 전환되었습니다.`, "success");
 
-        console.log(`✅ 할당 모드 변경 완료: ${expectedNewStatus ? "자동 할당(활성화)" : "수동 할당(비활성화)"}`);
-
-        // 🎯 자동할당으로 전환된 경우 추가 확인
-        if (expectedNewStatus === true) {
-          console.log("🚀 자동할당 모드로 전환됨 - 대기중인 문의 자동 할당 대기 중...");
-          console.log("📊 현재 대기중인 문의 수:", waitList.length);
-          console.log("📊 현재 할당된 문의 수:", assignedList.length);
-        }
-
         // 🔄 서버 상태 재확인 (3초 후)
         setTimeout(async () => {
           try {
@@ -519,13 +434,9 @@ const QnaAdminDashboard = () => {
               headers: { Authorization: `Bearer ${accessToken}` },
             });
             const serverStatus = statusResponse.data?.message === "활성화";
-            console.log(`🔄 3초 후 서버 상태 재확인: ${serverStatus ? "자동" : "수동"}`);
 
             if (serverStatus !== expectedNewStatus) {
               console.warn(`⚠️ 서버 상태 불일치 감지! 클라이언트: ${expectedNewStatus}, 서버: ${serverStatus}`);
-              // 필요시 서버 상태로 강제 동기화
-              // setAutoAssignment(serverStatus);
-              // localStorage.setItem("qnaAutoAssignment", serverStatus.toString());
             }
           } catch (error) {
             console.error("서버 상태 재확인 오류:", error);
@@ -545,7 +456,6 @@ const QnaAdminDashboard = () => {
       }
     } catch (error) {
       console.error("❌ 상태 전환 오류:", error);
-      console.error("❌ 오류 상세:", error.response?.data || error.message);
       showStatusMessage("상태 전환에 실패했습니다.", "error");
     }
   };
@@ -588,7 +498,6 @@ const QnaAdminDashboard = () => {
     if (selectedQna && stompClientRef.current?.connected) {
       try {
         stompClientRef.current?.send("/pub/close/detail", {}, JSON.stringify({}));
-        //console.log(`QnA ${selectedQna.qnaIdx}번 상세 종료 알림 전송`);
       } catch (error) {
         console.error("상세 종료 알림 실패:", error);
       }
@@ -607,19 +516,6 @@ const QnaAdminDashboard = () => {
             case "RELOAD":
               setQnaContent(body);
               setQnaReplies(comments || []);
-
-              // 🔍 디버깅: 댓글 데이터 확인
-              console.log("📥 RELOAD - 전체 댓글 데이터:", comments);
-              if (comments && comments.length > 0) {
-                comments.forEach((comment, index) => {
-                  console.log(`📝 댓글 ${index + 1}:`, {
-                    qnaReplyIdx: comment.qnaReplyIdx,
-                    userName: comment.userName,
-                    content: comment.content,
-                    createdAt: comment.createdAt,
-                  });
-                });
-              }
               break;
 
             case "MOD_BODY":
@@ -638,23 +534,9 @@ const QnaAdminDashboard = () => {
             case "ADD_COMM":
               if (Array.isArray(comments) && comments.length > 0) {
                 const newComment = comments[0];
-
-                // 🔍 디버깅: 새 댓글 데이터 확인
-                console.log("✨ 새 댓글 추가:", {
-                  qnaReplyIdx: newComment.qnaReplyIdx,
-                  userName: newComment.userName,
-                  content: newComment.content,
-                  createdAt: newComment.createdAt,
-                });
-
                 setQnaReplies((prev) => {
                   const exists = prev.some((c) => c.qnaReplyIdx === newComment.qnaReplyIdx);
-                  const updatedReplies = exists ? prev : [...prev, newComment];
-
-                  // 🔍 디버깅: 업데이트된 댓글 목록 확인
-                  console.log("📋 업데이트된 댓글 목록:", updatedReplies);
-
-                  return updatedReplies;
+                  return exists ? prev : [...prev, newComment];
                 });
               }
               break;
@@ -685,9 +567,7 @@ const QnaAdminDashboard = () => {
       return;
     }
 
-    // 상담원 답변 전송
     const qnaIdx = selectedQna.qnaIdx;
-    console.log(`문의 ${qnaIdx}번에 답변 전송 시도:`, replyText);
 
     // 현재 로그인한 사용자 정보 가져오기
     let userIdx = null;
@@ -696,14 +576,10 @@ const QnaAdminDashboard = () => {
       if (userInfoString) {
         const userInfo = JSON.parse(userInfoString);
         userIdx = userInfo.userIdx;
-        console.log("답변 작성자 userIdx:", userIdx);
       }
     } catch (e) {
       console.error("사용자 정보 파싱 오류:", e);
     }
-
-    // 정확한 API 엔드포인트로 직접 요청
-    console.log("지정된 API 엔드포인트(/qna/auth/comment/reply)로 답변 전송 시도");
 
     // 요청 데이터 구성
     const requestData = {
@@ -711,12 +587,9 @@ const QnaAdminDashboard = () => {
       content: replyText,
     };
 
-    // userIdx가 있으면 포함
     if (userIdx) {
       requestData.userIdx = userIdx;
     }
-
-    console.log("답변 요청 데이터:", requestData);
 
     axiosInstance
       .post("/qna/auth/comment/reply", requestData, {
@@ -725,13 +598,11 @@ const QnaAdminDashboard = () => {
         },
       })
       .then((response) => {
-        console.log("답변 등록 성공:", response);
         showStatusMessage("답변이 등록되었습니다.", "success");
         setReplyText("");
 
         // 데이터 갱신을 위해 상세 정보 다시 요청
         if (stompClientRef.current?.connected) {
-          // 약간의 지연 후 데이터 갱신 요청 (서버 처리 시간 고려)
           setTimeout(() => {
             stompClientRef.current.send(`/pub/get/matched/qna/detail/${qnaIdx}`, { Authorization: `Bearer ${accessToken}` }, null);
           }, 300);
@@ -741,21 +612,15 @@ const QnaAdminDashboard = () => {
         console.error("답변 등록 오류:", error);
 
         if (error.response) {
-          // 응답은 있지만 오류 상태인 경우
-          console.error("오류 응답:", error.response.status, error.response.data);
-
-          // 토큰 만료 등의 특정 오류 처리
           if (error.response.status === 401) {
             showStatusMessage("인증이 만료되었습니다. 다시 로그인해주세요.", "error");
           } else {
             showStatusMessage(error.response.data?.message || "답변 등록에 실패했습니다.", "error");
           }
         } else if (error.request) {
-          // 요청은 전송되었지만 응답이 없는 경우
           console.error("응답 없음:", error.request);
           showStatusMessage("서버에서 응답이 없습니다. 네트워크 연결을 확인해주세요.", "error");
         } else {
-          // 요청 생성 중 오류가 발생한 경우
           console.error("요청 오류:", error.message);
           showStatusMessage("요청 생성 중 오류가 발생했습니다.", "error");
         }
@@ -766,18 +631,15 @@ const QnaAdminDashboard = () => {
   const handleCompleteQna = () => {
     if (!selectedQna) return;
 
-    // 완료 처리 API 호출
     const qnaIdx = selectedQna.qnaIdx;
 
     axiosInstance
       .patch(`/qna/auth/complete/${qnaIdx}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          // Authorization: `Bearer ${accessToken}`,
         },
       })
       .then((response) => {
-        console.log("문의 완료 처리 성공:", response);
         showStatusMessage("문의가 완료 처리되었습니다.", "success");
 
         // 목록에서 해당 문의 상태 COMPLETE로 업데이트
@@ -809,8 +671,6 @@ const QnaAdminDashboard = () => {
         console.error("문의 완료 처리 오류:", error);
 
         if (error.response) {
-          console.error("오류 응답:", error.response.status, error.response.data);
-
           if (error.response.status === 401) {
             showStatusMessage("인증이 만료되었습니다. 다시 로그인해주세요.", "error");
           } else if (error.response.status === 404) {
