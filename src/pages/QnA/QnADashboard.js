@@ -382,6 +382,7 @@ const QnaAdminDashboard = () => {
         stompClientRef.current.disconnect(() => {
           setConnectionStatus("연결끊김");
         });
+        stompClientRef.current = null; // 새 useEffect 실행 시 조기 리턴 방지
       }
     };
   }, [accessToken]);
