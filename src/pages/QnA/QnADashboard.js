@@ -186,6 +186,7 @@ const QnaAdminDashboard = () => {
           "heart-beat": "30000,30000",
         },
         (frame) => {
+          setConnectionStatus("연결됨");
           // 🔍 연결 후 상담원 할당 상태 다시 확인
           console.log("🎯 WebSocket 연결 후 현재 할당 모드:", autoAssignment ? "자동" : "수동");
 
@@ -433,6 +434,7 @@ const QnaAdminDashboard = () => {
       if (stompClientRef.current?.connected) {
         stompClientRef.current.disconnect(() => {
           console.log("STOMP 연결 해제");
+          setConnectionStatus("연결끊김");
         });
       }
     };
