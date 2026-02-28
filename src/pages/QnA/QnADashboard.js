@@ -383,7 +383,18 @@ const QnaAdminDashboard = () => {
             }
           });
 
-          // 6. 통계 데이터 구독
+          // 6. 메시지 구독
+          stompClient.subscribe("/user/queue/message", (message) => {
+            try {
+              const data = JSON.parse(message.body);
+              console.log("메시지 수신:", data);
+              showStatusMessage(data.message || message.body, "error");
+            } catch (error) {
+              showStatusMessage(message.body, "error");
+            }
+          });
+
+          // 7. 통계 데이터 구독
           stompClient.subscribe("/user/queue/qna/admin/statistics", (message) => {
             try {
               const data = JSON.parse(message.body);
