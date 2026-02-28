@@ -550,6 +550,11 @@ const QnaAdminDashboard = () => {
 
     // 같은 QnA를 클릭한 경우 닫기
     if (selectedQna && selectedQna.qnaIdx === qna.qnaIdx) {
+      try {
+        stompClientRef.current?.send("/pub/close/detail", {}, JSON.stringify({}));
+      } catch (error) {
+        console.error("상세 종료 알림 실패:", error);
+      }
       setSelectedQna(null);
       setQnaContent(null);
       setQnaReplies([]);
