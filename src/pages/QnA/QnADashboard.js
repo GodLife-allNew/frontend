@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import axiosInstance from "@/shared/api/axiosInstance";
+import { reissueToken } from "@/shared/api/reissueToken";
 
 // 컴포넌트 임포트
 import StatsDashboard from "@/components/QnA/StatsDashboard";
@@ -42,7 +43,7 @@ const QnaAdminDashboard = () => {
   const selectedQnaRef = useRef(null);
 
   // localStorage에서 토큰과 사용자 정보 가져오기
-  const accessToken = localStorage.getItem("accessToken");
+  const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
   const currentUser = localStorage.getItem("userName") || "상담원";
 
   // selectedQna 변경 시 ref 동기화
@@ -277,25 +278,9 @@ const QnaAdminDashboard = () => {
             const error = JSON.parse(message.body);
             if (error.code === 4001) {
               try {
-                const response = await axiosInstance.post("/reissue", null, {
-                  withCredentials: true,
-                });
-
-                const newAccessToken = response.headers["authorization"];
-                if (newAccessToken) {
-                  const token = newAccessToken.replace("Bearer ", "");
-                  localStorage.setItem("accessToken", token);
-                  showStatusMessage("토큰이 재발급되었습니다.", "success");
-
-                  // 기존 연결 종료 후 재연결
-                  if (stompClient?.connected) {
-                    stompClient.disconnect(() => {
-                      window.location.reload();
-                    });
-                  }
-                } else {
-                  showStatusMessage("토큰 재발급에 실패했습니다.", "error");
-                }
+                const newToken = await reissueToken();
+                setAccessToken(newToken); // useEffect cleanup → 자동 재연결
+                showStatusMessage("토큰이 재발급되었습니다.", "success");
               } catch (err) {
                 console.error("토큰 갱신 중 에러:", err);
                 showStatusMessage("인증이 만료되었습니다.", "error");
@@ -330,6 +315,18 @@ const QnaAdminDashboard = () => {
           stompClient.subscribe("/user/queue/message", (message) => {
             try {
               const data = JSON.parse(message.body);
+              if (data.code === 4001) {
+                reissueToken()
+                  .then((newToken) => {
+                    setAccessToken(newToken); // useEffect cleanup → 자동 재연결
+                    showStatusMessage("토큰이 재발급되었습니다.", "success");
+                  })
+                  .catch((err) => {
+                    console.error("토큰 갱신 중 에러:", err);
+                    showStatusMessage("인증이 만료되었습니다.", "error");
+                  });
+                return;
+              }
               showStatusMessage(data.message || message.body, "error");
             } catch (error) {
               showStatusMessage(message.body, "error");
