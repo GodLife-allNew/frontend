@@ -536,7 +536,7 @@ const QnADetail = () => {
                 {/* 문의 내용 */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">문의 내용</h3>
-                  <div className="p-4 rounded-md bg-muted/50 whitespace-pre-wrap min-h-[150px]">{qnaDetail.body}</div>
+                  <div className="p-4 rounded-md bg-muted/50 min-h-[150px]" dangerouslySetInnerHTML={{ __html: qnaDetail.body }} />
                 </div>
 
                 <Separator />
