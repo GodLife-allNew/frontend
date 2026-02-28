@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 
 const StatsDashboard = ({ stats }) => {
   return (
@@ -22,21 +16,13 @@ const StatsDashboard = ({ stats }) => {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-blue-50 rounded-lg p-3">
                 <div className="text-sm text-blue-600 mb-1">나의 처리량</div>
-                <div className="text-2xl font-bold">
-                  {stats.today.completed}건
-                </div>
-                <div className="text-xs text-gray-500">
-                  평균: {stats.today.average}건
-                </div>
+                <div className="text-2xl font-bold">{stats?.myTodayTotal ?? "-"}건</div>
+                <div className="text-xs text-gray-500">평균: {stats?.myTodayTotal ?? "-"}건</div>
               </div>
               <div className="bg-green-50 rounded-lg p-3">
                 <div className="text-sm text-green-600 mb-1">평균 소요시간</div>
-                <div className="text-2xl font-bold">
-                  {stats.today.myAverageTime}
-                </div>
-                <div className="text-xs text-gray-500">
-                  평균: {stats.today.averageTime}
-                </div>
+                <div className="text-2xl font-bold">{stats?.recentDuration ?? "-"}</div>
+                <div className="text-xs text-gray-500">평균: {stats?.recentDuration ?? "-"}</div>
               </div>
             </div>
           </div>
@@ -47,23 +33,13 @@ const StatsDashboard = ({ stats }) => {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-purple-50 rounded-lg p-3">
                 <div className="text-sm text-purple-600 mb-1">나의 누적량</div>
-                <div className="text-2xl font-bold">
-                  {stats.month.completed}건
-                </div>
-                <div className="text-xs text-gray-500">
-                  평균: {stats.month.average}건
-                </div>
+                <div className="text-2xl font-bold">{stats?.avgQnaPerMonth ?? "3"}건</div>
+                <div className="text-xs text-gray-500">평균: {stats?.avgQnaPerMonth ?? "-"}건</div>
               </div>
               <div className="bg-orange-50 rounded-lg p-3">
-                <div className="text-sm text-orange-600 mb-1">
-                  평균 소요시간
-                </div>
-                <div className="text-2xl font-bold">
-                  {stats.month.myAverageTime}
-                </div>
-                <div className="text-xs text-gray-500">
-                  평균: {stats.month.averageTime}
-                </div>
+                <div className="text-sm text-orange-600 mb-1">평균 소요시간</div>
+                <div className="text-2xl font-bold">{stats?.myMonthDuration ?? "-"} </div>
+                <div className="text-xs text-gray-500">평균: {stats?.myMonthDuration ?? "-"} </div>
               </div>
             </div>
           </div>

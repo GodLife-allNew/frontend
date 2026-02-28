@@ -35,20 +35,21 @@ const QnaAdminDashboard = () => {
   const [isStatusVisible, setIsStatusVisible] = useState(false);
 
   // 통계 데이터 (실제로는 API에서 가져올 데이터)
-  const [stats, setStats] = useState({
-    today: {
-      completed: 12,
-      average: 8,
-      averageTime: "14분 35초",
-      myAverageTime: "11분 22초",
-    },
-    month: {
-      completed: 247,
-      average: 215,
-      averageTime: "15분 42초",
-      myAverageTime: "12분 18초",
-    },
-  });
+  // const [stats, setStats] = useState({
+  //   today: {
+  //     completed: 12,
+  //     average: 8,
+  //     averageTime: "14분 35초",
+  //     myAverageTime: "11분 22초",
+  //   },
+  //   month: {
+  //     completed: 247,
+  //     average: 215,
+  //     averageTime: "15분 42초",
+  //     myAverageTime: "12분 18초",
+  //   },
+  // });
+  const [stats, setStats] = useState({});
 
   // 참조 객체
   const stompClientRef = useRef(null);
@@ -381,11 +382,25 @@ const QnaAdminDashboard = () => {
             }
           });
 
+          // 6. 통계 데이터 구독
+          stompClient.subscribe("/user/queue/qna/admin/statistics", (message) => {
+            try {
+              const data = JSON.parse(message.body);
+              console.log("통계 데이터 수신:", data);
+              setStats(data);
+            } catch (error) {
+              console.error("통계 데이터 처리 오류:", error);
+            }
+          });
+          //console.log("통계 구독 등록 완료");
+
           // 초기 데이터 요청
           stompClient.send("/pub/get/waitList/init", {}, JSON.stringify({}));
           stompClient.send("/pub/get/matched/qna/init", {
             Authorization: `Bearer ${accessToken}`,
           });
+          stompClient.send("/pub/get/qna/statistics/init", { Authorization: `Bearer ${accessToken}` }, JSON.stringify({}));
+          //console.log(" 통계 데이터 요청 전송");
         },
         (error) => {
           console.error("❌ STOMP 연결 실패:", error);
@@ -560,7 +575,7 @@ const QnaAdminDashboard = () => {
     if (selectedQna && stompClientRef.current?.connected) {
       try {
         stompClientRef.current?.send("/pub/close/detail", {}, JSON.stringify({}));
-        console.log(`✅ QnA ${selectedQna.qnaIdx}번 상세 종료 알림 전송`);
+        //console.log(`QnA ${selectedQna.qnaIdx}번 상세 종료 알림 전송`);
       } catch (error) {
         console.error("상세 종료 알림 실패:", error);
       }
