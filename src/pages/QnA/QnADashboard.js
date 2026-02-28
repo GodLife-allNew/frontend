@@ -412,48 +412,14 @@ const QnaAdminDashboard = () => {
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
 
-      // 응답에서 새로운 상태 확인
-      if (response.data && response.data.message) {
-        // 🔧 강제 동기화: 현재 상태의 반대로 설정
-        const expectedNewStatus = !autoAssignment;
+      const newStatus = response.data?.message === "활성화";
+      setAutoAssignment(newStatus);
+      localStorage.setItem("qnaAutoAssignment", newStatus.toString());
 
-        // 상태 업데이트
-        setAutoAssignment(expectedNewStatus);
-        localStorage.setItem("qnaAutoAssignment", expectedNewStatus.toString());
-
-        // 메시지 표시
-        const statusText = expectedNewStatus ? "자동 할당" : "수동 할당";
-        showStatusMessage(`${statusText} 모드로 전환되었습니다.`, "success");
-
-        // 🔄 서버 상태 재확인 (3초 후)
-        setTimeout(async () => {
-          try {
-            const statusResponse = await axiosInstance.get("/service/admin/get/status", {
-              headers: { Authorization: `Bearer ${accessToken}` },
-            });
-            const serverStatus = statusResponse.data?.message === "활성화";
-
-            if (serverStatus !== expectedNewStatus) {
-              console.warn(`⚠️ 서버 상태 불일치 감지! 클라이언트: ${expectedNewStatus}, 서버: ${serverStatus}`);
-            }
-          } catch (error) {
-            console.error("서버 상태 재확인 오류:", error);
-          }
-        }, 3000);
-      } else {
-        // 응답에 메시지가 없는 경우
-        console.warn("⚠️ 서버 응답에 상태 메시지가 없습니다:", response.data);
-
-        // 그래도 클라이언트에서 토글 처리
-        const expectedNewStatus = !autoAssignment;
-        setAutoAssignment(expectedNewStatus);
-        localStorage.setItem("qnaAutoAssignment", expectedNewStatus.toString());
-
-        const statusText = expectedNewStatus ? "자동 할당" : "수동 할당";
-        showStatusMessage(`${statusText} 모드로 전환되었습니다.`, "success");
-      }
+      const statusText = newStatus ? "자동 할당" : "수동 할당";
+      showStatusMessage(`${statusText} 모드로 전환되었습니다.`, "success");
     } catch (error) {
-      console.error("❌ 상태 전환 오류:", error);
+      console.error("상태 전환 오류:", error);
       showStatusMessage("상태 전환에 실패했습니다.", "error");
     }
   };
