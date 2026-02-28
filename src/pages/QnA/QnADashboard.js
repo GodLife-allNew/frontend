@@ -382,6 +382,7 @@ const QnaAdminDashboard = () => {
         stompClientRef.current.disconnect(() => {
           setConnectionStatus("연결끊김");
         });
+        stompClientRef.current = null; // 새 useEffect 실행 시 조기 리턴 방지
       }
     };
   }, [accessToken]);
@@ -393,7 +394,7 @@ const QnaAdminDashboard = () => {
       return;
     }
 
-    stompClientRef.current.send(`/pub/take/waitQna/${qnaIdx}`, { Authorization: `Bearer ${accessToken}` }, JSON.stringify({}));
+    stompClientRef.current.send(`/pub/take/waitQna/${qnaIdx}`, { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }, JSON.stringify({}));
   };
 
   // 자동/수동 할당 모드 전환
@@ -466,7 +467,7 @@ const QnaAdminDashboard = () => {
 
     stompClientRef.current.send("/pub/get/waitList/init", {}, JSON.stringify({}));
     stompClientRef.current.send("/pub/get/matched/qna/init", {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
     });
 
     showStatusMessage("목록을 새로고침 중입니다...", "info");
@@ -553,7 +554,7 @@ const QnaAdminDashboard = () => {
       qnaSubscriptionRef.current = subscription;
 
       // QnA 상세 정보 요청
-      stompClientRef.current.send(`/pub/get/matched/qna/detail/${qna.qnaIdx}`, { Authorization: `Bearer ${accessToken}` }, null);
+      stompClientRef.current.send(`/pub/get/matched/qna/detail/${qna.qnaIdx}`, { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }, null);
     }
   };
 
@@ -601,7 +602,7 @@ const QnaAdminDashboard = () => {
         // 데이터 갱신을 위해 상세 정보 다시 요청
         if (stompClientRef.current?.connected) {
           setTimeout(() => {
-            stompClientRef.current.send(`/pub/get/matched/qna/detail/${qnaIdx}`, { Authorization: `Bearer ${accessToken}` }, null);
+            stompClientRef.current.send(`/pub/get/matched/qna/detail/${qnaIdx}`, { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }, null);
           }, 300);
         }
       })

@@ -13,6 +13,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shar
 import { AlertCircle, ArrowLeft, RefreshCw, Send, Pencil, Trash2, MessageSquare, Clock, CheckCircle, HelpCircle, Info } from "lucide-react";
 
 const QnADetail = () => {
+  const DEBUG = false; // 개발 시 true로 변경하여 디버그 로그 활성화
+
   // URL 파라미터에서 QnA ID 가져오기
   const { qnaIdx } = useParams();
   const navigate = useNavigate();
@@ -65,7 +67,7 @@ const QnADetail = () => {
     setError("");
 
     try {
-      console.log("QnA 상세 정보 요청 시작. qnaIdx:", qnaIdx);
+      DEBUG && console.log("QnA 상세 정보 요청 시작. qnaIdx:", qnaIdx);
 
       // axiosInstance를 사용하여 API 요청
       const response = await axiosInstance.get(`/qna/auth/${qnaIdx}`, {
@@ -74,12 +76,12 @@ const QnADetail = () => {
         },
       });
 
-      console.log("API 응답:", response);
+      DEBUG && console.log("API 응답:", response);
 
       if (response.status === 200) {
         // 응답 데이터 처리
         const data = response.data.message || response.data;
-        console.log("응답 데이터:", data);
+        DEBUG && console.log("응답 데이터:", data);
 
         setQnaDetail(data);
       } else {
@@ -89,8 +91,8 @@ const QnADetail = () => {
       console.error("QnA 상세 정보 불러오기 오류:", error);
 
       if (error.response) {
-        console.error("에러 응답:", error.response);
-        console.error("상태 코드:", error.response.status);
+        DEBUG && console.error("에러 응답:", error.response);
+        DEBUG && console.error("상태 코드:", error.response.status);
 
         if (error.response.status === 403) {
           setError("이 문의에 접근할 권한이 없습니다. 본인이 작성한 문의만 볼 수 있습니다.");
@@ -125,7 +127,7 @@ const QnADetail = () => {
       const userInfoString = localStorage.getItem("userInfo");
       if (userInfoString) {
         const userInfo = JSON.parse(userInfoString);
-        console.log("현재 로그인한 사용자 정보:", userInfo);
+        DEBUG && console.log("현재 로그인한 사용자 정보:", userInfo);
       }
     } catch (e) {
       console.error("사용자 정보 파싱 오류:", e);
@@ -150,14 +152,14 @@ const QnADetail = () => {
       if (userInfoString) {
         const userInfo = JSON.parse(userInfoString);
         userIdx = userInfo.userIdx;
-        console.log("댓글 작성자 userIdx:", userIdx);
+        DEBUG && console.log("댓글 작성자 userIdx:", userIdx);
       }
     } catch (e) {
       console.error("사용자 정보 파싱 오류:", e);
     }
 
     try {
-      console.log("댓글 작성 요청 시작. qnaIdx:", qnaIdx);
+      DEBUG && console.log("댓글 작성 요청 시작. qnaIdx:", qnaIdx);
 
       // 요청 데이터에 userIdx 포함
       const requestData = {
@@ -170,7 +172,7 @@ const QnADetail = () => {
         requestData.userIdx = userIdx;
       }
 
-      console.log("댓글 작성 요청 데이터:", requestData);
+      DEBUG && console.log("댓글 작성 요청 데이터:", requestData);
 
       // API 요청
       const response = await axiosInstance.post("/qna/auth/comment/reply", requestData, {
@@ -179,7 +181,7 @@ const QnADetail = () => {
         },
       });
 
-      console.log("댓글 작성 응답:", response);
+      DEBUG && console.log("댓글 작성 응답:", response);
 
       if (response.status === 200 || response.status === 201) {
         // 성공적으로 댓글이 작성됨
@@ -192,9 +194,9 @@ const QnADetail = () => {
       console.error("댓글 작성 오류:", error);
 
       if (error.response) {
-        console.error("에러 응답:", error.response);
-        console.error("상태 코드:", error.response.status);
-        console.error("에러 데이터:", error.response.data);
+        DEBUG && console.error("에러 응답:", error.response);
+        DEBUG && console.error("상태 코드:", error.response.status);
+        DEBUG && console.error("에러 데이터:", error.response.data);
 
         if (error.response.status === 403) {
           setError("댓글을 작성할 권한이 없습니다.");
@@ -224,7 +226,7 @@ const QnADetail = () => {
     setError("");
 
     try {
-      console.log("QnA 삭제 요청 시작. qnaIdx:", qnaIdx);
+      DEBUG && console.log("QnA 삭제 요청 시작. qnaIdx:", qnaIdx);
 
       // 삭제 API 호출
       const response = await axiosInstance.delete(`/qna/auth/delete/${qnaIdx}`, {
@@ -233,7 +235,7 @@ const QnADetail = () => {
         },
       });
 
-      console.log("삭제 API 응답:", response);
+      DEBUG && console.log("삭제 API 응답:", response);
 
       if (response.status === 200) {
         alert("문의가 성공적으로 삭제되었습니다.");
@@ -246,8 +248,8 @@ const QnADetail = () => {
       console.error("QnA 삭제 오류:", error);
 
       if (error.response) {
-        console.error("에러 응답:", error.response);
-        console.error("상태 코드:", error.response.status);
+        DEBUG && console.error("에러 응답:", error.response);
+        DEBUG && console.error("상태 코드:", error.response.status);
 
         if (error.response.status === 403) {
           setError("이 문의를 삭제할 권한이 없습니다. 본인이 작성한 문의만 삭제할 수 있습니다.");
@@ -553,19 +555,14 @@ const QnADetail = () => {
                   {qnaDetail.comments && qnaDetail.comments.length > 0 ? (
                     <div className="space-y-4">
                       {qnaDetail.comments.map((comment) => {
-                        // 콘솔에 댓글 데이터 출력하여 확인
-                        console.log("댓글 데이터:", comment);
-                        console.log("👤 userNick:", comment.userNick);
-                        console.log("🏷️ nickTag:", comment.nickTag);
-                        console.log("👤 기존 userName:", comment.userName);
-
                         // userNick + nickTag 조합으로 사용자명 생성
                         const displayName =
                           comment.userNick && comment.nickTag
                             ? `${comment.userNick}${comment.nickTag}`
                             : comment.userNick || comment.nickTag || comment.userName || "사용자";
 
-                        console.log("✨ 최종 표시명:", displayName);
+                        DEBUG && console.log("댓글 데이터:", comment);
+                        DEBUG && console.log("✨ 최종 표시명:", displayName);
 
                         // 관리자인지 사용자인지 구분 (필요시 백엔드에서 userType 필드 추가 가능)
                         const isAdmin = comment.userType === "ADMIN" || displayName.includes("상담원");
