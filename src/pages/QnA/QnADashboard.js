@@ -53,10 +53,16 @@ const QnaAdminDashboard = () => {
   // 참조 객체
   const stompClientRef = useRef(null);
   const qnaSubscriptionRef = useRef(null);
+  const selectedQnaRef = useRef(null);
 
   // localStorage에서 토큰과 사용자 정보 가져오기
   const accessToken = localStorage.getItem("accessToken");
   const currentUser = localStorage.getItem("userName") || "상담원";
+
+  // selectedQna 변경 시 ref 동기화
+  useEffect(() => {
+    selectedQnaRef.current = selectedQna;
+  }, [selectedQna]);
 
   // 현재 상담원의 자동 할당 상태 조회
   useEffect(() => {
@@ -394,6 +400,13 @@ const QnaAdminDashboard = () => {
     }
 
     return () => {
+      if (selectedQnaRef.current && stompClientRef.current?.connected) {
+        try {
+          stompClientRef.current.send("/pub/close/detail", {}, JSON.stringify({}));
+        } catch (error) {
+          console.error("상세 종료 알림 실패:", error);
+        }
+      }
       if (qnaSubscriptionRef.current) {
         try {
           qnaSubscriptionRef.current.unsubscribe();
