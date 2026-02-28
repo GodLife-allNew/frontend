@@ -550,15 +550,20 @@ const QnaAdminDashboard = () => {
 
     // 같은 QnA를 클릭한 경우 닫기
     if (selectedQna && selectedQna.qnaIdx === qna.qnaIdx) {
-      try {
-        stompClientRef.current?.send("/pub/close/detail", {}, JSON.stringify({}));
-      } catch (error) {
-        console.error("상세 종료 알림 실패:", error);
-      }
       setSelectedQna(null);
       setQnaContent(null);
       setQnaReplies([]);
       return;
+    }
+
+    // 다른 QnA 클릭 한 경우 기존 상세 종료 알림 전송
+    if (selectedQna && stompClientRef.current?.connected) {
+      try {
+        stompClientRef.current?.send("/pub/close/detail", {}, JSON.stringify({}));
+        console.log(`✅ QnA ${selectedQna.qnaIdx}번 상세 종료 알림 전송`);
+      } catch (error) {
+        console.error("상세 종료 알림 실패:", error);
+      }
     }
 
     setSelectedQna(qna);
