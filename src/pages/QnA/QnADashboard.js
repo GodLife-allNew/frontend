@@ -769,11 +769,30 @@ const QnaAdminDashboard = () => {
         console.log("문의 완료 처리 성공:", response);
         showStatusMessage("문의가 완료 처리되었습니다.", "success");
 
-        // 목록에서 해당 문의 상태 업데이트
+        // 목록에서 해당 문의 상태 COMPLETE로 업데이트
         setAssignedList((prev) => prev.map((item) => (item.qnaIdx === qnaIdx ? { ...item, qnaStatus: "COMPLETE" } : item)));
 
-        // 선택된 QnA 상태 업데이트
-        setSelectedQna((prev) => (prev ? { ...prev, qnaStatus: "COMPLETE" } : null));
+        // STOMP close/detail publish 후 상세 닫기
+        if (stompClientRef.current?.connected) {
+          try {
+            stompClientRef.current.send("/pub/close/detail", {}, JSON.stringify({}));
+          } catch (error) {
+            console.error("상세 종료 알림 실패:", error);
+          }
+        }
+
+        if (qnaSubscriptionRef.current) {
+          try {
+            qnaSubscriptionRef.current.unsubscribe();
+            qnaSubscriptionRef.current = null;
+          } catch (error) {
+            console.error("구독 해제 실패:", error);
+          }
+        }
+
+        setSelectedQna(null);
+        setQnaContent(null);
+        setQnaReplies([]);
       })
       .catch((error) => {
         console.error("문의 완료 처리 오류:", error);
