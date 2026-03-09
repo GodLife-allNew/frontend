@@ -8,10 +8,21 @@ import RoutineManager from "@/components/ServiceAdmin/contentsPage/RoutineM";
 import UserManager from "./AdminUser";
 import QnaAdminDashboard from "../QnA/QnADashboard";
 import NoticeListPage from "@/features/notice/pages/NoticeList";
+import useAdminPermission from "@/shared/hooks/useAdminPermission";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+} from "@/shared/components/ui/alert-dialog";
 
 const AdminDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { hasPermission, firstAllowedPage } = useAdminPermission();
 
   // localStorage에서 마지막 페이지 가져오기, 없으면 "추천 루틴관리" 기본값
   const getInitialPage = () => {
@@ -23,11 +34,22 @@ const AdminDashboard = () => {
   const [activePage, setActivePage] = useState(getInitialPage());
   const [contentMenuExpanded, setContentMenuExpanded] = useState(true); // 기본값 true로 변경
   const [userMenuExpanded, setUserMenuExpanded] = useState(false);
+  const [showPermissionDenied, setShowPermissionDenied] = useState(false);
 
   // activePage가 변경될 때마다 localStorage에 저장
   useEffect(() => {
     localStorage.setItem("adminActivePage", activePage);
   }, [activePage]);
+
+  // 초기 페이지 검증: 저장된 페이지가 권한 밖이면 첫 번째 허용 페이지로 폴백
+  useEffect(() => {
+    if (!hasPermission(activePage)) {
+      if (firstAllowedPage) {
+        setActivePage(firstAllowedPage);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggleMenu = () => {
     setMenuCollapsed(!menuCollapsed);
@@ -45,36 +67,70 @@ const AdminDashboard = () => {
     navigate("/");
   };
 
+  // 페이지 변경 시 권한 체크 래퍼
+  const handlePageChange = (pageName) => {
+    if (hasPermission(pageName)) {
+      setActivePage(pageName);
+    } else {
+      setShowPermissionDenied(true);
+    }
+  };
+
   // URL 파라미터에 따라 활성 페이지 설정
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tab = params.get("tab");
 
     if (tab === "faq") {
-      setActivePage("FAQ 관리");
+      handlePageChange("FAQ 관리");
     } else if (tab === "공지사항 관리") {
-      setActivePage("공지사항 관리");
-      setContentMenuExpanded(true);
+      if (hasPermission("공지사항 관리")) {
+        setActivePage("공지사항 관리");
+        setContentMenuExpanded(true);
+      } else {
+        setShowPermissionDenied(true);
+      }
     } else if (tab === "challenge") {
-      setActivePage("챌린지 관리");
-      setContentMenuExpanded(true);
+      if (hasPermission("챌린지 관리")) {
+        setActivePage("챌린지 관리");
+        setContentMenuExpanded(true);
+      } else {
+        setShowPermissionDenied(true);
+      }
     } else if (tab === "routine") {
-      setActivePage("추천 루틴관리");
-      setContentMenuExpanded(true);
+      if (hasPermission("추천 루틴관리")) {
+        setActivePage("추천 루틴관리");
+        setContentMenuExpanded(true);
+      } else {
+        setShowPermissionDenied(true);
+      }
     } else if (tab === "user") {
-      setActivePage("유저 관리");
-      setUserMenuExpanded(true);
+      if (hasPermission("유저 관리")) {
+        setActivePage("유저 관리");
+        setUserMenuExpanded(true);
+      } else {
+        setShowPermissionDenied(true);
+      }
     } else if (tab === "report") {
-      setActivePage("신고처리");
-      setUserMenuExpanded(true);
+      if (hasPermission("신고처리")) {
+        setActivePage("신고처리");
+        setUserMenuExpanded(true);
+      } else {
+        setShowPermissionDenied(true);
+      }
     } else if (tab === "permission") {
-      setActivePage("권한관리");
-      setUserMenuExpanded(true);
+      if (hasPermission("권한관리")) {
+        setActivePage("권한관리");
+        setUserMenuExpanded(true);
+      } else {
+        setShowPermissionDenied(true);
+      }
     } else if (tab === "inquiry") {
-      setActivePage("1:1 문의");
+      handlePageChange("1:1 문의");
     } else if (tab === "component") {
-      setActivePage("컴포넌트 관리");
+      handlePageChange("컴포넌트 관리");
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
   // 풀페이지 컴포넌트인지 확인
@@ -110,12 +166,12 @@ const AdminDashboard = () => {
               {contentMenuExpanded && !menuCollapsed && (
                 <ul>
                   <li className={`hover:bg-blue-700 ${activePage === "추천 루틴관리" ? "bg-blue-700" : ""}`}>
-                    <button onClick={() => setActivePage("추천 루틴관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
+                    <button onClick={() => handlePageChange("추천 루틴관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
                       <span>추천 루틴관리</span>
                     </button>
                   </li>
                   <li className={`hover:bg-blue-700 ${activePage === "챌린지 관리" ? "bg-blue-700" : ""}`}>
-                    <button onClick={() => setActivePage("챌린지 관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
+                    <button onClick={() => handlePageChange("챌린지 관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
                       <span>챌린지 관리</span>
                     </button>
                   </li>
@@ -125,7 +181,7 @@ const AdminDashboard = () => {
 
             {/* 컴포넌트 관리 */}
             <li className={`hover:bg-blue-700 ${activePage === "컴포넌트 관리" ? "bg-blue-700" : ""}`}>
-              <button onClick={() => setActivePage("컴포넌트 관리")} className="w-full flex items-center p-4 space-x-3 text-left">
+              <button onClick={() => handlePageChange("컴포넌트 관리")} className="w-full flex items-center p-4 space-x-3 text-left">
                 <FileText size={20} />
                 {!menuCollapsed && <span>컴포넌트 관리</span>}
               </button>
@@ -147,17 +203,17 @@ const AdminDashboard = () => {
               {userMenuExpanded && !menuCollapsed && (
                 <ul>
                   <li className={`hover:bg-blue-700 ${activePage === "유저 관리" ? "bg-blue-700" : ""}`}>
-                    <button onClick={() => setActivePage("유저 관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
+                    <button onClick={() => handlePageChange("유저 관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
                       <span>유저 관리</span>
                     </button>
                   </li>
                   <li className={`hover:bg-blue-700 ${activePage === "신고처리" ? "bg-blue-700" : ""}`}>
-                    <button onClick={() => setActivePage("신고처리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
+                    <button onClick={() => handlePageChange("신고처리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
                       <span>신고처리</span>
                     </button>
                   </li>
                   <li className={`hover:bg-blue-700 ${activePage === "권한관리" ? "bg-blue-700" : ""}`}>
-                    <button onClick={() => setActivePage("권한관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
+                    <button onClick={() => handlePageChange("권한관리")} className="w-full flex items-center p-3 pl-12 text-left text-sm">
                       <span>권한관리</span>
                     </button>
                   </li>
@@ -167,7 +223,7 @@ const AdminDashboard = () => {
 
             {/* FAQ 관리 */}
             <li className={`hover:bg-blue-700 ${activePage === "FAQ 관리" ? "bg-blue-700" : ""}`}>
-              <button onClick={() => setActivePage("FAQ 관리")} className="w-full flex items-center p-4 space-x-3 text-left">
+              <button onClick={() => handlePageChange("FAQ 관리")} className="w-full flex items-center p-4 space-x-3 text-left">
                 <FileText size={20} />
                 {!menuCollapsed && <span>FAQ 관리</span>}
               </button>
@@ -175,7 +231,7 @@ const AdminDashboard = () => {
 
             {/* 공지사항 관리 */}
             <li className={`hover:bg-blue-700 ${activePage === "공지사항 관리" ? "bg-blue-700" : ""}`}>
-              <button onClick={() => setActivePage("공지사항 관리")} className="w-full flex items-center p-4 space-x-3 text-left">
+              <button onClick={() => handlePageChange("공지사항 관리")} className="w-full flex items-center p-4 space-x-3 text-left">
                 <FileText size={20} />
                 {!menuCollapsed && <span>공지사항 관리</span>}
               </button>
@@ -183,7 +239,7 @@ const AdminDashboard = () => {
 
             {/* 1:1 문의 */}
             <li className={`hover:bg-blue-700 ${activePage === "1:1 문의" ? "bg-blue-700" : ""}`}>
-              <button onClick={() => setActivePage("1:1 문의")} className="w-full flex items-center p-4 space-x-3 text-left">
+              <button onClick={() => handlePageChange("1:1 문의")} className="w-full flex items-center p-4 space-x-3 text-left">
                 <MessageSquare size={20} />
                 {!menuCollapsed && <span>1:1 문의</span>}
               </button>
@@ -231,6 +287,19 @@ const AdminDashboard = () => {
           {activePage === "1:1 문의" && <QnaAdminDashboard />}
         </main>
       </div>
+
+      {/* 권한 부족 AlertDialog */}
+      <AlertDialog open={showPermissionDenied} onOpenChange={setShowPermissionDenied}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>접근 제한</AlertDialogTitle>
+            <AlertDialogDescription>권한이 부족합니다. 해당 페이지에 접근할 수 없습니다.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowPermissionDenied(false)}>확인</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

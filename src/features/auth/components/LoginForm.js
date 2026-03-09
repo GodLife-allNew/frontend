@@ -85,7 +85,7 @@ export const LoginForm = () => {
                         <div className="relative">
                           <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
-                            placeholder="your ID"
+                            placeholder="test1~10 / admin41~42"
                             className="pl-10"
                             {...field}
                           />
@@ -106,6 +106,7 @@ export const LoginForm = () => {
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
                             type={showPassword ? "text" : "password"}
+                            placeholder="1111"
                             className="pl-10 pr-10"
                             {...field}
                           />
