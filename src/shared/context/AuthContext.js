@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, useContext } from "react";
+import { getAuthorityIdx } from "@/shared/utils/jwtUtils";
 
 // Context 생성
 export const AuthContext = createContext(null);
@@ -25,6 +26,7 @@ export const AuthProvider = ({ children }) => {
           const userWithRole = {
             ...parsedUser,
             role: parsedUser.roleStatus === true ? "admin" : "user",
+            authorityIdx: getAuthorityIdx(),
           };
 
           setUser(userWithRole);
@@ -51,6 +53,7 @@ export const AuthProvider = ({ children }) => {
     const userWithRole = {
       ...userData,
       role: userData.roleStatus === true ? "admin" : "user",
+      authorityIdx: getAuthorityIdx(),
     };
     // 토큰 저장
     localStorage.setItem("accessToken", accessToken);
