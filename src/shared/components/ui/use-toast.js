@@ -77,6 +77,16 @@ export function ToastProvider({ children }) {
 
   const dismiss = (toastId) => {
     dispatch({ type: ToastActionType.DISMISS_TOAST, toastId });
+
+    // 기존 자동 제거 타이머를 취소하고 애니메이션 종료 후 즉시 제거
+    if (toastTimeouts.has(toastId)) {
+      clearTimeout(toastTimeouts.get(toastId));
+      toastTimeouts.delete(toastId);
+    }
+    const timeout = setTimeout(() => {
+      dispatch({ type: ToastActionType.REMOVE_TOAST, toastId });
+    }, 300);
+    toastTimeouts.set(toastId, timeout);
   };
 
   const addToRemoveQueue = (toastId) => {
