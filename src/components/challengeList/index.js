@@ -82,8 +82,8 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
     { value: "all", label: "모든 상태" },
     { value: "PUBLISHED", label: "게시중" },
     { value: "IN_PROGRESS", label: "진행중" },
-    { value: "FINISHED", label: "종료됨" },
-    { value: "WAITING", label: "대기중" },
+    { value: "FINISHED", label: "완료" },
+    { value: "END", label: "종료" },
   ];
 
   // 공개 상태 옵션
