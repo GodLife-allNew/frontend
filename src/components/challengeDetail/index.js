@@ -207,7 +207,10 @@ const ChallengeDetailForm = ({
         return false;
       }
 
-      const dateString = date.toISOString().split("T")[0];
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      const dateString = `${y}-${m}-${d}`;
       return verificationRecords.some((record) => {
         // startTime에서 날짜 부분 추출
         const recordDate = record.startTime
@@ -413,7 +416,7 @@ const ChallengeDetailForm = ({
       setVerifying(true);
 
       const today = new Date();
-      const todayString = today.toISOString().split("T")[0];
+      const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
       // 타입 가드 추가
       const isAlreadyVerified = Array.isArray(verificationRecords)
@@ -667,7 +670,10 @@ const ChallengeDetailForm = ({
     // 선택된 날짜가 있으면 해당 날짜의 기록만 필터링
     let displayRecords = verificationRecords;
     if (selectedDate) {
-      const selectedDateString = selectedDate.toISOString().split("T")[0];
+      const sy = selectedDate.getFullYear();
+      const sm = String(selectedDate.getMonth() + 1).padStart(2, "0");
+      const sd = String(selectedDate.getDate()).padStart(2, "0");
+      const selectedDateString = `${sy}-${sm}-${sd}`;
       displayRecords = verificationRecords.filter((record) => {
         // startTime에서 날짜 부분 추출
         const recordDate = record.startTime
@@ -812,7 +818,7 @@ const ChallengeDetailForm = ({
   // 인증 폼
   const VerificationForm = () => {
     const today = new Date();
-    const todayString = today.toISOString().split("T")[0];
+    const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
     // 타입 가드 추가
     const isAlreadyVerified = Array.isArray(verificationRecords)

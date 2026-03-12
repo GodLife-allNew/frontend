@@ -80,10 +80,10 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
   // 챌린지 상태 옵션
   const stateOptions = [
     { value: "all", label: "모든 상태" },
+    { value: "JOINED", label: "참여중" },
     { value: "PUBLISHED", label: "게시중" },
     { value: "IN_PROGRESS", label: "진행중" },
-    { value: "FINISHED", label: "종료됨" },
-    { value: "WAITING", label: "대기중" },
+    { value: "FINISHED", label: "완료" },
   ];
 
   // 공개 상태 옵션
@@ -101,7 +101,10 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
   ];
 
   // 상태 텍스트 매핑 함수
-  const getStatusText = (status) => {
+  const getStatusText = (status, isJoined = false) => {
+    if (isJoined && (status === "IN_PROGRESS" || status === "PUBLISHED")) {
+      return "참여중";
+    }
     const statusMap = {
       IN_PROGRESS: "진행중",
       PUBLISHED: "게시중",
@@ -119,10 +122,14 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
   };
 
   // 상태별 스타일 매핑 함수
-  const getStatusStyle = (status) => {
-    const normalizedStatus = getStatusText(status);
+  const getStatusStyle = (status, isJoined = false) => {
+    const normalizedStatus = getStatusText(status, isJoined);
 
     const styleMap = {
+      참여중: {
+        variant: "secondary",
+        className: "bg-emerald-100 text-emerald-800 border-emerald-200",
+      },
       진행중: {
         variant: "secondary",
         className: "bg-blue-100 text-blue-800 border-blue-200",
@@ -224,7 +231,15 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
       }
 
       // 챌린지 상태 필터
-      if (selectedState && selectedState !== "all") {
+      if (selectedState === "JOINED") {
+        // 내가 참여중인 챌린지 조회
+        if (!accessToken) {
+          toast({ title: "로그인 필요", description: "참여중인 챌린지는 로그인 후 조회할 수 있습니다.", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
+        params.onlyJoined = true;
+      } else if (selectedState && selectedState !== "all") {
         params.challState = selectedState;
       }
 
@@ -260,10 +275,12 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
       // console.log("🔍 최종 검색 파라미터:", params);
       // console.log("📡 API 호출 URL:", `/challenges/latest?${new URLSearchParams(params).toString()}`);
 
-      // 일반 유저용 최신 챌린지 조회
-      const response = await axiosInstance.get("/challenges/latest", {
-        params,
-      });
+      // 일반 유저용 최신 챌린지 조회 (로그인 상태면 항상 토큰 전송 → isJoined 표시용)
+      const requestConfig = { params };
+      if (accessToken) {
+        requestConfig.headers = { Authorization: `Bearer ${accessToken}` };
+      }
+      const response = await axiosInstance.get("/challenges/latest", requestConfig);
 
       if (response.data && typeof response.data === "object") {
         if (response.data.content && Array.isArray(response.data.content)) {
@@ -931,12 +948,14 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
 
       {challenges.length === 0 ? (
         <div className="text-center text-gray-500 py-10">
-          {searchTitle ||
-          searchCategory !== "all" ||
-          selectedState !== "all" ||
-          (roleStatus && selectedVisibility !== "all") ||
-          selectedType !== "all" ||
-          onlyEnded
+          {selectedState === "JOINED"
+            ? "참여중인 챌린지가 없습니다."
+            : searchTitle ||
+              searchCategory !== "all" ||
+              selectedState !== "all" ||
+              (roleStatus && selectedVisibility !== "all") ||
+              selectedType !== "all" ||
+              onlyEnded
             ? "검색 조건에 맞는 챌린지가 없습니다."
             : "현재 진행 중인 챌린지가 없습니다."}
         </div>
@@ -950,7 +969,7 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
                 console.log("전체 객체:", challenge);
               }
 
-              const statusStyle = getStatusStyle(challenge.challState);
+              const statusStyle = getStatusStyle(challenge.challState, challenge.isJoined);
 
               return (
                 <Card
@@ -984,7 +1003,7 @@ const ChallengeListPage = ({ onChallengeSelect, onCreateNew }) => {
                       <div className="flex items-center gap-2">
                         {challenge.challState && (
                           <Badge variant={statusStyle.variant} className={`text-xs ${statusStyle.className}`}>
-                            {getStatusText(challenge.challState)}
+                            {getStatusText(challenge.challState, challenge.isJoined)}
                           </Badge>
                         )}
 
