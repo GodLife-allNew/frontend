@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { User, FileText, MessageSquare, CheckCircle, Menu, ChevronDown, ChevronRight, Home } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import CompSystem from "@/components/ServiceAdmin/compSystem/compSystem";
-import FaqCategory from "@/components/ServiceAdmin/faqPage/faqCategory";
+import { FaqListContent } from "@/features/faq";
 import ChallengeManager from "@/components/ServiceAdmin/contentsPage/ChallengeM";
 import RoutineManager from "@/components/ServiceAdmin/contentsPage/RoutineM";
 import UserManager from "./AdminUser";
@@ -282,7 +282,7 @@ const AdminDashboard = () => {
             <UserManager initialTab={activePage} />
           )}
 
-          {activePage === "FAQ 관리" && <FaqCategory />}
+          {activePage === "FAQ 관리" && <FaqListContent isAdminMode={true} />}
           {activePage === "공지사항 관리" && <NoticeListPage isAdminMode={true} />}
           {activePage === "1:1 문의" && <QnaAdminDashboard />}
         </main>
